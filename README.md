@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏥 SmartClin — Multi-tenant SaaS para Gestão e Agendamentos Médicos
 
-## Getting Started
+Plataforma SaaS desenvolvida para automatizar a gestão de clínicas, agendamentos públicos de consultas e faturamento recorrente via assinaturas.
 
-First, run the development server:
+## 🎯 Sobre o Projeto
+O SmartClin resolve a gestão operacional de clínicas médicas. O sistema oferece um painel administrativo para controle de serviços e assinaturas, além de um portal público otimizado para que pacientes realizem agendamentos em tempo real sem conflitos de horários.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Stack Tecnológica
+   - Frontend: Next.js (App Router e Server Actions), TypeScript, Tailwind CSS, Shadcn/ui, TanStack Query
+   - Backend: Node.js (API Routes), Prisma ORM, Auth.js (OAuth2 com Google)
+   - Integradores: Stripe Billing e Webhooks, Cloud Storage, Vercel (CI/CD)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚡ Diferenciais Técnicos
+   - Padronização UTC Zero: Tratamento de fuso horário no banco para evitar conflitos de horários entre regiões.
+   - Idempotência no Stripe: Processamento seguro de webhooks para impedir duplicação de eventos e falhas de cobrança.
+   - Feature Gating: Limitação dinâmica de recursos e cadastros com base na assinatura ativa.
+   - Prevenção de Double-Booking: Algoritmo que cruza a agenda em tempo real para bloquear horários ocupados.
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+## 🏢 Módulos do Sistema
+   - Painel da Clínica:
+     - Perfil corporativo, janela de atendimento, fuso horário e logotipo
+     - CRUD de serviços com máscaras de moeda (BRL) e restrições de plano
+     - Dashboard de agendamentos e quadro interativo de lembretes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   - Portal do Paciente:
+     - Agendamento público em tempo real sem necessidade de criar conta
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   - Gestão SaaS Billing:
+     - Checkout transparente e portal do cliente via Stripe
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🌿 Estrutura de Branches (Git Flow)
+   - main ➔ Ambiente de Produção
+   - staging ➔ Ambiente de Homologação
+   - test ➔ Ambiente de Testes / QA
+   - develop ➔ Branch de Desenvolvimento   
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## 🚀 Como Executar Localmente
+   1. Clonar o repositório:
+      git clone https://github.com/robsonejsoares/smart-clin.git
+   
+   2. Entrar no diretório:
+      cd smart-clin
+   
+   3. Instalar as dependências:
+      npm install
+   
+   4. Configurar variáveis de ambiente:
+      cp .env.example .env.local
+   
+   5. Sincronizar o banco de dados:
+      npx prisma db push
+   
+   6. Iniciar o servidor de desenvolvimento:
+      npm run dev
+
+
+## 👨‍💻 Autor
+- Desenvolvedor: Robson Edvaldo José Soares
+- E-mail: robsoncsoares.1050@gmail.com
+- GitHub: https://github.com/robsonejsoares
+- LinkedIn: https://www.linkedin.com/in/robson-soares-b22513170/
