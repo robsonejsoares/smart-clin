@@ -15,7 +15,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import logoImg from "../../../../../public/logo-smart-clin.png";
+import nomeImg from "@/public/nome-smart-clin.png";
 import { Banknote, CalendarCheck2, Folder, List, Settings } from "lucide-react";
 
 
@@ -35,11 +35,12 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
 
                 <div className="mb-6 mt-4">
                     <Image
-                    src={logoImg}
-                    alt="Logo da SmartClin"
-                    priority
-                    quality={100}
-                    style={{ width: "auto", height: "auto" }}
+                        src="/nome-smart-clin.png"
+                        alt="Nome da SmartClin"
+                        width={160}
+                        height={40}
+                        className="w-auto h-auto"
+                        priority
                     />
                 </div>
 
