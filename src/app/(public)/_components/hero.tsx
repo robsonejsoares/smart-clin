@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import doctorImage from "../../../../public/doctor-hero.png"
 
 export function Hero() {
     return (
@@ -23,8 +22,8 @@ export function Hero() {
 
                     <div className="hidden lg:block">
                         <Image
-                            src={doctorImage}
-                            alt="Foto ilustrativa de um profissional da saúde"
+                            src="/logo-smart-clin.svg"
+                            alt="Logo SmartClin"
                             width={340}
                             height={400}
                             className="object-contain"
