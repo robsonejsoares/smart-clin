@@ -23,5 +23,8 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
+      - name: Verificar Lint
+        run: npm run lint
+
       - name: Verificar Build
         run: npm run build
