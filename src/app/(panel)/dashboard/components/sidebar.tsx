@@ -9,43 +9,46 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+
 import clsx from "clsx";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import nomeImg from "@/public/nome-smart-clin.png";
-import { Banknote, CalendarCheck2, Folder, List, Settings } from "lucide-react";
+import logoImg from "../../../../../public/nome-smart-clin.png";
+import { Banknote, CalendarCheck2, ChevronLeft, ChevronRight, Folder, List, Settings } from "lucide-react";
 
 
 export function SidebarDashboard({ children }: { children: React.ReactNode }) {
+
     const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
         <div className="flex min-h-screen w-full">
-
             <aside className={clsx("flex flex-col border-r bg-background transition-all duration-300 p-4 h-full", {
                 "w-20": isCollapsed,
                 "w-64": !isCollapsed,
                 "hidden md:flex md:fixed": true,
             })}
             >
-
                 <div className="mb-6 mt-4">
-                    <Image
-                        src="/nome-smart-clin.png"
-                        alt="Nome da SmartClin"
-                        width={160}
-                        height={40}
-                        className="w-auto h-auto"
-                        priority
-                    />
+                    {!isCollapsed && (
+                        <Image
+                            src={logoImg}
+                            alt="Nome da SmartClin"
+                            priority
+                            quality={100}
+                        />
+                    )}
                 </div>
-
             </aside>
-
             <div
                 className={clsx("flex flex-1 flex-col transition-all duration-300", {
                     "md:ml-20": isCollapsed,
@@ -56,22 +59,23 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                     <Sheet>
                         <div className="flex items-center gap-4">
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="md:hidden hover:bg-emerald-200 cursor-pointer h-12 w-12 p-0 bg-transparent">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="md:hidden hover:bg-emerald-200 cursor-pointer h-12 w-12 p-0 bg-transparent"
+                                    onClick={() => setIsCollapsed(!isCollapsed)}>
                                     <List className="w-5 h-5" />
                                 </Button>
                             </SheetTrigger>
-
                             <h1 className="text-base md:text-lg font-semibold">
                                 Menu SmartClin
                             </h1>
                         </div>
-
                         <SheetContent side="right" className="sm:max-w-xs text-black">
                             <SheetHeader>
                                 <SheetTitle>SmartClin</SheetTitle>
                                 <SheetDescription>Menu Administrativo</SheetDescription>
                             </SheetHeader>
-
                             <nav className="grid gap-2 text-base pt-5">
                                 <SidebarLink
                                     href="/dashboard"
@@ -80,7 +84,6 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                     isCollapsed={isCollapsed}
                                     icon={<CalendarCheck2 className="w-6 h-6" />}
                                 />
-
                                 <SidebarLink
                                     href="/dashboard/services"
                                     label="Serviços"
@@ -88,7 +91,6 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                     isCollapsed={isCollapsed}
                                     icon={<Folder className="w-6 h-6" />}
                                 />
-
                                 <SidebarLink
                                     href="/dashboard/profile"
                                     label="Meu Perfil"
@@ -96,7 +98,6 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                     isCollapsed={isCollapsed}
                                     icon={<Settings className="w-6 h-6" />}
                                 />
-
                                 <SidebarLink
                                     href="/dashboard/plan"
                                     label="Planos"
@@ -108,7 +109,6 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                         </SheetContent>
                     </Sheet>
                 </header>
-
                 <main className="flex-1 py-4 px-2 md:p-6">
                     {children}
                 </main>
