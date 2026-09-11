@@ -48,87 +48,6 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                         />
                     )}
                 </div>
-                <Button
-                    className="bg-gray-200 hover:bg-gray-100 text-zinc-900 self-end mb-2 cursor-pointer"
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                >
-                    {isCollapsed ? <ChevronRight className='w-12 h-12' /> : <ChevronLeft className='w-12 h-12' />}
-                </Button>
-
-                {/* Mostrar apenas quando a sidebar está recolhida */}
-
-                {isCollapsed && (
-                    <nav className="flex flex-col gap-1 overflow-hidden mt-2">
-                        <SidebarLink
-                            href="/dashboard"
-                            label="Agendamentos"
-                            pathname={pathname}
-                            isCollapsed={isCollapsed}
-                            icon={<CalendarCheck2 className="w-6 h-6" />}
-                        />
-                        <SidebarLink
-                            href="/dashboard/services"
-                            label="Serviços"
-                            pathname={pathname}
-                            isCollapsed={isCollapsed}
-                            icon={<Folder className="w-6 h-6" />}
-                        />
-                        <SidebarLink
-                            href="/dashboard/profile"
-                            label="Meu Perfil"
-                            pathname={pathname}
-                            isCollapsed={isCollapsed}
-                            icon={<Settings className="w-6 h-6" />}
-                        />
-                        <SidebarLink
-                            href="/dashboard/plan"
-                            label="Planos"
-                            pathname={pathname}
-                            isCollapsed={isCollapsed}
-                            icon={<Banknote className="w-6 h-6" />}
-                        />
-                    </nav>
-                )}
-                <Collapsible open={!isCollapsed}>
-                    <CollapsibleContent>
-                        <nav className="flex flex-col gap-1 overflow-hidden">
-                            <span className="text-sm text-gray-400 font-medium mt-1 uppercase">
-                                Painel
-                            </span>
-                            <SidebarLink
-                                href="/dashboard"
-                                label="Agendamentos"
-                                pathname={pathname}
-                                isCollapsed={isCollapsed}
-                                icon={<CalendarCheck2 className="w-6 h-6" />}
-                            />
-                            <SidebarLink
-                                href="/dashboard/services"
-                                label="Serviços"
-                                pathname={pathname}
-                                isCollapsed={isCollapsed}
-                                icon={<Folder className="w-6 h-6" />}
-                            />
-                            <span className="text-sm text-gray-400 font-medium mt-1 uppercase">
-                                Configurações
-                            </span>
-                            <SidebarLink
-                                href="/dashboard/profile"
-                                label="Meu Perfil"
-                                pathname={pathname}
-                                isCollapsed={isCollapsed}
-                                icon={<Settings className="w-6 h-6" />}
-                            />
-                            <SidebarLink
-                                href="/dashboard/plan"
-                                label="Planos"
-                                pathname={pathname}
-                                isCollapsed={isCollapsed}
-                                icon={<Banknote className="w-6 h-6" />}
-                            />
-                        </nav>
-                    </CollapsibleContent>
-                </Collapsible>
             </aside>
             <div
                 className={clsx("flex flex-1 flex-col transition-all duration-300", {
@@ -140,11 +59,14 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                     <Sheet>
                         <div className="flex items-center gap-4">
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="md:hidden hover:bg-emerald-200 cursor-pointer h-12 w-12 p-0 bg-transparent">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="md:hidden hover:bg-emerald-200 cursor-pointer h-12 w-12 p-0 bg-transparent"
+                                    onClick={() => setIsCollapsed(!isCollapsed)}>
                                     <List className="w-5 h-5" />
                                 </Button>
                             </SheetTrigger>
-
                             <h1 className="text-base md:text-lg font-semibold">
                                 Menu SmartClin
                             </h1>
