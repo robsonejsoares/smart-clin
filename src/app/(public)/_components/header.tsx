@@ -1,9 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { LogIn, Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
     Sheet,
     SheetContent,
@@ -13,13 +9,25 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 
+import Link from "next/link";
+import { useState } from "react";
+import { LogIn, Menu } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { handRegister } from "../_actions/login";
+
+
 export function Header() {
     const [isOpen, setIsOpen] = useState(false);
-    const session = null;
+    const { data: session, status } = useSession();
 
     const navItems = [
         { href: "#profissionais", label: "Profissionais" },
     ];
+
+    async function handleLogin() {
+        await handRegister("github");
+    }
 
     return (
         <header className="fixed top-0 right-0 left-0 z-[999] py-4 px-6 bg-emerald-50">
@@ -42,12 +50,17 @@ export function Header() {
                         </Button>
                     ))}
 
-                    {session ? (
-                        <Link href="/dashboard" className="flex items-center justify-center gap-2">
+                    {status === "loading" ? (
+                        <></>
+                    ) : session ? (
+                        <Link
+                            href="/dashboard"
+                            className="flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-700 text-white rounded-md px-4"
+                        >
                             Acessar Clínica
                         </Link>
                     ) : (
-                        <Button>
+                        <Button onClick={handleLogin} className="cursor-pointer">
                             <LogIn />
                             Portal da Clínica
                         </Button>
@@ -89,11 +102,13 @@ export function Header() {
                                 </Button>
                             ))}
 
-                            {session ? (
+                            {status === "loading" ? (
+                                <></>
+                            ) : session ? (
                                 <Link
                                     href="/dashboard"
                                     onClick={() => setIsOpen(false)}
-                                    className="flex items-center justify-center gap-2"
+                                    className="flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-700 text-white rounded-md px-4"
                                 >
                                     Acessar Clínica
                                 </Link>

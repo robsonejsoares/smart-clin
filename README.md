@@ -1,66 +1,73 @@
-# 🏥 SmartClin — Multi-tenant SaaS para Gestão e Agendamentos Médicos
+# 🏥 SmartClin — Multi-tenant SaaS para Gestão e Agendamento Clínico
 
-Plataforma SaaS desenvolvida para automatizar a gestão de clínicas, agendamentos públicos de consultas e faturamento recorrente via assinaturas.
+![CI Build](https://img.shields.io/github/actions/workflow/status/robsonejsoares/smart-clin/ci.yml?branch=develop&label=CI%20Build)
+![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)
+![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)
+![Coverage](https://img.shields.io/badge/Coverage-80%25+-brightgreen)
+![Compliance](https://img.shields.io/badge/Compliance-LGPD-green)
 
-## 🎯 Sobre o Projeto
-O SmartClin resolve a gestão operacional de clínicas médicas. O sistema oferece um painel administrativo para controle de serviços e assinaturas, além de um portal público otimizado para que pacientes realizem agendamentos em tempo real sem conflitos de horários.
+O **SmartClin** é uma plataforma SaaS multi-tenant voltada para a gestão operacional de clínicas, agendamento clínico público sem fricção e faturamento recorrente via assinaturas.
 
+---
 
-## 🛠️ Stack Tecnológica
-   - Frontend: Next.js (App Router e Server Actions), TypeScript, Tailwind CSS, Shadcn/ui, TanStack Query
-   - Backend: Node.js (API Routes), Prisma ORM, Auth.js (OAuth2 com Google)
-   - Integradores: Stripe Billing e Webhooks, Cloud Storage, Vercel (CI/CD)
+## 🛠️ Tech Stack & Arquitetura de Sistemas
 
+| Camada | Tecnologias Utilizadas |
+| :--- | :--- |
+| **Frontend** | Next.js (App Router & Server Actions), TypeScript, Tailwind CSS, Shadcn/ui, TanStack Query |
+| **Backend & ORM** | Node.js (API Routes), Prisma ORM |
+| **Processamento Assíncrono** | Redis, BullMQ (Lembretes de consultas e envio de e-mails) |
+| **Autenticação & Segurança** | Auth.js (OAuth2 Google), RBAC, LGPD Compliance (Audit Trail) |
+| **Pagamentos & SaaS** | Stripe Billing, Webhooks Idempotentes, Feature Gating |
+| **Testes & Qualidade** | Vitest, React Testing Library, Playwright (E2E), ESLint Enterprise |
+| **Infraestrutura & DevOps** | Docker, Docker Compose, Vercel, GitHub Actions (CI/CD), GitHub Rulesets |
 
-## ⚡ Diferenciais Técnicos
-   - Padronização UTC Zero: Tratamento de fuso horário no banco para evitar conflitos de horários entre regiões.
-   - Idempotência no Stripe: Processamento seguro de webhooks para impedir duplicação de eventos e falhas de cobrança.
-   - Feature Gating: Limitação dinâmica de recursos e cadastros com base na assinatura ativa.
-   - Prevenção de Double-Booking: Algoritmo que cruza a agenda em tempo real para bloquear horários ocupados.
+---
 
+## ⚡ Diferenciais Técnicos & Engenharia Enterprise
+
+* **Padronização UTC Zero**: Armazenamento e tratamento estrito de datas em UTC no banco de dados para evitar conflitos de fuso horário entre regiões.
+* **Prevenção de Double-Booking**: Algoritmo de cruzamento de agenda em tempo real que bloqueia instantaneamente horários concorrentes.
+* **Idempotência no Stripe**: Processamento seguro de webhooks para garantir que nenhum evento de cobrança seja duplicado ou perdido.
+* **Arquitetura Event-Driven**: Filas assíncronas via Redis para notificação automática de pacientes sem bloquear a resposta da API.
+* **Feature Gating**: Controle dinâmico de acesso a recursos e limites operacionais com base no plano contratado.
+* **Governança & CI/CD**: Esteira automatizada de lint, testes, build, regras estritas de Pull Request e proteção de branches (`main`, `develop`, `test`, `staging`).
+
+---
 
 ## 🏢 Módulos do Sistema
-   - Painel da Clínica:
-     - Perfil corporativo, janela de atendimento, fuso horário e logotipo
-     - CRUD de serviços com máscaras de moeda (BRL) e restrições de plano
-     - Dashboard de agendamentos e quadro interativo de lembretes
 
-   - Portal do Paciente:
-     - Agendamento público em tempo real sem necessidade de criar conta
+### 1. Painel Administrativo da Clínica
+* Perfil corporativo, janela de atendimento customizável e upload de logotipo.
+* Gestão (CRUD) de serviços de saúde com máscaras de moeda (BRL) e restrições por plano.
+* Dashboard interativo de agendamentos e quadro de lembretes.
 
-   - Gestão SaaS Billing:
-     - Checkout transparente e portal do cliente via Stripe
+### 2. Portal do Paciente (Agendamento Clínico Público)
+* Interface otimizada para agendamento clínico público em tempo real, sem necessidade de criação prévia de conta.
 
+### 3. Gestão SaaS & Billing
+* Checkout transparente e portal do cliente para gestão de assinaturas via Stripe.
 
-## 🌿 Estrutura de Branches (Git Flow)
-   - main ➔ Ambiente de Produção
-   - staging ➔ Ambiente de Homologação
-   - test ➔ Ambiente de Testes / QA
-   - develop ➔ Branch de Desenvolvimento   
+---
 
+## 📖 Documentação de API & DevOps
 
-## 🚀 Como Executar Localmente
-   1. Clonar o repositório:
-      git clone https://github.com/robsonejsoares/smart-clin.git
-   
-   2. Entrar no diretório:
-      cd smart-clin
-   
-   3. Instalar as dependências:
-      npm install
-   
-   4. Configurar variáveis de ambiente:
-      cp .env.example .env.local
-   
-   5. Sincronizar o banco de dados:
-      npx prisma db push
-   
-   6. Iniciar o servidor de desenvolvimento:
-      npm run dev
+* **Especificação OpenAPI / Swagger**: Rotas e schemas documentados em `/docs/swagger.json`.
+* **Governança DevOps completa**: Diretrizes de arquitetura, CI/CD e regras de branch em [`docs/DEVOPS.md`](./docs/DEVOPS.md).
 
+---
 
-## 👨‍💻 Autor
-- Desenvolvedor: Robson Edvaldo José Soares
-- E-mail: robsoncsoares.1050@gmail.com
-- GitHub: https://github.com/robsonejsoares
-- LinkedIn: https://www.linkedin.com/in/robson-soares-b22513170/
+## 🚀 Como Executar o Projeto Localmente
+
+### Pré-requisitos
+* Node.js 20+
+* Docker Desktop & Docker Compose
+* npm / pnpm / yarn
+
+### 1. Clonar o Repositório & Instalação
+```bash
+git clone https://github.com/robsonejsoares/smart-clin.git
+cd smart-clin
+npm ci

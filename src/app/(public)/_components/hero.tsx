@@ -22,11 +22,11 @@ export function Hero() {
 
                     <div className="hidden lg:block">
                         <Image
+                            className="object-contain w-full h-auto"
                             src="/logo-smart-clin.svg"
                             alt="Logo SmartClin"
-                            width={340}
+                            width={280}
                             height={400}
-                            className="object-contain"
                             priority
                         />
                     </div>
