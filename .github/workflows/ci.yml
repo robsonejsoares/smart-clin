@@ -4,11 +4,7 @@ on:
   push:
     branches: [ develop, test, staging, main ]
   pull_request:
-<<<<<<< HEAD
-    branches: [ develop ]
-=======
     branches: [ develop, test, staging, main ]
->>>>>>> origin/staging
 
 jobs:
   build-and-test:
