@@ -9,17 +9,24 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+
 import clsx from "clsx";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import nomeImg from "@/public/nome-smart-clin.png";
-import { Banknote, CalendarCheck2, Folder, List, Settings } from "lucide-react";
+import logoImg from "../../../../../public/nome-smart-clin.png";
+import { Banknote, CalendarCheck2, ChevronLeft, ChevronRight, Folder, List, Settings } from "lucide-react";
 
 
 export function SidebarDashboard({ children }: { children: React.ReactNode }) {
+
     const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -32,14 +39,14 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
             })}
             >
                 <div className="mb-6 mt-4">
-                    <Image
-                        src="/nome-smart-clin.png"
-                        alt="Nome da SmartClin"
-                        width={160}
-                        height={40}
-                        className="w-auto h-auto"
-                        priority
-                    />
+                    {!isCollapsed && (
+                        <Image
+                            src={logoImg}
+                            alt="Nome da SmartClin"
+                            priority
+                            quality={100}
+                        />
+                    )}
                 </div>
             </aside>
             <div
