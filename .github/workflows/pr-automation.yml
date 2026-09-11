@@ -2,10 +2,11 @@ name: PR Workflow Automation
 
 on:
   pull_request:
-    types: [opened, target_branch_changed]
+    types: [opened, edited]
 
 permissions:
   pull-requests: write
+  issues: write
   contents: read
 
 jobs:
