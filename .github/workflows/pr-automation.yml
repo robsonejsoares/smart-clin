@@ -2,7 +2,7 @@ name: PR Workflow Automation
 
 on:
   pull_request:
-    types: [opened, edited]
+    types: [opened, synchronize, reopened, edited]
 
 permissions:
   pull-requests: write
@@ -22,15 +22,19 @@ jobs:
           script: |
             const target = context.payload.pull_request.base.ref;
             const currentTitle = context.payload.pull_request.title;
-            
+
             const titles = {
-              'develop': `feat: integração de funcionalidade na develop`,
-              'test': `chore(release): promoção develop -> test`,
-              'staging': `chore(release): promoção test -> staging`,
-              'main': `chore(release): publicação final staging -> main`
+              develop: 'feat: integração de funcionalidade na develop',
+              test: 'chore(release): promoção develop -> test',
+              staging: 'chore(release): promoção test -> staging',
+              main: 'chore(release): publicação final staging -> main'
             };
 
-            if (titles[target] && (currentTitle.length < 10 || currentTitle.toLowerCase() === target)) {
+            if (
+              titles[target] &&
+              (currentTitle.length < 10 ||
+                currentTitle.toLowerCase() === target)
+            ) {
               await github.rest.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -39,75 +43,18 @@ jobs:
               });
             }
 
-      - name: Comentário de Aprovação Senior (Apenas Produção)
+      - name: Comentário de Aprovação Senior
         if: github.base_ref == 'main'
         uses: actions/github-script@v7
         with:
           script: |
-            const commentBody = `### 🧑‍💻 Senior Tech Lead / Release Approval\n\n` +
-              `**Status:** \`APPROVED\` ✅\n` +
-              `**Checklist de Engenharia:**\n` +
-              `- [x] Regras de arquitetura e padrões globais respeitados.\n` +
-              `- [x] Deploy de staging validado sem erros de runtime.\n` +
-              `- [x] Liberação para produção autorizada.`;
-
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body: commentBody
-            });
-name: PR Workflow Automation
-
-on:
-  pull_request:
-    types: [opened, synchronize, reopened, edited]
-
-permissions:
-  pull-requests: write
-  contents: read
-
-jobs:
-  automate-pr:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Código
-        uses: actions/checkout@v4
-
-      - name: Auto-Título por Branch de Destino
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const target = context.payload.pull_request.base.ref;
-            const currentTitle = context.payload.pull_request.title;
-            
-            const titles = {
-              'develop': `feat: integração de funcionalidade na develop`,
-              'test': `chore(release): promoção develop -> test`,
-              'staging': `chore(release): promoção test -> staging`,
-              'main': `chore(release): publicação final staging -> main`
-            };
-
-            if (titles[target] && (currentTitle.length < 10 || currentTitle.toLowerCase() === target)) {
-              await github.rest.pulls.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.payload.pull_request.number,
-                title: titles[target]
-              });
-            }
-
-      - name: Comentário de Aprovação Senior (Apenas Produção)
-        if: github.base_ref == 'main'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const commentBody = `### 🧑‍💻 Senior Tech Lead / Release Approval\n\n` +
-              `**Status:** \`APPROVED\` ✅\n` +
-              `**Checklist de Engenharia:**\n` +
-              `- [x] Regras de arquitetura e padrões globais respeitados.\n` +
-              `- [x] Deploy de staging validado sem erros de runtime.\n` +
-              `- [x] Liberação para produção autorizada.`;
+            const commentBody =
+              '### 🧑‍💻 Senior Tech Lead / Release Approval\n\n' +
+              '**Status:** `APPROVED` ✅\n' +
+              '**Checklist de Engenharia:**\n' +
+              '- [x] Regras de arquitetura e padrões globais respeitados.\n' +
+              '- [x] Deploy de staging validado sem erros de runtime.\n' +
+              '- [x] Liberação para produção autorizada.';
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
