@@ -1,0 +1,46 @@
+name: Validate Pull Request Flow
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches: [develop, test, staging, main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-pr-flow:
+    name: Validate branch promotion flow
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate source and target branches
+        env:
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+        shell: bash
+        run: |
+          is_valid=false
+
+          case "$TARGET_BRANCH" in
+            develop)
+              [[ "$SOURCE_BRANCH" == feature/* ]] && is_valid=true
+              ;;
+            test)
+              [[ "$SOURCE_BRANCH" == develop ]] && is_valid=true
+              ;;
+            staging)
+              [[ "$SOURCE_BRANCH" == test ]] && is_valid=true
+              ;;
+            main)
+              [[ "$SOURCE_BRANCH" == staging ]] && is_valid=true
+              ;;
+          esac
+
+          if [[ "$is_valid" != true ]]; then
+            echo "PR inválida: $SOURCE_BRANCH -> $TARGET_BRANCH"
+            echo "Fluxo permitido: feature/* -> develop -> test -> staging -> main"
+            exit 1
+          fi
+
+          echo "Fluxo de PR válido: $SOURCE_BRANCH -> $TARGET_BRANCH"
