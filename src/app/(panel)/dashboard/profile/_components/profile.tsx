@@ -37,7 +37,7 @@ import {
 import { cn } from "cn"
 import Image from "next/image"
 import { useState } from "react"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/generated/prisma/client"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { ArrowRight } from "lucide-react"
@@ -61,7 +61,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
 
     const form = useProfileForm({
         name: user.name,
-        address: user.address,
+        address: user.adress,
         phone: user.phone,
         status: user.status,
         timeZone: user.timeZone
