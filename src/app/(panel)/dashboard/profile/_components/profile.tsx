@@ -37,19 +37,35 @@ import {
 import { cn } from "cn"
 import Image from "next/image"
 import { useState } from "react"
+import { Prisma } from "@/generated/prisma/client"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { ArrowRight, Car } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useProfileForm } from "./profile-form"
-import imgTest from "../../../../../../public/foto1.png"
+import imgTest from "../../../../../../public/icone-criar-foto-perfil.webp"
+import { ProfileFormData, useProfileForm } from "./profile-form"
 
-export function ProfileContent() {
+type UserWithSubcription = Prisma.UserGetPayload<{
+    include: {
+        subscription: true;
+    };
+}>;
 
-    const [selectedHours, setSelectedHours] = useState<string[]>([]);
+interface ProfileContentProps {
+    user: UserWithSubcription;
+}
+
+export function ProfileContent({ user }: ProfileContentProps) {
+    const [selectedHours, setSelectedHours] = useState<string[]>(user.times ?? []);
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
-    const form = useProfileForm();
+    const form = useProfileForm({
+        name: user.name,
+        address: user.adress,
+        phone: user.phone,
+        status: user.status,
+        timeZone: user.timeZone
+    });
 
     function generateTimeSlots(): string[] {
         const hours: string[] = [];
@@ -95,10 +111,18 @@ export function ProfileContent() {
         brazilianTimeZones.includes(zone)
     );
 
+    async function onSubmit(values: ProfileFormData) {
+        const profileData = {
+            ...values,
+            times: selectedHours
+        };
+        console.log("Dados do formulário:", profileData);
+    }
+
     return (
         <div className="mx-auto">
             <Form {...form}>
-                <form>
+                <form onSubmit={form.handleSubmit(onSubmit)}>
                     <Card>
                         <CardHeader>
                             <CardTitle>
@@ -108,7 +132,8 @@ export function ProfileContent() {
                         <CardContent className="space-y-6">
                             <div className="flex justify-center">
                                 <div className="relative w-40 h-40 rounded-full overflow-hidden">
-                                    <Image src={imgTest}
+                                    <Image
+                                        src={user.image ? user.image : imgTest}
                                         alt="Foto de perfil"
                                         fill
                                         className="object-cover"
@@ -201,8 +226,8 @@ export function ProfileContent() {
                                                         <SelectValue placeholder="Selecione o status da clínica..." />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="active">Ativo (clínica aberta)</SelectItem>
-                                                        <SelectItem value="inactive">Inativo(clínica fechada)</SelectItem>
+                                                        <SelectItem value="active">Ativa (clínica aberta)</SelectItem>
+                                                        <SelectItem value="inactive">Inativa (clínica fechada)</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
@@ -248,7 +273,7 @@ export function ProfileContent() {
                                                 </div>
                                             </section>
                                             <Button
-                                                className="w-full cursor-pointer"
+                                                className="w-full cursor-pointer bg-emerald-500 hover:bg-emerald-400"
                                                 onClick={() => setDialogIsOpen(false)}
                                             >
                                                 Fechar Modal
@@ -285,6 +310,12 @@ export function ProfileContent() {
                                         </FormItem>
                                     )}
                                 />
+                                <Button
+                                    type="submit"
+                                    className="w-full cursor-pointer bg-emerald-500 hover:bg-emerald-400"
+                                >
+                                    Salvar Alterações
+                                </Button>
                             </div>
                         </CardContent>
                     </Card>
