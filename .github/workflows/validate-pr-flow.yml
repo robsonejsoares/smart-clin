@@ -24,7 +24,7 @@ jobs:
 
           case "$TARGET_BRANCH" in
             develop)
-              [[ "$SOURCE_BRANCH" == feature/* ]] && is_valid=true
+              [[ "$SOURCE_BRANCH" =~ ^(feature|feat|fix|hotfix|docs|style|refactor|perf|test|build|ci|chore|revert)/.+$ ]] && is_valid=true
               ;;
             test)
               [[ "$SOURCE_BRANCH" == develop ]] && is_valid=true
@@ -39,7 +39,7 @@ jobs:
 
           if [[ "$is_valid" != true ]]; then
             echo "PR inválida: $SOURCE_BRANCH -> $TARGET_BRANCH"
-            echo "Fluxo permitido: feature/* -> develop -> test -> staging -> main"
+            echo "Fluxo permitido: <tipo>/* -> develop -> test -> staging -> main"
             exit 1
           fi
 

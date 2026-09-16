@@ -10,8 +10,14 @@ Este documento define as diretrizes obrigatórias de governança de código, arq
 * **`staging`**: Ambiente de pré-produção/homologação para validação final.
 * **`test`**: Ambiente isolado para execução de testes integrados e validações de QA.
 * **`develop`**: Branch principal de integração do desenvolvimento contínuo.
-* **`feature/*`**: Branches temporárias para novas funcionalidades (ex: `feature/agendamento-consulta`).
-* **`fix/*` / `hotfix/*`**: Branches para correção de falhas em ambiente de testes ou produção.
+* **Branches de trabalho**: O nome deve obrigatoriamente usar um dos prefixos `feature/*`, `feat/*`, `fix/*`, `hotfix/*`, `docs/*`, `style/*`, `refactor/*`, `perf/*`, `test/*`, `build/*`, `ci/*`, `chore/*` ou `revert/*`, conforme o tipo da alteração. Exemplo: `feature/agendamento-consulta`. Branches sem prefixo, como `acao-onsubmit-do-formulario`, não são válidas para PR.
+* **Branches de promoção**: Somente os nomes exatos `develop`, `test`, `staging` e `main` são válidos na sequência `develop` -> `test` -> `staging` -> `main`.
+
+Os prefixos de branch são relacionados aos tipos de Conventional Commits, mas são regras independentes: o prefixo da branch descreve o trabalho da PR e o tipo do commit descreve cada commit.
+
+### Templates de Pull Request
+
+O repositório mantém quatro templates, um para cada etapa do fluxo: `feature/*` ou outro prefixo de trabalho -> `develop`, `develop` -> `test`, `test` -> `staging` e `staging` -> `main`. O GitHub não seleciona templates automaticamente por branch; o workflow de PR aplica o template correspondente quando a descrição está vazia e preserva qualquer conteúdo já preenchido.
 
 ---
 
@@ -134,7 +140,7 @@ Localizada em `.github/workflows/ci.yml`. Disparada em todo `push` ou `pull_requ
 - [x] Arquitetura de Branches e Git Flow Enterprise
 - [x] Rulesets de Proteção de Branches (Integração e Produção)
 - [x] Pipeline Base de CI (`ci.yml`)
-- [ ] Template de Pull Request (`.github/PULL_REQUEST_TEMPLATE.md`)
+- [x] Templates de Pull Request por fluxo (`.github/PULL_REQUEST_TEMPLATE/`), aplicados automaticamente pelo workflow de PR
 - [ ] Templates de Issues (`.github/ISSUE_TEMPLATE/`)
 - [ ] Git Hooks Locais (Husky + Commitlint)
 - [ ] Configuração do `CODEOWNERS` (`.github/CODEOWNERS`)
