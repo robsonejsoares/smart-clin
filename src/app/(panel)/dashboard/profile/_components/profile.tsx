@@ -36,14 +36,17 @@ import {
 
 import { cn } from "cn"
 import Image from "next/image"
+import { toast } from "sonner"
 import { useState } from "react"
-import { Prisma } from "@/generated/prisma/client"
+import { ArrowRight } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import imgTest from "../../../../../../public/icone-criar-foto-perfil.webp"
+import { formatPhone } from "@/utils/formatPhone"
+import { Prisma } from "@/generated/prisma/client"
+import { updateProfile } from "../_actions/update-profile"
 import { ProfileFormData, useProfileForm } from "./profile-form"
+import imgTest from "../../../../../../public/icone-criar-foto-perfil.webp"
 
 type UserWithSubcription = Prisma.UserGetPayload<{
     include: {
@@ -112,11 +115,21 @@ export function ProfileContent({ user }: ProfileContentProps) {
     );
 
     async function onSubmit(values: ProfileFormData) {
-        const profileData = {
-            ...values,
-            times: selectedHours
-        };
-        console.log("Dados do formulário:", profileData);
+        const response = await updateProfile({
+            name: values.name,
+            address: values.address,
+            status: values.status === "active" ? true : false,
+            phone: values.phone,
+            timeZone: values.timeZone,
+            times: selectedHours || [],
+        })
+
+        if (response.error) {
+            toast.error(response.error);
+            return;
+        }
+
+        toast.success(response.data)
     }
 
     return (
@@ -195,13 +208,10 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                             <FormControl>
                                                 <Input
                                                     {...field}
-                                                    placeholder="Digite o telefone..."
+                                                    placeholder="(61) 99501-5804"
                                                     onChange={(event) => {
-                                                        const apenasTelefone = event.target.value.replace(
-                                                            /[^0-9()+\s-]/g,
-                                                            ""
-                                                        );
-                                                        field.onChange(apenasTelefone);
+                                                        const formattedValue = formatPhone(event.target.value);
+                                                        field.onChange(formattedValue);
                                                     }}
                                                 />
                                             </FormControl>
