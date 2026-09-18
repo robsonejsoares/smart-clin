@@ -27,7 +27,6 @@ import {
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -230,7 +229,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                             <FormControl>
                                                 <Select
                                                     onValueChange={field.onChange}
-                                                    defaultValue="active"
+                                                    defaultValue={field.value}
                                                 >
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Selecione o status da clínica..." />

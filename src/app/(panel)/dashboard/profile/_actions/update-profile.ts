@@ -39,7 +39,7 @@ export async function updateProfile(formData: FormSchema) {
             },
             data: {
                 name: formData.name,
-                address: formData.address,
+                adress: formData.address,
                 phone: formData.phone,
                 status: formData.status,
                 timeZone: formData.timeZone,
@@ -53,7 +53,7 @@ export async function updateProfile(formData: FormSchema) {
             data: "Clínica atualizada com sucesso.",
         }
 
-    } catch (error) {
+    } catch {
         return {
             error: "Ocorreu um erro ao atualizar a clínica.",
         };
