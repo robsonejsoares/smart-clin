@@ -50,12 +50,12 @@ export async function updateProfile(formData: FormSchema) {
         revalidatePath("/dashboard/profile");
 
         return {
-            data: "Clínica atualizada com sucesso.",
+            data: "Alteração realizada com sucesso.",
         }
 
     } catch {
         return {
-            error: "Ocorreu um erro ao atualizar a clínica.",
+            error: "Ocorreu um erro ao realizar a alteração.",
         };
     }
 }

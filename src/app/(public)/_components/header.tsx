@@ -30,7 +30,7 @@ export function Header() {
     }
 
     return (
-        <header className="fixed top-0 right-0 left-0 z-[999] py-4 px-6 bg-emerald-50">
+        <header className="fixed top-0 right-0 left-0 z-999 py-4 px-6 bg-emerald-50">
             <div className="container mx-auto flex items-center justify-between">
                 <Link href="/" className="text-3xl font-bold text-zinc-900">
                     Smart<span className="text-emerald-500">Clin</span>
@@ -81,7 +81,7 @@ export function Header() {
 
                     <SheetContent
                         side="right"
-                        className="w-[240px] sm:w-[300px] z-[9999] [&>button]:cursor-pointer [&>button]:hover:bg-gray-200 [&>button]:rounded-lg [&>button]:p-2 [&>button]:transition-colors"
+                        className="w-60 sm:w-75 z-9999 [&>button]:cursor-pointer [&>button]:hover:bg-gray-200 [&>button]:rounded-lg [&>button]:p-2 [&>button]:transition-colors"
                     >
                         <SheetHeader>
                             <SheetTitle>Menu</SheetTitle>
