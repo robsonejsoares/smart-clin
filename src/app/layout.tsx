@@ -37,6 +37,9 @@ export default function RootLayout({
           <Toaster
             duration={2500}
           />
+          <Toaster
+            duration={2500}
+          />
           {children}
         </SessionAuthProvider>
       </body>
