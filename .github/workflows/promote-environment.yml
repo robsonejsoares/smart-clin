@@ -1,0 +1,128 @@
+name: Promote Environment Branch
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: read
+
+jobs:
+  promote:
+    name: Promote approved environment
+    if: >
+      github.event.review.state == 'approved' &&
+      (
+        (github.event.pull_request.base.ref == 'test' &&
+         github.event.pull_request.head.ref == 'develop') ||
+        (github.event.pull_request.base.ref == 'staging' &&
+         github.event.pull_request.head.ref == 'test') ||
+        (github.event.pull_request.base.ref == 'main' &&
+         github.event.pull_request.head.ref == 'staging')
+      )
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validar PR
+        env:
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+        run: |
+          echo "Origem : $SOURCE_BRANCH"
+          echo "Destino: $TARGET_BRANCH"
+
+          case "$TARGET_BRANCH" in
+            test)
+              [[ "$SOURCE_BRANCH" == "develop" ]] || exit 1
+              ;;
+            staging)
+              [[ "$SOURCE_BRANCH" == "test" ]] || exit 1
+              ;;
+            main)
+              [[ "$SOURCE_BRANCH" == "staging" ]] || exit 1
+              ;;
+            *)
+              echo "Destino inválido."
+              exit 1
+              ;;
+          esac
+
+      - name: Criar token do GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.SMART_CLIN_APP_ID }}
+          private-key: ${{ secrets.SMART_CLIN_APP_PRIVATE_KEY }}
+
+      - name: Verificar checks do PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          echo "Verificando checks do PR #$PR_NUMBER..."
+
+          conclusion="$(gh api \
+            "/repos/$OWNER/$REPO/commits/${{ github.event.pull_request.head.sha }}/check-runs" \
+            --jq '[.check_runs[] | select(.name == "build-and-test") | .conclusion] | last // "missing"')"
+
+          echo "build-and-test: $conclusion"
+
+          if [[ "$conclusion" != "success" ]]; then
+            echo "O check obrigatório build-and-test não está concluído com sucesso."
+            exit 1
+          fi
+
+      - name: Promover branch por fast-forward
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          echo "Promovendo:"
+          echo "  $SOURCE_BRANCH ($SOURCE_SHA)"
+          echo "        ↓"
+          echo "  $TARGET_BRANCH"
+
+          gh api \
+            --method PATCH \
+            "/repos/$OWNER/$REPO/git/refs/heads/$TARGET_BRANCH" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            -f sha="$SOURCE_SHA" \
+            -F force=false
+
+          echo "Promoção concluída."
+
+      - name: Confirmar SHA das branches
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          source_sha="$(gh api \
+            "/repos/$OWNER/$REPO/git/ref/heads/$SOURCE_BRANCH" \
+            --jq '.object.sha')"
+
+          target_sha="$(gh api \
+            "/repos/$OWNER/$REPO/git/ref/heads/$TARGET_BRANCH" \
+            --jq '.object.sha')"
+
+          echo "Origem : $source_sha"
+          echo "Destino: $target_sha"
+
+          if [[ "$source_sha" != "$target_sha" ]]; then
+            echo "ERRO: origem e destino possuem SHAs diferentes."
+            exit 1
+          fi
+
+          echo "OK: origem e destino possuem exatamente o mesmo SHA."
+          
