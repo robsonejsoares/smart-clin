@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Toaster, toast } from 'sonner'
+import { Toaster } from 'sonner'
 import { Geist, Geist_Mono } from "next/font/google";
 import { SessionAuthProvider } from "@/components/session-auth";
 
@@ -34,6 +34,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <SessionAuthProvider>
+          <Toaster
+            duration={2500}
+          />
           <Toaster
             duration={2500}
           />
