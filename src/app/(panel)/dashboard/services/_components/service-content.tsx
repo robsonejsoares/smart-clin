@@ -9,7 +9,7 @@ export async function ServicesContent({ userId }: ServicesContentProps) {
 
     const services = await getAllServices({ userId: userId })
 
-    console.log("vamos ter que retirar isso aqui", services)
+    console.log("teste-historico-linear-pr", services)
 
     return (
         <ServicesList />
