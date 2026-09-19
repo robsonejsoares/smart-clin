@@ -34,15 +34,20 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
             >
                 <div className="mb-6 mt-4">
                     {!isCollapsed && (
-                        <Image
-                            src={logoImg}
-                            alt="Nome da SmartClin"
-                            priority
-                            quality={100}
-                        />
+                        <Link
+                            href="/"
+                            aria-label="Ir para a página inicial"
+                            title="Ir para a página inicial"
+                        >
+                            <Image
+                                src={logoImg}
+                                alt="Nome da SmartClin"
+                                priority
+                                quality={100}
+                            />
+                        </Link>
                     )}
                 </div>
-
                 <Button
                     variant="ghost"
                     size="icon"

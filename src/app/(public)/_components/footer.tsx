@@ -1,5 +1,3 @@
-import { Professionals } from "./professionals";
-
 export function Footer() {
     return (
         <footer className="py-2 text-center text-gray-500 text-sm md:text-base bg-emerald-50">

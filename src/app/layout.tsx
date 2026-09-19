@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Toaster, toast } from 'sonner'
+import { Toaster } from 'sonner'
 import { Geist, Geist_Mono } from "next/font/google";
 import { SessionAuthProvider } from "@/components/session-auth";
 

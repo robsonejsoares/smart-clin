@@ -244,6 +244,35 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={form.control}
+                                    name="timeZone"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="font-semibold">
+                                                Selecione o fuso horário
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    onValueChange={field.onChange}
+                                                    defaultValue={field.value}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecione o fuso horário... " />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {timeZones.map((zone) => (
+                                                            <SelectItem key={zone} value={zone} className="cursor-pointer">
+                                                                {zone}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                                 <div className="space-y-2">
                                     <Label className="font-semibold">
                                         Configurar Horário de Funcionamento
@@ -290,35 +319,6 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                         </DialogContent>
                                     </Dialog>
                                 </div>
-                                <FormField
-                                    control={form.control}
-                                    name="timeZone"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="font-semibold">
-                                                Selecione o fuso horário
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Select
-                                                    onValueChange={field.onChange}
-                                                    defaultValue={field.value}
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Selecione o fuso horário... " />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {timeZones.map((zone) => (
-                                                            <SelectItem key={zone} value={zone} className="cursor-pointer">
-                                                                {zone}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
                                 <Button
                                     type="submit"
                                     className="w-full cursor-pointer bg-emerald-500 hover:bg-emerald-400"
