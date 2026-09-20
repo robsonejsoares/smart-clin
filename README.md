@@ -74,3 +74,5 @@ npm ci
 # Teste CODEOWNERS
 
 # Teste de criação automática de PR
+
+<!-- Teste da automação de promoção -->
