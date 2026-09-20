@@ -330,7 +330,6 @@ jobs:
             --base "$NEXT_TARGET" \
             --head "$SOURCE_BRANCH" \
             --title "Promote $SOURCE_BRANCH -> $NEXT_TARGET" \
-            --body "Promoção automática do ambiente $SOURCE_BRANCH para $NEXT_TARGET. Aguardando aprovação de robsonejsoares." \
-            --reviewer robsonejsoares
+            --body "Promoção automática do ambiente $SOURCE_BRANCH para $NEXT_TARGET. Aguardando aprovação de robsonejsoares."
 
           echo "Próximo PR criado: $SOURCE_BRANCH -> $NEXT_TARGET."
