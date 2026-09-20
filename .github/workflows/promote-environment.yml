@@ -5,8 +5,8 @@ on:
     types: [submitted]
 
 permissions:
-  contents: read
-  pull-requests: read
+  contents: write
+  pull-requests: write
   checks: read
 
 jobs:
@@ -31,9 +31,6 @@ jobs:
           SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
           TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
         run: |
-          echo "Origem : $SOURCE_BRANCH"
-          echo "Destino: $TARGET_BRANCH"
-
           case "$TARGET_BRANCH" in
             test)
               [[ "$SOURCE_BRANCH" == "develop" ]] || exit 1
@@ -60,37 +57,30 @@ jobs:
       - name: Verificar checks do PR
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
         run: |
-          echo "Verificando checks do PR #$PR_NUMBER..."
-
           conclusion="$(gh api \
-            "/repos/$OWNER/$REPO/commits/${{ github.event.pull_request.head.sha }}/check-runs" \
+            "/repos/$OWNER/$REPO/commits/$PR_SHA/check-runs" \
             --jq '[.check_runs[] | select(.name == "build-and-test") | .conclusion] | last // "missing"')"
 
           echo "build-and-test: $conclusion"
 
-          if [[ "$conclusion" != "success" ]]; then
-            echo "O check obrigatório build-and-test não está concluído com sucesso."
+          [[ "$conclusion" == "success" ]] || {
+            echo "CI não está aprovado."
             exit 1
-          fi
+          }
 
-      - name: Promover branch por fast-forward
+      - name: Promover por fast-forward
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
           TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
           SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
           OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
+          REPO: ${{ github.repository.name }}
         run: |
-          echo "Promovendo:"
-          echo "  $SOURCE_BRANCH ($SOURCE_SHA)"
-          echo "        ↓"
-          echo "  $TARGET_BRANCH"
-
           gh api \
             --method PATCH \
             "/repos/$OWNER/$REPO/git/refs/heads/$TARGET_BRANCH" \
@@ -99,15 +89,15 @@ jobs:
             -f sha="$SOURCE_SHA" \
             -F force=false
 
-          echo "Promoção concluída."
+          echo "Promoção concluída: $SOURCE_BRANCH -> $TARGET_BRANCH"
 
-      - name: Confirmar SHA das branches
+      - name: Confirmar SHA
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
           TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
           OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
+          REPO: ${{ github.repository.name }}
         run: |
           source_sha="$(gh api \
             "/repos/$OWNER/$REPO/git/ref/heads/$SOURCE_BRANCH" \
@@ -117,12 +107,55 @@ jobs:
             "/repos/$OWNER/$REPO/git/ref/heads/$TARGET_BRANCH" \
             --jq '.object.sha')"
 
-          echo "Origem : $source_sha"
-          echo "Destino: $target_sha"
-
-          if [[ "$source_sha" != "$target_sha" ]]; then
-            echo "ERRO: origem e destino possuem SHAs diferentes."
+          [[ "$source_sha" == "$target_sha" ]] || {
+            echo "ERRO: SHAs diferentes."
             exit 1
+          }
+
+          echo "SHA confirmado: $target_sha"
+          
+      - name: Criar próximo Pull Request
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SOURCE_BRANCH: ${{ github.event.pull_request.base.ref }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          case "$SOURCE_BRANCH" in
+            test)
+              NEXT_TARGET="staging"
+              ;;
+            staging)
+              NEXT_TARGET="main"
+              ;;
+            main)
+              echo "Chegou em main. Não existe próximo PR."
+              exit 0
+              ;;
+            *)
+              echo "Origem inválida: $SOURCE_BRANCH"
+              exit 1
+              ;;
+          esac
+
+          existing_pr="$(gh pr list \
+            --repo "$OWNER/$REPO" \
+            --head "$SOURCE_BRANCH" \
+            --base "$NEXT_TARGET" \
+            --state open \
+            --json number \
+            --jq 'length')"
+
+          if [[ "$existing_pr" -gt 0 ]]; then
+            echo "PR $SOURCE_BRANCH -> $NEXT_TARGET já existe."
+            exit 0
           fi
 
-          echo "OK: origem e destino possuem exatamente o mesmo SHA."
+          gh pr create \
+            --repo "$OWNER/$REPO" \
+            --base "$NEXT_TARGET" \
+            --head "$SOURCE_BRANCH" \
+            --title "Promote $SOURCE_BRANCH -> $NEXT_TARGET" \
+            --body "Promoção automática do ambiente $SOURCE_BRANCH para $NEXT_TARGET. SHA promovido: ${{ github.event.pull_request.head.sha }}. Aguardando aprovação de robsonejsoares."
+
+          echo "Próximo PR criado: $SOURCE_BRANCH -> $NEXT_TARGET"
