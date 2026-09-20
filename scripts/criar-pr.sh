@@ -33,7 +33,7 @@ echo "Origem : $BRANCH_ATUAL"
 echo "Destino: $BASE_BRANCH"
 echo
 
-gh pr create \
+"/c/Program Files/GitHub CLI/gh.exe" pr create \
   --base "$BASE_BRANCH" \
   --head "$BRANCH_ATUAL" \
   --fill
