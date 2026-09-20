@@ -14,6 +14,7 @@ jobs:
     name: Promote approved environment
     if: >
       github.event.review.state == 'approved' &&
+      github.event.review.user.login == 'robsonejsoares' &&
       (
         (github.event.pull_request.base.ref == 'test' &&
          github.event.pull_request.head.ref == 'develop') ||
@@ -125,4 +126,3 @@ jobs:
           fi
 
           echo "OK: origem e destino possuem exatamente o mesmo SHA."
-          
