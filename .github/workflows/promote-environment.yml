@@ -57,20 +57,32 @@ jobs:
       - name: Verificar checks do PR
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          PR_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
         run: |
-          conclusion="$(gh api \
-            "/repos/$OWNER/$REPO/commits/$PR_SHA/check-runs" \
-            --jq '[.check_runs[] | select(.name == "build-and-test") | .conclusion] | last // "missing"')"
+          echo "Verificando checks do PR #$PR_NUMBER..."
 
-          echo "build-and-test: $conclusion"
+          checks="$(gh pr checks "$PR_NUMBER" \
+            --repo "$OWNER/$REPO" \
+            --json name,state \
+            --jq '[.[] | select(.name == "build-and-test")] | last // empty')"
 
-          [[ "$conclusion" == "success" ]] || {
+          if [[ -z "$checks" ]]; then
+            echo "Não foi encontrado o check build-and-test."
+            exit 1
+          fi
+
+          state="$(printf '%s' "$checks" | jq -r '.state')"
+
+          echo "build-and-test: $state"
+
+          if [[ "$state" != "SUCCESS" ]]; then
             echo "CI não está aprovado."
             exit 1
-          }
+          fi
+
+          echo "CI aprovado."
 
       - name: Promover por fast-forward
         env:
@@ -79,8 +91,14 @@ jobs:
           TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
           SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
           OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.repository.name }}
+          REPO: ${{ github.event.repository.name }}
         run: |
+          echo "Promovendo:"
+          echo "  $SOURCE_BRANCH"
+          echo "        ↓"
+          echo "  $TARGET_BRANCH"
+          echo "SHA: $SOURCE_SHA"
+
           gh api \
             --method PATCH \
             "/repos/$OWNER/$REPO/git/refs/heads/$TARGET_BRANCH" \
@@ -89,7 +107,7 @@ jobs:
             -f sha="$SOURCE_SHA" \
             -F force=false
 
-          echo "Promoção concluída: $SOURCE_BRANCH -> $TARGET_BRANCH"
+          echo "Promoção concluída."
 
       - name: Confirmar SHA
         env:
@@ -97,7 +115,7 @@ jobs:
           SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
           TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
           OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.repository.name }}
+          REPO: ${{ github.event.repository.name }}
         run: |
           source_sha="$(gh api \
             "/repos/$OWNER/$REPO/git/ref/heads/$SOURCE_BRANCH" \
@@ -107,13 +125,30 @@ jobs:
             "/repos/$OWNER/$REPO/git/ref/heads/$TARGET_BRANCH" \
             --jq '.object.sha')"
 
-          [[ "$source_sha" == "$target_sha" ]] || {
+          echo "Origem : $source_sha"
+          echo "Destino: $target_sha"
+
+          if [[ "$source_sha" != "$target_sha" ]]; then
             echo "ERRO: SHAs diferentes."
             exit 1
-          }
+          fi
 
           echo "SHA confirmado: $target_sha"
-          
+
+      - name: Fechar PR promovido
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+        run: |
+          gh pr close "$PR_NUMBER" \
+            --repo "$OWNER/$REPO" \
+            --comment "Promoção concluída automaticamente por fast-forward para $TARGET_BRANCH."
+
+          echo "PR promovido fechado."
+
       - name: Criar próximo Pull Request
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -156,6 +191,7 @@ jobs:
             --base "$NEXT_TARGET" \
             --head "$SOURCE_BRANCH" \
             --title "Promote $SOURCE_BRANCH -> $NEXT_TARGET" \
-            --body "Promoção automática do ambiente $SOURCE_BRANCH para $NEXT_TARGET. SHA promovido: ${{ github.event.pull_request.head.sha }}. Aguardando aprovação de robsonejsoares."
+            --body "Promoção automática do ambiente $SOURCE_BRANCH para $NEXT_TARGET. SHA promovido: ${{ github.event.pull_request.head.sha }}. Aguardando aprovação de robsonejsoares." \
+            --reviewer robsonejsoares
 
           echo "Próximo PR criado: $SOURCE_BRANCH -> $NEXT_TARGET"
