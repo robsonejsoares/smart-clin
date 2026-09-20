@@ -70,27 +70,6 @@ jobs:
           app-id: ${{ secrets.SMART_CLIN_APP_ID }}
           private-key: ${{ secrets.SMART_CLIN_APP_PRIVATE_KEY }}
 
-      - name: Ler Pull Request
-        id: pull-request
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
-        run: |
-          gh pr view "$PR_NUMBER" \
-            --repo "$OWNER/$REPO" \
-            --json \
-              number,\
-              state,\
-              author,\
-              headRefName,\
-              headRefOid,\
-              baseRefName,\
-              reviews,\
-              mergeable,\
-              commits
-
       - name: Validar PR
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
