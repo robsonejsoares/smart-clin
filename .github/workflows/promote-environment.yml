@@ -256,18 +256,28 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
         run: |
-          read -r TARGET_BRANCH < <(
+          read -r TARGET_BRANCH PR_STATE < <(
             gh pr view "$PR_NUMBER" \
               --repo "$OWNER/$REPO" \
-              --json baseRefName \
-              --jq '.baseRefName'
+              --json baseRefName,state \
+              --jq '[.baseRefName,.state] | @tsv'
           )
 
-          gh pr close "$PR_NUMBER" \
-            --repo "$OWNER/$REPO" \
-            --comment "Promoção concluída automaticamente por fast-forward para $TARGET_BRANCH."
+          echo "Destino: $TARGET_BRANCH"
+          echo "Estado do PR: $PR_STATE"
 
-          echo "PR #$PR_NUMBER fechado."
+          if [[ "$PR_STATE" == "OPEN" ]]; then
+            gh pr close "$PR_NUMBER" \
+              --repo "$OWNER/$REPO" \
+              --comment "Promoção concluída automaticamente por fast-forward para $TARGET_BRANCH."
+
+            echo "PR #$PR_NUMBER fechado."
+          elif [[ "$PR_STATE" == "MERGED" ]]; then
+            echo "PR #$PR_NUMBER já foi mesclado. Continuando."
+          else
+            echo "Estado inesperado do PR: $PR_STATE"
+            exit 1
+          fi
 
       - name: Criar próximo Pull Request
         env:
