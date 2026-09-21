@@ -273,7 +273,6 @@ jobs:
           if [[ "$PR_STATE" == "OPEN" ]]; then
             gh pr close "$PR_NUMBER" \
               --repo "$OWNER/$REPO" \
-              --comment "Promoção concluída automaticamente por fast-forward para $TARGET_BRANCH."
 
             echo "PR #$PR_NUMBER fechado."
           elif [[ "$PR_STATE" == "MERGED" ]]; then
