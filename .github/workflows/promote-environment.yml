@@ -271,17 +271,13 @@ jobs:
           echo "Estado do PR: $PR_STATE"
 
           if [[ "$PR_STATE" == "OPEN" ]]; then
-            gh pr close "$PR_NUMBER" \
-              --repo "$OWNER/$REPO" \
-
-            echo "PR #$PR_NUMBER fechado."
-          elif [[ "$PR_STATE" == "MERGED" ]]; then
-            echo "PR #$PR_NUMBER já foi mesclado. Continuando."
-          else
-            echo "Estado inesperado do PR: $PR_STATE"
-            exit 1
-          fi
-
+            if gh pr close "$PR_NUMBER" \
+              --repo "$OWNER/$REPO"; then
+              echo "PR #$PR_NUMBER fechado."
+            else
+              echo "PR #$PR_NUMBER já foi mesclado. Continuando."
+            fi
+            
       - name: Criar próximo Pull Request
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
