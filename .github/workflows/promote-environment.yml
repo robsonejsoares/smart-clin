@@ -90,9 +90,13 @@ jobs:
           echo "Estado : $PR_STATE"
           echo "Merge  : $MERGEABLE"
 
-          if [[ "$PR_STATE" != "OPEN" ]]; then
-            echo "PR não está aberta."
+          if [[ "$PR_STATE" != "OPEN" && "$PR_STATE" != "MERGED" ]]; then
+            echo "PR está em estado inválido: $PR_STATE"
             exit 1
+          fi
+
+          if [[ "$PR_STATE" == "MERGED" ]]; then
+            echo "PR já foi mesclada. Continuando com a promoção por fast-forward."
           fi
 
           case "$TARGET_BRANCH" in
