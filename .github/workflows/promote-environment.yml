@@ -277,7 +277,13 @@ jobs:
             else
               echo "PR #$PR_NUMBER já foi mesclado. Continuando."
             fi
-            
+          elif [[ "$PR_STATE" == "MERGED" ]]; then
+            echo "PR #$PR_NUMBER já foi mesclado. Continuando."
+          else
+            echo "Estado inesperado do PR: $PR_STATE"
+            exit 1
+          fi
+
       - name: Criar próximo Pull Request
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
