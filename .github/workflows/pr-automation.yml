@@ -2,38 +2,56 @@ name: PR Workflow Automation
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened, edited, closed]
 
 permissions:
   pull-requests: write
   issues: write
-  contents: read
+  contents: write
 
 jobs:
   automate-pr:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Código
         uses: actions/checkout@v4
 
       - name: Aplicar Template de PR por Fluxo
+        if: github.event.action != 'closed'
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
+
             const source = context.payload.pull_request.head.ref;
             const target = context.payload.pull_request.base.ref;
             const currentBody = context.payload.pull_request.body || '';
-            const isDevelopmentBranch = /^(feature|feat|fix|hotfix|docs|style|refactor|perf|test|build|ci|chore|revert)\/.+$/.test(source);
+
+            const isDevelopmentBranch =
+              /^(feature|feat|fix|hotfix|docs|style|refactor|perf|test|build|ci|chore|revert)\/.+$/
+                .test(source);
 
             const templates = {
-              'develop': isDevelopmentBranch ? '01_feature_to_develop.md' : null,
-              'test': source === 'develop' ? '02_develop_to_test.md' : null,
-              'staging': source === 'test' ? '03_test_to_staging.md' : null,
-              'main': source === 'staging' ? '04_staging_to_main.md' : null
+              develop: isDevelopmentBranch
+                ? '01_feature_to_develop.md'
+                : null,
+
+              test: source === 'develop'
+                ? '02_develop_to_test.md'
+                : null,
+
+              staging: source === 'test'
+                ? '03_test_to_staging.md'
+                : null,
+
+              main: source === 'staging'
+                ? '04_staging_to_main.md'
+                : null
             };
 
             const templateFile = templates[target];
+
             if (!templateFile) {
               return;
             }
@@ -47,9 +65,13 @@ jobs:
             }
 
             const marker = '<!-- smartclin-pr-template:';
-            const templatePath = `.github/PULL_REQUEST_TEMPLATE/${templateFile}`;
+            const templatePath =
+              `.github/PULL_REQUEST_TEMPLATE/${templateFile}`;
+
             const template = fs.readFileSync(templatePath, 'utf8');
-            const body = `${marker} ${templateFile} -->\n\n${template}`;
+
+            const body =
+              `${marker} ${templateFile} -->\n\n${template}`;
 
             if (body !== currentBody) {
               await github.rest.pulls.update({
@@ -61,6 +83,7 @@ jobs:
             }
 
       - name: Auto-Título por Branch de Destino
+        if: github.event.action != 'closed'
         uses: actions/github-script@v7
         with:
           script: |
@@ -76,8 +99,10 @@ jobs:
 
             if (
               titles[target] &&
-              (currentTitle.length < 10 ||
-                currentTitle.toLowerCase() === target)
+              (
+                currentTitle.length < 10 ||
+                currentTitle.toLowerCase() === target
+              )
             ) {
               await github.rest.pulls.update({
                 owner: context.repo.owner,
@@ -88,7 +113,9 @@ jobs:
             }
 
       - name: Comentário de Aprovação Senior
-        if: github.base_ref == 'main'
+        if: >
+          github.event.action != 'closed' &&
+          github.event.pull_request.base.ref == 'main'
         uses: actions/github-script@v7
         with:
           script: |
@@ -106,3 +133,52 @@ jobs:
               issue_number: context.payload.pull_request.number,
               body: commentBody
             });
+
+      - name: Criar PR automático develop -> test
+        if: >
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true &&
+          github.event.pull_request.base.ref == 'develop'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const source = 'develop';
+            const target = 'test';
+
+            const { data: existingPulls } =
+              await github.rest.pulls.list({
+                owner,
+                repo,
+                head: `${owner}:${source}`,
+                base: target,
+                state: 'open'
+              });
+
+            if (existingPulls.length > 0) {
+              core.info(
+                `PR ${source} -> ${target} já existe: #${existingPulls[0].number}`
+              );
+              return;
+            }
+
+            const { data: pull } =
+              await github.rest.pulls.create({
+                owner,
+                repo,
+                head: source,
+                base: target,
+                title: 'chore(release): promoção develop -> test',
+                body:
+                  '## Promoção automática\n\n' +
+                  `Este PR foi criado automaticamente para promover \`${source}\` para \`${target}\`.\n\n` +
+                  'A promoção depende da aprovação de `robsonejsoares`.\n\n' +
+                  'Após a aprovação, o workflow `Promote Environment Branch` ' +
+                  'realizará a promoção por fast-forward.'
+              });
+
+            core.info(
+              `PR automático criado: #${pull.number} (${source} -> ${target})`
+            );
