@@ -26,7 +26,7 @@ export function Header() {
     ];
 
     async function handleLogin() {
-        await handRegister("github");
+        await handRegister("google");
     }
 
     return (
@@ -113,7 +113,9 @@ export function Header() {
                                     Acessar Clínica
                                 </Link>
                             ) : (
-                                <Button className="w-full justify-start">
+                                <Button
+                                    onClick={handleLogin}
+                                    className="w-full justify-start cursor-pointer">
                                     <LogIn />
                                     Portal da Clínica
                                 </Button>
