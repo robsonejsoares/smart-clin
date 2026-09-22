@@ -8,6 +8,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
   providers: [
     Google({
+      allowDangerousEmailAccountLinking: true,
       authorization: {
         params: {
           prompt: "consent",
