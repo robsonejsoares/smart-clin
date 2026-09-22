@@ -6,19 +6,17 @@ import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 
 const formSchema = z.object({
-    name: z.string().min(1, { message: "O nome do serviço é obrigatório" }),
-    price: z.number().min(1, { message: "O preço do serviço é obrigatório" }),
-    duration: z.number()
+    serviceId: z.string().min(1, { message: "O ID do serviço é obrigatório" }),
 })
 
 type FormSchema = z.infer<typeof formSchema>
 
-export async function createNewService(formData: FormSchema) {
+export async function deleteService(formData: FormSchema) {
     const session = await auth()
 
     if (!session?.user?.id) {
         return {
-            error: "Falha ao cadastrar serviço. Usuário não autenticado.",
+            error: "Falha ao deletar serviço..",
         }
     }
 
@@ -31,26 +29,28 @@ export async function createNewService(formData: FormSchema) {
     }
 
     try {
-        const newService = await prisma.service.create({
+
+        await prisma.service.update({
+            where: {
+                id: formData.serviceId,
+                userId: session?.user?.id,
+            },
             data: {
-                name: formData.name,
-                price: formData.price,
-                duration: formData.duration,
-                userId: session.user.id,
+                status: false,
             },
         })
-
+        
         revalidatePath("/dashboard/services")
 
         return {
-            data: newService,
+            data: "Serviço excluído com sucesso.",
         }
 
     } catch (error) {
-        console.error(error)
-        
+        console.log(error)
         return {
-            error: "Falha ao cadastrar serviço.",
+            error: "Falha ao excluir serviço.",
         }
+
     }
 }
