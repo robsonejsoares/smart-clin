@@ -49,7 +49,7 @@ import { Button } from "@/components/ui/button"
 import { formatPhone } from "@/utils/formatPhone"
 import { Prisma } from "@/generated/prisma/client"
 import { updateProfile } from "../_actions/update-profile"
-import imgTest from "../../../../../../public/icone-criar-foto-perfil.webp"
+import imgTest from "../../../../../../public/logo-smart-clin.png"
 
 type UserWithSubcription = Prisma.UserGetPayload<{
     include: {
@@ -69,7 +69,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
 
     const form = useProfileForm({
         name: user.name,
-        address: user.adress,
+        address: user.address,
         phone: user.phone,
         status: user.status,
         timeZone: user.timeZone

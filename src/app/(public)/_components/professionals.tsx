@@ -5,7 +5,7 @@ import {
 
 import Link from "next/link"
 import Image from "next/image"
-import fotoImg from "../../../../public/icone-criar-foto-perfil.webp"
+import fotoImg from "../../../../public/logo-smart-clin.png"
 import { ArrowRight } from "lucide-react"
 
 export function Professionals() {

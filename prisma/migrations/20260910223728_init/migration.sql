@@ -62,7 +62,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "emailVerified" TIMESTAMP(3),
     "image" TEXT,
-    "adress" TEXT DEFAULT '',
+    "address" TEXT DEFAULT '',
     "phone" TEXT DEFAULT '',
     "status" BOOLEAN NOT NULL DEFAULT true,
     "timeZone" TEXT,

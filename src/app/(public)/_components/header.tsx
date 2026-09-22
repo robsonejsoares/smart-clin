@@ -60,7 +60,10 @@ export function Header() {
                             Acessar Clínica
                         </Link>
                     ) : (
-                        <Button onClick={handleLogin} className="cursor-pointer">
+                        <Button
+                            onClick={handleLogin}
+                            className="bg-indigo-900 hover:bg-indigo-950 text-white cursor-pointer shadow-sm"
+                        >
                             <LogIn />
                             Portal da Clínica
                         </Button>
@@ -115,7 +118,9 @@ export function Header() {
                             ) : (
                                 <Button
                                     onClick={handleLogin}
-                                    className="w-full justify-start cursor-pointer">
+                                    className="bg-indigo-900 hover:bg-indigo-950 text-white cursor-pointer shadow-sm"
+
+                                >
                                     <LogIn />
                                     Portal da Clínica
                                 </Button>

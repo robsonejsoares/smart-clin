@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "SmartClin",
   description: "Sistema de gestão para clínicas.",
   icons: {
-    icon: "/logo-smart-clin.svg?v=2",
+    icon: "/logo-smart-clin.png?v=2",
   },
 };
 

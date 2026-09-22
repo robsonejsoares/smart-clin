@@ -16,14 +16,14 @@ export function Hero() {
                         </p>
 
                         <Button className="bg-emerald-500 hover:bg-emerald-400 w-fit px-6 font-semibold cursor-pointer">
-                            Encontre uma Clínica
+                            Encontre uma clínica
                         </Button>
                     </article>
 
                     <div className="hidden lg:block">
                         <Image
                             className="object-contain w-full h-auto"
-                            src="/logo-smart-clin.svg"
+                            src="/logo-smart-clin.png"
                             alt="Logo SmartClin"
                             width={280}
                             height={400}
