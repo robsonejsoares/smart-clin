@@ -1,6 +1,11 @@
 "use client"
 
 import {
+    ProfileFormData,
+    useProfileForm
+} from "./profile-form"
+
+import {
     Card,
     CardContent,
     CardHeader,
@@ -44,7 +49,6 @@ import { Button } from "@/components/ui/button"
 import { formatPhone } from "@/utils/formatPhone"
 import { Prisma } from "@/generated/prisma/client"
 import { updateProfile } from "../_actions/update-profile"
-import { ProfileFormData, useProfileForm } from "./profile-form"
 import imgTest from "../../../../../../public/icone-criar-foto-perfil.webp"
 
 type UserWithSubcription = Prisma.UserGetPayload<{
@@ -58,6 +62,8 @@ interface ProfileContentProps {
 }
 
 export function ProfileContent({ user }: ProfileContentProps) {
+
+    
     const [selectedHours, setSelectedHours] = useState<string[]>(user.times ?? []);
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
@@ -321,9 +327,9 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                 </div>
                                 <Button
                                     type="submit"
-                                    className="w-full cursor-pointer bg-emerald-500 hover:bg-emerald-400"
+                                    className="w-full bg-sky-500 text-white hover:bg-sky-600 transition-colors text-sm font-semibold py-2.5"
                                 >
-                                    Salvar Alterações
+                                    Salvar
                                 </Button>
                             </div>
                         </CardContent>
