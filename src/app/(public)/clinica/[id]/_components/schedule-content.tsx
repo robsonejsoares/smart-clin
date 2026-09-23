@@ -1,6 +1,7 @@
 "use client"
 
 import {
+    AppointmentFormData,
     useAppointmentForm,
 } from "../_components/schedule-form"
 
@@ -25,6 +26,7 @@ import Image from "next/image"
 import { MapPin } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { DateTimePicker } from "./date-picker"
+import { Button } from "@/components/ui/button"
 import { formatPhone } from "@/utils/formatPhone"
 import { Prisma } from "@/generated/prisma/client"
 import "react-datepicker/dist/react-datepicker.css"
@@ -45,13 +47,18 @@ interface ScheduleContentProps {
 export function ScheduleContent({ clinic }: ScheduleContentProps) {
 
     const form = useAppointmentForm()
+    const { watch } = form
+
+    async function handleRegisterAppointment(formData: AppointmentFormData) {
+
+    }
 
     return (
         <div>
             <div className="h-32 bg-emerald-300" />
 
-            <section className="container max-auto px-4 -mt-16">
-                <div className="max-w-2x1 max-auto">
+            <section className="container mx-auto px-4 -mt-16">
+                <div className="max-w-2xl mx-auto">
                     <article className="flex flex-col items-center">
                         <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-white mb-8">
                             <Image
@@ -73,9 +80,14 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                     </article>
                 </div>
             </section>
+
+            {/* Formulário de agendamento */}
             <section className="max-w-2xl mx-auto w-full mt-6">
                 <Form {...form}>
-                    <form className="mx-2 space-y-6 bg-white p-6 border rounded-md shadow-sm">
+                    <form
+                        className="mx-2 space-y-6 bg-white p-6 border rounded-md shadow-sm"
+                        onSubmit={form.handleSubmit(handleRegisterAppointment)}
+                    >
                         <FormField
                             control={form.control}
                             name="name"
@@ -167,14 +179,14 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                 <FormItem className="">
                                     <FormLabel className="font-semibold">Serviço:</FormLabel>
                                     <FormControl>
-                                        <Select onValueChange={field.onChange}>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Selecione um serviço..." />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {clinic.services.map((service) => (
                                                     <SelectItem key={service.id} value={service.id}>
-                                                        {service.name} - {Math.floor(service.duration / 60)}h {service.duration % 60}min
+                                                        {service.name} - R$ {service.price / 100} ({service.duration} min)
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
@@ -184,9 +196,31 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                 </FormItem>
                             )}
                         />
+
+                        {/* Botão Realizar Agendamento */}
+                        {clinic.status ? (
+                            <Button
+                                className="w-full bg-emerald-500 hover:bg-emerald-400 font-semibold"
+                                type="submit"
+                                disabled={
+                                    !watch("name") ||
+                                    !watch("email") ||
+                                    !watch("phone") ||
+                                    !watch("date") ||
+                                    !watch("serviceId")
+                                }
+                            >
+                                Realizar Agendamento
+                            </Button>
+                        ) : (
+                            <p
+                                className="text-red-600 bg-red-100 text-center px-4 py-2 font-semibold rounded-md cursor-not-allowed">
+                                Neste momento, a clínica está fechada.
+                            </p>
+                        )}
                     </form>
                 </Form>
             </section>
-        </div>
+        </div >
     )
 }
