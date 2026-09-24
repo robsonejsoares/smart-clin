@@ -1,5 +1,16 @@
 "use client"
 
+import Image from "next/image"
+import { useState } from "react"
+import { MapPin } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { DateTimePicker } from "./date-picker"
+import { Button } from "@/components/ui/button"
+import { formatPhone } from "@/utils/formatPhone"
+import { Prisma } from "@/generated/prisma/client"
+import "react-datepicker/dist/react-datepicker.css"
+import logoImg from "../../../../../../public/logo-smart-clin.png"
+
 import {
     AppointmentFormData,
     useAppointmentForm,
@@ -22,17 +33,6 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 
-import Image from "next/image"
-import { MapPin } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { DateTimePicker } from "./date-picker"
-import { Button } from "@/components/ui/button"
-import { formatPhone } from "@/utils/formatPhone"
-import { Prisma } from "@/generated/prisma/client"
-import "react-datepicker/dist/react-datepicker.css"
-import logoImg from "../../../../../../public/logo-smart-clin.png"
-
-
 type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
     include: {
         subscription: true,
@@ -44,10 +44,20 @@ interface ScheduleContentProps {
     clinic: UserWithServiceAndSubscription
 }
 
+interface timeSlot {
+    time: string
+    available: boolean
+}
+
 export function ScheduleContent({ clinic }: ScheduleContentProps) {
 
     const form = useAppointmentForm()
     const { watch } = form
+
+    const [selectedTime, setSelectedTime] = useState("")
+    const [loadingSlots, setLoadingSlots] = useState(false)
+    const [blockedTimes, setBlockedTimes] = useState<string[]>([])
+    const [availbleTimesSlots, setAvailableTimesSlots] = useState<timeSlot[]>([])
 
     async function handleRegisterAppointment(formData: AppointmentFormData) {
 
@@ -214,7 +224,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                             </Button>
                         ) : (
                             <p
-                                className="text-red-600 bg-red-100 text-center px-4 py-2 font-semibold rounded-md cursor-not-allowed">
+                                className="text-red-600 bg-red-100 text-center px-4 py-2 rounded-md cursor-not-allowed">
                                 Neste momento, a clínica está fechada.
                             </p>
                         )}
