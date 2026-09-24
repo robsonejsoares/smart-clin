@@ -18,8 +18,8 @@ import {
 } from "react"
 
 import {
-    useAppointmentForm,
-    AppointmentFormData,
+    useAppointementForm,
+    AppointementFormData,
 } from "../_components/schedule-form"
 
 import {
@@ -57,7 +57,7 @@ interface timeSlot {
 
 export function ScheduleContent({ clinic }: ScheduleContentProps) {
 
-    const form = useAppointmentForm()
+    const form = useAppointementForm()
     const { watch } = form
 
     const selectedDate = watch("date")
@@ -72,9 +72,10 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
         setLoadingSlots(true);
         try {
             const dateString = date.toISOString().split("T")[0]
-            const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/schedule/get-appointments?userId=${clinic.id}&date=${dateString}`)
+            const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/schedule/get-appointements?userId=${clinic.id}&date=${dateString}`)
 
-            return []
+            const jason = await response.json()
+            return jason
 
         } catch (error) {
             console.error("Erro ao buscar horários bloqueados:", error);
@@ -87,13 +88,21 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
 
         if (selectedDate) {
             fetchBlockedTimes(selectedDate).then((blocked) => {
-                console.log("Horarios reservados:", blocked)
+                setBlockedTimes(blocked)
+
+                const times: clinic.times || [];
+                
+                const finalSlots: times.map((time) => ({
+                    time,
+                    available: !blocked.includes(time),
+                }))
+                setAvailableTimesSlots(finalSlots)
             })
         }
 
     }, [selectedDate, clinic.times, fetchBlockedTimes, selectedTime])
 
-    async function handleRegisterAppointment(formData: AppointmentFormData) {
+    async function handleRegisterAppointement(formData: AppointementFormData) {
         console.log("Form Data:", formData)
     }
 
@@ -130,7 +139,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                 <Form {...form}>
                     <form
                         className="mx-2 space-y-6 bg-white p-6 border rounded-md shadow-sm"
-                        onSubmit={form.handleSubmit(handleRegisterAppointment)}
+                        onSubmit={form.handleSubmit(handleRegisterAppointement)}
                     >
                         <FormField
                             control={form.control}
