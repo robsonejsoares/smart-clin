@@ -1,7 +1,6 @@
 "use client"
 
 import Image from "next/image"
-import { useState } from "react"
 import { MapPin } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { DateTimePicker } from "./date-picker"
@@ -12,8 +11,15 @@ import "react-datepicker/dist/react-datepicker.css"
 import logoImg from "../../../../../../public/logo-smart-clin.png"
 
 import {
-    AppointmentFormData,
+    useState,
+    useEffect,
+    useCallback,
+    use,
+} from "react"
+
+import {
     useAppointmentForm,
+    AppointmentFormData,
 } from "../_components/schedule-form"
 
 import {
@@ -54,13 +60,41 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
     const form = useAppointmentForm()
     const { watch } = form
 
+    const selectedDate = watch("date")
+    const selectedServiceId = watch("serviceId")
+
     const [selectedTime, setSelectedTime] = useState("")
     const [loadingSlots, setLoadingSlots] = useState(false)
     const [blockedTimes, setBlockedTimes] = useState<string[]>([])
     const [availbleTimesSlots, setAvailableTimesSlots] = useState<timeSlot[]>([])
 
-    async function handleRegisterAppointment(formData: AppointmentFormData) {
+    const fetchBlockedTimes = useCallback(async (date: Date): Promise<string[]> => {
+        setLoadingSlots(true);
+        try {
+            const dateString = date.toISOString().split("T")[0]
+            const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/schedule/get-appointments?userId=${clinic.id}&date=${dateString}`)
 
+            return []
+
+        } catch (error) {
+            console.error("Erro ao buscar horários bloqueados:", error);
+            setLoadingSlots(false);
+            return [];
+        }
+    }, [clinic.id])
+
+    useEffect(() => {
+
+        if (selectedDate) {
+            fetchBlockedTimes(selectedDate).then((blocked) => {
+                console.log("Horarios reservados:", blocked)
+            })
+        }
+
+    }, [selectedDate, clinic.times, fetchBlockedTimes, selectedTime])
+
+    async function handleRegisterAppointment(formData: AppointmentFormData) {
+        console.log("Form Data:", formData)
     }
 
     return (
