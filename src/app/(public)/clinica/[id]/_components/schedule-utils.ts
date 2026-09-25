@@ -1,36 +1,54 @@
-/**
- * Verifica se uma data é hoje.
- * @param date A data a ser verificada.
- * @returns true se a data for hoje, false caso contrário.
- */
-export function isToday(date: Date) {
-    const now = new Date();
 
-    return (
-        date.getFullYear() === now.getFullYear() &&
-        date.getMonth() === now.getMonth() &&
-        date.getDate() === now.getDate()
-    )
+export function isToday(date: Date) {
+  const now = new Date();
+
+  return (
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+  )
 }
 
 /**
- * Verifica se um slot de horário está no passado.
- * @param slot O slot de horário a ser verificado.
- * @returns true se o slot estiver no passado, false caso contrário.
+ * Verificar se determinado slot já passou.
  */
 export function isSlotInThePast(slotTime: string) {
-    const [slotHour, slotMinute] = slotTime.split(":").map(Number)
+  const [slotHour, slotMinute] = slotTime.split(":").map(Number)
 
-    const now = new Date()
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
+  const now = new Date()
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
 
-    if (slotHour < currentHour) {
-        return true;
-    } else if (slotHour === currentHour && slotMinute <= currentMinute) {
-        return true;
-    }
+  if (slotHour < currentHour) {
+    return true; // true quer dize que a hora já passou
+  } else if (slotHour === currentHour && slotMinute <= currentMinute) {
+    return true;
+  }
 
+  return false;
+
+}
+
+export function isSlotSequenceAvailable(
+  startSlot: string, //> Primeiro horario disponivel
+  requiredSlots: number, //> Quantidade de slots necessários
+  allSlots: string[], //> Todos horarios da clinica
+  blockedSlots: string[] //> Horarios bloqueados
+) {
+
+  const startIndex = allSlots.indexOf(startSlot)
+  if (startIndex === -1 || startIndex + requiredSlots > allSlots.length) {
     return false;
+  }
 
+
+  for (let i = startIndex; i < startIndex + requiredSlots; i++) {
+    const slotTime = allSlots[i]
+
+    if (blockedSlots.includes(slotTime)) {
+      return false;
+    }
+  }
+
+  return true;
 }

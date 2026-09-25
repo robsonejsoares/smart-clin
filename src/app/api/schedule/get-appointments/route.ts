@@ -54,13 +54,13 @@ export async function GET(request: NextRequest) {
         const blockedSlots = new Set<string>()
 
         for (const apt of appointments) {
-            // Ex: apt.time = "10:00", apt.service.duration = 60 (1h)
-            const requiredSlots = Math.ceil(apt.service.duration / 30)
+            // Ex: apt.time = "10:00", apt.Service.duration = 60 (1h)
+            const requiredSlots = Math.ceil(apt.Service.duration / 30)
             const startIndex = user.times.indexOf(apt.time)
 
             if (startIndex !== -1) {
                 for (let i = 0; i < requiredSlots; i++) {
-                    const blockedSlot = user.times[startIndex + 1]
+                    const blockedSlot = user.times[startIndex + i]
                     if (blockedSlot) {
                         blockedSlots.add(blockedSlot)
                     }
@@ -69,11 +69,13 @@ export async function GET(request: NextRequest) {
 
         }
 
+
         const blockedtimes = Array.from(blockedSlots);
 
         console.log("blockedtimes: ", blockedtimes)
 
         return NextResponse.json(blockedtimes)
+
 
     } catch (err) {
         console.log(err);

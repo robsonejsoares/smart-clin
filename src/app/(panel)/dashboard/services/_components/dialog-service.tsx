@@ -79,6 +79,8 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
             duration: duration,
         })
 
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
         setLoading(false)
 
         if (response.error) {
@@ -108,6 +110,8 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
             price: priceInCents,
             duration: duration,
         })
+
+        await new Promise(resolve => setTimeout(resolve, 1000))
 
         setLoading(false)
 
@@ -166,7 +170,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
 
             <DialogHeader>
                 <DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-lg text-center font-semibold">
                         Adicione um novo serviço
                     </DialogDescription>
                 </DialogTitle>
@@ -258,10 +262,19 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                     </div>
                     <Button
                         type="submit"
-                        className="w-full bg-sky-500 text-white hover:bg-sky-600 transition-colors text-sm font-semibold py-2.5"
-                        disabled={loading}
+                        className="w-full bg-sky-500 text-white hover:bg-sky-600 disabled:hover:bg-sky-500 transition-colors text-sm font-semibold py-2.5"
+                        disabled={
+                            loading ||
+                            !form.watch("name") ||
+                            !form.watch("price") ||
+                            !form.watch("hours") ||
+                            !form.watch("minutes")
+                        }
                     >
-                        {loading ? "Adicionando serviço..." : `${serviceId ? "Atualizar Serviço" : "Adicionar Serviço"}`}
+                        {loading
+                            ? "Adicionando serviço..."
+                            : `${serviceId ? "Atualizar Serviço" : "Adicionar Serviço"}`
+                        }
                     </Button>
                 </form>
             </Form >

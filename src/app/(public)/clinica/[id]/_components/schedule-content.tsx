@@ -100,32 +100,72 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
     }, [clinic.id])
 
     useEffect(() => {
-
         if (selectedDate) {
             fetchBlockedTimes(selectedDate).then((blocked) => {
                 setBlockedTimes(blocked)
 
-                const times = clinic.times || [];
+                const dateString = selectedDate.toISOString().split("T")[0]
 
-                const finalSlots = times.map((time) => ({
-                    time: time,
-                    available: !blocked.includes(time)
-                }))
+                const dayOfWeek = selectedDate.getDay()
+
+                const isSunday = dayOfWeek === 0
+                const isSaturday = dayOfWeek === 6
+
+                // Feriados nacionais fixos
+                const holidays = [
+                    `${selectedDate.getFullYear()}-01-01`, // Confraternização Universal
+                    `${selectedDate.getFullYear()}-04-21`, // Tiradentes
+                    `${selectedDate.getFullYear()}-05-01`, // Dia do Trabalho
+                    `${selectedDate.getFullYear()}-09-07`, // Independência do Brasil
+                    `${selectedDate.getFullYear()}-10-12`, // Nossa Senhora Aparecida
+                    `${selectedDate.getFullYear()}-11-02`, // Finados
+                    `${selectedDate.getFullYear()}-11-15`, // Proclamação da República
+                    `${selectedDate.getFullYear()}-11-20`, // Consciência Negra
+                    `${selectedDate.getFullYear()}-12-25`, // Natal
+                ]
+
+                const isHoliday = holidays.includes(dateString)
+
+                const times = clinic.times || []
+
+                const finalSlots = times.map((time) => {
+                    const [hours] = time.split(":").map(Number)
+
+                    // No sábado, somente horários antes das 12:00
+                    const saturdayUnavailable =
+                        isSaturday && hours >= 12
+
+                    return {
+                        time,
+                        available:
+                            !isSunday &&
+                            !isHoliday &&
+                            !saturdayUnavailable &&
+                            !blocked.includes(time)
+                    }
+                })
 
                 setAvailableTimesSlots(finalSlots)
 
-                // Se o slot atual estiver indisponivel, limpamos a seleção
+                // Se o horário anteriormente selecionado
+                // deixou de estar disponível, limpa a seleção
                 const stillAvailable = finalSlots.find(
-                    (slot) => slot.time === selectedTime && slot.available
+                    (slot) =>
+                        slot.time === selectedTime &&
+                        slot.available
                 )
 
                 if (!stillAvailable) {
-                    setSelectedTime("");
+                    setSelectedTime("")
                 }
             })
         }
-
-    }, [selectedDate, clinic.times, fetchBlockedTimes, selectedTime])
+    }, [
+        selectedDate,
+        clinic.times,
+        fetchBlockedTimes,
+        selectedTime
+    ])
 
     async function handleRegisterAppointment(formData: AppointmentFormData) {
         if (!selectedTime) {
@@ -332,7 +372,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                         {/* Botão Realizar Agendamento */}
                         {clinic.status ? (
                             <Button
-                                className="w-full bg-emerald-500 hover:bg-emerald-400 font-semibold"
+                                className="w-full bg-emerald-500 enabled:hover:bg-emerald-400 disabled:bg-emerald-500 disabled:hover:bg-emerald-500 font-semibold"
                                 type="submit"
                                 disabled={
                                     !watch("name") ||

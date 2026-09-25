@@ -63,9 +63,10 @@ interface ProfileContentProps {
 
 export function ProfileContent({ user }: ProfileContentProps) {
 
-    
+
     const [selectedHours, setSelectedHours] = useState<string[]>(user.times ?? []);
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const form = useProfileForm({
         name: user.name,
@@ -120,6 +121,8 @@ export function ProfileContent({ user }: ProfileContentProps) {
     );
 
     async function onSubmit(values: ProfileFormData) {
+        setLoading(true)
+
         const response = await updateProfile({
             name: values.name,
             address: values.address,
@@ -129,9 +132,13 @@ export function ProfileContent({ user }: ProfileContentProps) {
             times: selectedHours || [],
         })
 
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        setLoading(false)
+
         if (response.error) {
-            toast.error(response.error);
-            return;
+            toast.error(response.error)
+            return
         }
 
         toast.success(response.data)
@@ -328,8 +335,9 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                 <Button
                                     type="submit"
                                     className="w-full bg-sky-500 text-white hover:bg-sky-600 transition-colors text-sm font-semibold py-2.5"
+                                    disabled={loading}
                                 >
-                                    Salvar
+                                    {loading ? "Salvando alterações..." : "Salvar Alterações"}
                                 </Button>
                             </div>
                         </CardContent>
