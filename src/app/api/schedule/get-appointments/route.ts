@@ -1,4 +1,4 @@
-// Backend meusite.com/api/schedule/get-appointments
+// Backend meusite.com/api/schedule/get-appointements
 
 import prisma from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
@@ -37,10 +37,10 @@ export async function GET(request: NextRequest) {
             })
         }
 
-        const appointments = await prisma.appointment.findMany({
+        const appointements = await prisma.appointement.findMany({
             where: {
                 userId: userId,
-                appointmentDate: {
+                appointementDate: {
                     gte: startDate,
                     lte: endDate
                 }
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         // Montar com todos os (slots) ocupados
         const blockedSlots = new Set<string>()
 
-        for (const apt of appointments) {
+        for (const apt of appointements) {
             // Ex: apt.time = "10:00", apt.service.duration = 60 (1h)
             const requiredSlots = Math.ceil(apt.service.duration / 30)
             const startIndex = user.times.indexOf(apt.time)

@@ -12,12 +12,12 @@ datasource db {
   provider = "postgresql"
 }
 
-model Appointment {
+model Appointement {
   id               String   @id @default(uuid())
   name             String
   email            String
   phone            String
-  appointmentDate DateTime
+  appointementDate DateTime
   time             String
   serviceId        String
   service          Service  @relation(fields: [serviceId], references: [id])
@@ -44,7 +44,7 @@ model Service {
   status       Boolean        @default(true)
   userId       String
   user         User           @relation(fields: [userId], references: [id])
-  appointment Appointment[]
+  appointement Appointement[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 }
@@ -80,7 +80,7 @@ model User {
   subscription      Subscription?
   services          Service[]
   reminders         Reminder[]
-  appointments     Appointment[]
+  appointements     Appointement[]
   accounts          Account[]
   sessions          Session[]
   // Optional for WebAuthn support
