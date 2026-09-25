@@ -100,23 +100,32 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
     }, [clinic.id])
 
     useEffect(() => {
-        if (!selectedDate) return
 
-        fetchBlockedTimes(selectedDate).then((blocked) => {
-            console.log("Horarios reservados:", blocked)
+        if (selectedDate) {
+            fetchBlockedTimes(selectedDate).then((blocked) => {
+                setBlockedTimes(blocked)
 
-            setBlockedTimes(blocked)
+                const times = clinic.times || [];
 
-            const times: string[] = clinic.times || []
+                const finalSlots = times.map((time) => ({
+                    time: time,
+                    available: !blocked.includes(time)
+                }))
 
-            const finalSlots = times.map((time) => ({
-                time,
-                available: !blocked.includes(time),
-            }))
+                setAvailableTimesSlots(finalSlots)
 
-            setAvailableTimesSlots(finalSlots)
-        })
-    }, [selectedDate, clinic.times, fetchBlockedTimes])
+                // Se o slot atual estiver indisponivel, limpamos a seleção
+                const stillAvailable = finalSlots.find(
+                    (slot) => slot.time === selectedTime && slot.available
+                )
+
+                if (!stillAvailable) {
+                    setSelectedTime("");
+                }
+            })
+        }
+
+    }, [selectedDate, clinic.times, fetchBlockedTimes, selectedTime])
 
     async function handleRegisterAppointment(formData: AppointmentFormData) {
         if (!selectedTime) {
