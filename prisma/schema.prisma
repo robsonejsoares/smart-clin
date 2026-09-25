@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -12,46 +7,26 @@ datasource db {
   provider = "postgresql"
 }
 
-model Appointement {
-  id               String   @id @default(uuid())
-  name             String
-  email            String
-  phone            String
-  appointementDate DateTime
-  time             String
-  serviceId        String
-  service          Service  @relation(fields: [serviceId], references: [id])
-  userId           String
-  user             User     @relation(fields: [userId], references: [id])
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-}
-
 model Reminder {
   id          String   @id @default(uuid())
   description String
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
 }
 
 model Service {
-  id           String         @id @default(uuid())
-  name         String
-  price        Int
-  duration     Int
-  status       Boolean        @default(true)
-  userId       String
-  user         User           @relation(fields: [userId], references: [id])
-  appointement Appointement[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-}
-
-enum Plan {
-  BASIC
-  PROFESSIONAL
+  id          String        @id @default(uuid())
+  name        String
+  price       Int
+  duration    Int
+  status      Boolean       @default(true)
+  userId      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Appointment Appointment[]
+  user        User          @relation(fields: [userId], references: [id])
 }
 
 model Subscription {
@@ -76,18 +51,16 @@ model User {
   status            Boolean         @default(true)
   timeZone          String?
   stripe_customerId String?
-  times             String[] @default([])
-  subscription      Subscription?
-  services          Service[]
-  reminders         Reminder[]
-  appointements     Appointement[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  times             String[]        @default([])
   accounts          Account[]
-  sessions          Session[]
-  // Optional for WebAuthn support
+  Appointment       Appointment[]
   Authenticator     Authenticator[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  reminders         Reminder[]
+  services          Service[]
+  sessions          Session[]
+  subscription      Subscription?
 }
 
 model Account {
@@ -102,11 +75,9 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
 }
@@ -115,10 +86,9 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model VerificationToken {
@@ -129,7 +99,6 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
-// Optional for WebAuthn support
 model Authenticator {
   credentialID         String  @unique
   userId               String
@@ -139,8 +108,27 @@ model Authenticator {
   credentialDeviceType String
   credentialBackedUp   Boolean
   transports           String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Appointment {
+  id              String   @id(map: "Appointement_pkey") @default(cuid())
+  name            String
+  email           String
+  phone           String
+  appointmentDate DateTime
+  time            String
+  serviceId       String
+  userId          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
+  Service         Service  @relation(fields: [serviceId], references: [id], map: "Appointement_serviceId_fkey")
+  User            User     @relation(fields: [userId], references: [id], map: "Appointement_userId_fkey")
+}
+
+enum Plan {
+  BASIC
+  PROFESSIONAL
 }

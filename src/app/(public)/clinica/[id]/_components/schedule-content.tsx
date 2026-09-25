@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "sonner"
 import Image from "next/image"
 import { MapPin } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -10,6 +11,7 @@ import { Prisma } from "@/generated/prisma/client"
 import "react-datepicker/dist/react-datepicker.css"
 import { ScheduleTimeList } from "./schedule-time-list"
 import logoImg from "../../../../../../public/logo-smart-clin.png"
+import { createNewAppointment } from "../_actions/create-appointment"
 
 import {
     useState,
@@ -19,8 +21,8 @@ import {
 } from "react"
 
 import {
-    useAppointementForm,
-    AppointementFormData,
+    useAppointmentForm,
+    AppointmentFormData,
 } from "../_components/schedule-form"
 
 import {
@@ -58,7 +60,7 @@ export interface TimeSlot {
 
 export function ScheduleContent({ clinic }: ScheduleContentProps) {
 
-    const form = useAppointementForm()
+    const form = useAppointmentForm()
     const { watch } = form
 
     const selectedDate = watch("date")
@@ -74,12 +76,23 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
             const dateString = date.toISOString().split("T")[0]
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_URL}/api/schedule/get-appointements?userId=${clinic.id}&date=${dateString}`
+                `${process.env.NEXT_PUBLIC_URL}/api/schedule/get-appointments?userId=${clinic.id}&date=${dateString}`
             )
 
             const json = await response.json()
 
+            if (!response.ok) {
+                console.error("Erro na API:", json)
+                return []
+            }
+
+            if (!Array.isArray(json)) {
+                console.error("API não retornou um array:", json)
+                return []
+            }
+
             return json
+
         } catch (error) {
             console.error("Erro ao buscar horários bloqueados:", error)
             return []
@@ -105,8 +118,29 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
         })
     }, [selectedDate, clinic.times, fetchBlockedTimes])
 
-    async function handleRegisterAppointement(formData: AppointementFormData) {
-        console.log("Form Data:", formData)
+    async function handleRegisterAppointment(formData: AppointmentFormData) {
+        if (!selectedTime) {
+            return
+        }
+
+        const response = await createNewAppointment({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            time: selectedTime,
+            date: formData.date,
+            serviceId: formData.serviceId,
+            clinicId: clinic.id
+        })
+
+        if (response.error) {
+            toast.error(response.error)
+            return
+        }
+
+        toast.success("Agendamento realizado com sucesso!")
+        form.reset()
+        setSelectedTime("")
     }
 
     return (
@@ -142,7 +176,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                 <Form {...form}>
                     <form
                         className="mx-2 space-y-6 bg-white p-6 border rounded-md shadow-sm"
-                        onSubmit={form.handleSubmit(handleRegisterAppointement)}
+                        onSubmit={form.handleSubmit(handleRegisterAppointment)}
                     >
                         <FormField
                             control={form.control}
