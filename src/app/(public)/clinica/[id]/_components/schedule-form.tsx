@@ -4,7 +4,7 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-export const appointementSchema = z.object({
+export const appointmentSchema = z.object({
     name: z.string().min(1, "O nome é obrigatório"),
     email: z.string().email("O e-mail é obrigatório"),
     phone: z.string().min(1, "O telefone é obrigatório"),
@@ -12,11 +12,11 @@ export const appointementSchema = z.object({
     serviceId: z.string().min(1, "O serviço é obrigatório"),
 })
 
-export type AppointementFormData = z.infer<typeof appointementSchema>
+export type AppointmentFormData = z.infer<typeof appointmentSchema>
 
-export function useAppointementForm() {
-    return useForm<AppointementFormData>({
-        resolver: zodResolver(appointementSchema),
+export function useAppointmentForm() {
+    return useForm<AppointmentFormData>({
+        resolver: zodResolver(appointmentSchema),
         defaultValues: {
             name: "",
             email: "",
