@@ -30,7 +30,6 @@ export function ButtonCopyLink({ userId }: { userId: string }) {
                     <LinkIcon className="h-4 w-4" />
                 </Button>
             </TooltipTrigger>
-
             <TooltipContent>
                 Copiar link
             </TooltipContent>

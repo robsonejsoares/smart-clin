@@ -15,9 +15,9 @@ export default async function Dashboard() {
     }
 
     return (
-        <main>
-            <div className="flex items-center justify-end space-x-2">
-                <TooltipProvider>
+        <TooltipProvider>
+            <main>
+                <div className="flex items-center justify-end space-x-2">
                     <ButtonCopyLink userId={session.user.id} />
 
                     <Link
@@ -29,15 +29,15 @@ export default async function Dashboard() {
                             <span>Novo Agendamento</span>
                         </Button>
                     </Link>
-                </TooltipProvider>
-            </div>
-            <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4">
-                <div>
-                    Agenda
                 </div>
+                <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4">
+                    <div>
+                        Agenda
+                    </div>
 
-                <Reminders userId={session.user.id} />
-            </section>
-        </main>
+                    <Reminders userId={session.user.id} />
+                </section>
+            </main>
+        </TooltipProvider>
     );
 }
