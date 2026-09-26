@@ -130,19 +130,19 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                     />
                 </nav>
 
-                {/* Botão Sair da Conta - Desktop */}
+                {/* Botão Sair - Desktop */}
                 <div className="mt-auto pt-4 border-t">
                     <Button
                         variant="ghost"
                         onClick={handleLogout}
-                        className={clsx("w-full flex items-center text-red-600 hover:text-red-700 bg-red-100 hover:bg-red-200 transition-colors cursor-pointer", {
+                        className={clsx("w-full flex items-center transition-colors cursor-pointer", {
                             "justify-center h-10 w-10 p-0": isCollapsed,
                             "justify-start gap-2 px-3 py-2": !isCollapsed,
                         })}
-                        title="Sair da Conta"
+                        title="Sair"
                     >
                         <LogOut className="h-5 w-5 shrink-0" />
-                        {!isCollapsed && <span className="truncate font-semibold">Sair da Conta</span>}
+                        {!isCollapsed && <span>Sair</span>}
                     </Button>
                 </div>
             </aside>
@@ -234,15 +234,15 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                 </nav>
                             </div>
 
-                            {/* Botão Sair da Conta - Mobile */}
+                            {/* Botão Sair - Mobile */}
                             <div className="mt-auto pt-4 border-t mb-2">
                                 <Button
                                     variant="ghost"
                                     onClick={handleLogout}
-                                    className="w-full flex items-center justify-start gap-2 px-3 py-2 text-red-600 hover:text-red-700 bg-red-100 hover:bg-red-200 transition-colors cursor-pointer"
+                                    className="w-full flex items-center justify-start gap-2 px-3 py-2 transition-colors cursor-pointer"
                                 >
                                     <LogOut className="h-5 w-5 shrink-0" />
-                                    <span className="font-semibold">Sair da Conta</span>
+                                    <span >Sair</span>
                                 </Button>
                             </div>
                         </SheetContent>

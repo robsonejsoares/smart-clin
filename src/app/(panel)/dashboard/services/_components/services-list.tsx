@@ -70,7 +70,7 @@ export function ServicesList({ services }: ServicesListProps) {
                         {/* Botão Adicionar*/}
                         <DialogTrigger asChild>
                             <Button
-                                className="bg-sky-500 text-white hover:bg-sky-600 transition-colors flex items-center gap-2 text-sm font-semibold"
+                                className="bg-sky-500 text-white hover:bg-sky-600 transition-colors flex items-center gap-2 text-sm"
                             >
                                 <Plus className="h-4 w-4 shrink-0" strokeWidth={3.20} />
                                 <span>Adicionar</span>

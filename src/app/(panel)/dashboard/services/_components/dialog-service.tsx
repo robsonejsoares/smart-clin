@@ -262,7 +262,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                     </div>
                     <Button
                         type="submit"
-                        className="w-full bg-sky-500 text-white hover:bg-sky-600 disabled:hover:bg-sky-500 transition-colors text-sm font-semibold py-2.5"
+                        className="w-full bg-sky-500 text-white hover:bg-sky-600 disabled:hover:bg-sky-500 transition-colors text-sm py-2.5"
                         disabled={
                             loading ||
                             !form.watch("name") ||

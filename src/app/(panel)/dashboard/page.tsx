@@ -1,11 +1,11 @@
-import Link from "next/link";
-import { Calendar } from "lucide-react";
+import { ButtonCopyLink } from "./_components/button-copy-link";
+import { Reminders } from "./_components/reminder/reminders";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 import getSession from "@/lib/getSession";
 import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Reminders } from "./components/reminders";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { ButtonCopyLink } from "./components/button-copy-link";
+import { Calendar } from "lucide-react";
+import Link from "next/link";
 
 export default async function Dashboard() {
     const session = await getSession();
@@ -24,7 +24,7 @@ export default async function Dashboard() {
                         href={`/clinica/${session.user?.id}`}
                         target="_blank"
                     >
-                        <Button className="bg-emerald-500 hover:bg-emerald-400 font-semibold">
+                        <Button className="bg-emerald-500 hover:bg-emerald-400">
                             <Calendar className="w-5 h-5" />
                             <span>Novo Agendamento</span>
                         </Button>
@@ -36,7 +36,7 @@ export default async function Dashboard() {
                     Agenda
                 </div>
 
-                <Reminders userId={session.user.id}/>
+                <Reminders userId={session.user.id} />
             </section>
         </main>
     );
