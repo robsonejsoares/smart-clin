@@ -29,11 +29,19 @@ export function isSlotInThePast(slotTime: string) {
 
 }
 
+/**
+ * Verifica se uma sequência de slots está disponível.
+ * @param startSlot O primeiro slot da sequência
+ * @param requiredSlots A quantidade de slots necessários
+ * @param allSlots Todos os slots disponíveis
+ * @param blockedSlots Os slots bloqueados
+ * @returns true se a sequência estiver disponível, false caso contrário
+ */
 export function isSlotSequenceAvailable(
-  startSlot: string, //> Primeiro horario disponivel
-  requiredSlots: number, //> Quantidade de slots necessários
-  allSlots: string[], //> Todos horarios da clinica
-  blockedSlots: string[] //> Horarios bloqueados
+  startSlot: string,
+  requiredSlots: number,
+  allSlots: string[],
+  blockedSlots: string[]
 ) {
 
   const startIndex = allSlots.indexOf(startSlot)

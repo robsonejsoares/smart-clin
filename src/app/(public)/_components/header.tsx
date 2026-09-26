@@ -53,16 +53,18 @@ export function Header() {
                     {status === "loading" ? (
                         <></>
                     ) : session ? (
-                        <Link
-                            href="/dashboard"
-                            className="flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-700 text-white rounded-md px-4"
+                        <Button
+                            asChild
+                            className="w-38 bg-indigo-900 hover:bg-indigo-800 text-white shadow-sm"
                         >
-                            Acessar Clínica
-                        </Link>
+                            <Link href="/dashboard">
+                                Acessar Clínica
+                            </Link>
+                        </Button>
                     ) : (
                         <Button
                             onClick={handleLogin}
-                            className="bg-indigo-900 hover:bg-indigo-950 text-white cursor-pointer shadow-sm"
+                            className="w-38 bg-indigo-900 hover:bg-indigo-800 text-white shadow-sm"
                         >
                             <LogIn />
                             Portal da Clínica
@@ -108,18 +110,21 @@ export function Header() {
                             {status === "loading" ? (
                                 <></>
                             ) : session ? (
-                                <Link
-                                    href="/dashboard"
-                                    onClick={() => setIsOpen(false)}
-                                    className="flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-700 text-white rounded-md px-4"
+                                <Button
+                                    asChild
+                                    className="w-full bg-indigo-900 hover:bg-indigo-800 text-white shadow-sm"
                                 >
-                                    Acessar Clínica
-                                </Link>
+                                    <Link
+                                        href="/dashboard"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Acessar Clínica
+                                    </Link>
+                                </Button>
                             ) : (
                                 <Button
                                     onClick={handleLogin}
-                                    className="bg-indigo-900 hover:bg-indigo-950 text-white cursor-pointer shadow-sm"
-
+                                    className="w-full bg-indigo-900 hover:bg-indigo-800 text-white cursor-pointer shadow-sm"
                                 >
                                     <LogIn />
                                     Portal da Clínica

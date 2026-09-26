@@ -129,11 +129,11 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                 const times = clinic.times || []
 
                 const finalSlots = times.map((time) => {
-                    const [hours] = time.split(":").map(Number)
+                    const [hours, minutes] = time.split(":").map(Number)
 
-                    // No sábado, somente horários antes das 12:00
                     const saturdayUnavailable =
-                        isSaturday && hours >= 12
+                        isSaturday &&
+                        (hours > 12 || (hours === 12 && minutes > 0))
 
                     return {
                         time,
@@ -147,8 +147,6 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
 
                 setAvailableTimesSlots(finalSlots)
 
-                // Se o horário anteriormente selecionado
-                // deixou de estar disponível, limpa a seleção
                 const stillAvailable = finalSlots.find(
                     (slot) =>
                         slot.time === selectedTime &&
@@ -277,7 +275,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                         <Input
                                             {...field}
                                             id="phone"
-                                            placeholder="Digite seu telefone..."
+                                            placeholder="(00) 00000-0000"
                                             onChange={(e) => {
                                                 const formattedValue = formatPhone(e.target.value);
                                                 field.onChange(formattedValue);
@@ -303,6 +301,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                             onChange={(date) => {
                                                 if (date) {
                                                     field.onChange(date)
+                                                    setSelectedTime("")
                                                 }
                                             }}
                                         />
@@ -318,7 +317,13 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                 <FormItem className="">
                                     <FormLabel className="font-semibold">Serviço:</FormLabel>
                                     <FormControl>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select
+                                            onValueChange={(value) => {
+                                                field.onChange(value)
+                                                setSelectedTime("")
+                                            }}
+                                            defaultValue={field.value}
+                                        >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Selecione um serviço..." />
                                             </SelectTrigger>
