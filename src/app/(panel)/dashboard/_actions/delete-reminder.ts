@@ -10,9 +10,9 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>
 
-export async function deleteReminder({ formData }: FormSchema) {
+export async function deleteReminder(formData: FormSchema) {
 
-    const schema = formSchema.safeParse(formData);
+    const schema = formSchema.safeParse(formData)
 
     if (!schema.success) {
         return {
@@ -24,11 +24,11 @@ export async function deleteReminder({ formData }: FormSchema) {
 
         await prisma.reminder.delete({
             where: {
-                id: formData.reminderid
+                id: formData.reminderId
             }
         })
 
-        revalidatePath("/dashboard");
+        revalidatePath("/dashboard")
 
         return {
             data: "Lembrete excluído com sucesso."

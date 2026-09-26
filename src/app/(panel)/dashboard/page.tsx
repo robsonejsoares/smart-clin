@@ -24,7 +24,7 @@ export default async function Dashboard() {
                         href={`/clinica/${session.user?.id}`}
                         target="_blank"
                     >
-                        <Button className="bg-emerald-500 hover:bg-emerald-400">
+                        <Button className="bg-emerald-500 hover:bg-emerald-400 transition-colors">
                             <Calendar className="w-5 h-5" />
                             <span>Novo Agendamento</span>
                         </Button>

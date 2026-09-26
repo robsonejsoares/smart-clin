@@ -75,7 +75,7 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                 <Button
                     variant="ghost"
                     size="icon"
-                    className={clsx("mb-2 cursor-pointer bg-gray-100 hover:bg-gray-200 h-10 w-10", {
+                    className={clsx("mb-2 cursor-pointer bg-gray-100 hover:bg-gray-200 transition-colors h-10 w-10", {
                         "self-end": !isCollapsed,
                         "self-center": isCollapsed,
                     })}
@@ -159,7 +159,7 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="md:hidden hover:bg-emerald-200 cursor-pointer h-12 w-12 p-0 bg-transparent"
+                                    className="md:hidden hover:bg-emerald-200 transition-colors cursor-pointer h-12 w-12 p-0 bg-transparent"
                                     onClick={() => setIsCollapsed(false)}>
                                     <List className="w-5 h-5" />
                                 </Button>
