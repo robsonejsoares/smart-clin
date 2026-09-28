@@ -3,7 +3,7 @@
 import {
     signOut,
     useSession
-} from "next-auth/react"
+} from "next-auth/react";
 
 import {
     Tooltip,
@@ -25,14 +25,13 @@ import clsx from "clsx";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { X, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation"
+import { LogOut, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { SheetClose } from "@/components/ui/sheet";
 import logoImg from "../../../../../public/nome-smart-clin.png";
-import { Banknote, CalendarCheck2, ChevronLeft, ChevronRight, Folder, List, Settings } from "lucide-react";
-
+import { Banknote, CalendarCheck2, ChevronLeft, Folder, List, Settings } from "lucide-react";
 
 export function SidebarDashboard({ children }: { children: React.ReactNode }) {
 
@@ -54,47 +53,59 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                 "w-20": isCollapsed,
                 "w-64": !isCollapsed,
                 "hidden md:flex": true,
-            })}
-            >
-                <div className="mb-6 mt-4">
+            })}>
+                {/* Cabeçalho Desktop */}
+                <div className="-mx-4 -mt-4 mb-6 bg-emerald-50 p-3 border-b border-gray-200/80 flex items-center justify-between min-h-[64px] gap-2">
                     {!isCollapsed && (
                         <Link
                             href="/"
                             aria-label="Ir para a página inicial"
                             title="Ir para a página inicial"
+                            className="block max-w-[130px] shrink-0"
                         >
                             <Image
                                 src={logoImg}
                                 alt="Nome da SmartClin"
                                 priority
                                 quality={100}
+                                className="w-full h-auto object-contain"
                             />
                         </Link>
                     )}
+
+                    <TooltipProvider delayDuration={100}>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className={clsx(
+                                        "cursor-pointer transition-all rounded-md shrink-0 border shadow-xs active:scale-95",
+                                        "bg-white text-emerald-700 border-emerald-200/80",
+                                        "hover:bg-emerald-200 hover:text-emerald-700 hover:border-emerald-300 hover:shadow-md",
+                                        {
+                                            "ml-auto h-9 w-9": !isCollapsed,
+                                            "mx-auto h-11 w-11": isCollapsed,
+                                        }
+                                    )}
+                                    onClick={() => setIsCollapsed((collapsed) => !collapsed)}
+                                    aria-label={isCollapsed ? "Menu Administrativo" : "Recolher"}
+                                >
+                                    {isCollapsed ? (
+                                        <List className="h-6 w-6" />
+                                    ) : (
+                                        <ChevronLeft className="h-4 w-4" />
+                                    )}
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">
+                                {isCollapsed ? "Menu Administrativo" : "Recolher"}
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className={clsx("mb-2 cursor-pointer bg-gray-100 hover:bg-gray-200 transition-colors h-10 w-10", {
-                        "self-end": !isCollapsed,
-                        "self-center": isCollapsed,
-                    })}
-                    onClick={() => setIsCollapsed((collapsed) => !collapsed)}
-                    aria-label={isCollapsed ? "Expandir menu" : "Recolher menu"}
-                >
-                    {isCollapsed ? (
-                        <ChevronRight className="h-6 w-6" />
-                    ) : (
-                        <ChevronLeft className="h-6 w-6" />
-                    )}
-                </Button>
 
                 <nav className="flex flex-col gap-1 overflow-hidden">
-                    {!isCollapsed && (
-                        <span className="mt-1 text-sm font-medium uppercase text-gray-400">
-                            Painel
-                        </span>
-                    )}
                     <SidebarLink
                         href="/dashboard"
                         label="Agendamentos"
@@ -109,11 +120,6 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                         isCollapsed={isCollapsed}
                         icon={<Folder className="h-6 w-6" />}
                     />
-                    {!isCollapsed && (
-                        <span className="mt-3 text-sm font-medium uppercase text-gray-400">
-                            Configurações
-                        </span>
-                    )}
                     <SidebarLink
                         href="/dashboard/profile"
                         label="Meu Perfil"
@@ -132,20 +138,36 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
 
                 {/* Botão Sair - Desktop */}
                 <div className="mt-auto pt-4 border-t">
-                    <Button
-                        variant="ghost"
-                        onClick={handleLogout}
-                        className={clsx("w-full flex items-center transition-colors cursor-pointer", {
-                            "justify-center h-10 w-10 p-0": isCollapsed,
-                            "justify-start gap-2 px-3 py-2": !isCollapsed,
-                        })}
-                        title="Sair"
-                    >
-                        <LogOut className="h-5 w-5 shrink-0" />
-                        {!isCollapsed && <span>Sair</span>}
-                    </Button>
+                    {isCollapsed ? (
+                        <TooltipProvider delayDuration={100}>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        onClick={handleLogout}
+                                        className="w-full flex items-center justify-center h-10 w-10 p-0 transition-colors cursor-pointer text-gray-700 hover:bg-gray-100"
+                                    >
+                                        <LogOut className="h-5 w-5 shrink-0" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="right">
+                                    Sair
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    ) : (
+                        <Button
+                            variant="ghost"
+                            onClick={handleLogout}
+                            className="w-full flex items-center justify-start gap-2 px-3 py-2 transition-colors cursor-pointer text-gray-700 hover:bg-gray-100"
+                        >
+                            <LogOut className="h-5 w-5 shrink-0" />
+                            <span>Sair</span>
+                        </Button>
+                    )}
                 </div>
             </aside>
+
             <div
                 className={clsx("flex flex-1 flex-col transition-all duration-300", {
                     "md:ml-20": isCollapsed,
@@ -155,32 +177,59 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                 <header className="md:hidden flex items-center justify-between border-b px-2 md:px-6 h-14 z-10 sticky top-0 bg-emerald-50">
                     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                         <div className="flex items-center gap-4">
-                            <SheetTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="md:hidden hover:bg-emerald-200 transition-colors cursor-pointer h-12 w-12 p-0 bg-transparent"
-                                    onClick={() => setIsCollapsed(false)}>
-                                    <List className="w-5 h-5" />
-                                </Button>
-                            </SheetTrigger>
-                            <h1 className="text-base md:text-lg font-semibold">
-                                Menu SmartClin
-                            </h1>
+                            <TooltipProvider delayDuration={100}>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <SheetTrigger asChild>
+                                            <Button
+                                                className="md:hidden transition-all cursor-pointer h-11 w-11 p-0 bg-white text-emerald-700 border border-emerald-200/80 hover:bg-emerald-200 hover:text-emerald-700 hover:border-emerald-300 hover:shadow-md active:scale-95 shadow-xs rounded-md"
+                                                onClick={() => setIsCollapsed(false)}
+                                                aria-label="Menu administrativo"
+                                            >
+                                                <List className="h-6 w-6" />
+                                            </Button>
+                                        </SheetTrigger>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">
+                                        Menu Administrativo
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         </div>
                         <SheetContent side="right" className="sm:max-w-xs text-black flex flex-col [&>button]:hidden">
                             <div tabIndex={0} className="sr-only" />
 
-                            {/* Botão Fechar */}
-                            <div className="absolute right-4 top-4 z-50">
-                                <TooltipProvider>
+                            {/* Cabeçalho do Mobile */}
+                            <div className="-mx-6 -mt-6 mb-4 bg-emerald-50 p-4 border-b border-gray-200 flex items-center justify-between">
+                                <SheetHeader className="sr-only">
+                                    <SheetTitle>SmartClin</SheetTitle>
+                                    <SheetDescription>Menu Administrativo</SheetDescription>
+                                </SheetHeader>
+
+                                <Link
+                                    href="/"
+                                    aria-label="Ir para a página inicial"
+                                    title="Ir para a página inicial"
+                                    className="block max-w-[130px]"
+                                    onClick={() => setIsSheetOpen(false)}
+                                >
+                                    <Image
+                                        src={logoImg}
+                                        alt="Nome da SmartClin"
+                                        priority
+                                        quality={100}
+                                        className="w-full h-auto object-contain"
+                                    />
+                                </Link>
+
+                                <TooltipProvider delayDuration={100}>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <SheetClose asChild>
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-8 w-8 text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-md"
+                                                    className="h-9 w-9 bg-white text-emerald-700 border border-emerald-200/80 hover:bg-emerald-200 hover:text-emerald-700 hover:border-emerald-300 hover:shadow-md shadow-xs rounded-md transition-all cursor-pointer active:scale-95"
                                                 >
                                                     <X className="h-4 w-4" />
                                                 </Button>
@@ -193,12 +242,9 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                 </TooltipProvider>
                             </div>
 
+                            {/* Links de navegação Mobile */}
                             <div>
-                                <SheetHeader>
-                                    <SheetTitle>SmartClin</SheetTitle>
-                                    <SheetDescription>Menu Administrativo</SheetDescription>
-                                </SheetHeader>
-                                <nav className="grid gap-2 text-base pt-5">
+                                <nav className="grid gap-2 text-base pt-2">
                                     <SidebarLink
                                         href="/dashboard"
                                         label="Agendamentos"
@@ -239,10 +285,10 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                 <Button
                                     variant="ghost"
                                     onClick={handleLogout}
-                                    className="w-full flex items-center justify-start gap-2 px-3 py-2 transition-colors cursor-pointer"
+                                    className="w-full flex items-center justify-start gap-2 px-3 py-2 transition-colors cursor-pointer text-gray-700 hover:bg-gray-100"
                                 >
                                     <LogOut className="h-5 w-5 shrink-0" />
-                                    <span >Sair</span>
+                                    <span>Sair</span>
                                 </Button>
                             </div>
                         </SheetContent>
@@ -266,7 +312,9 @@ interface SidebarLinkProps {
 }
 
 function SidebarLink({ href, icon, isCollapsed, label, pathname, onClick }: SidebarLinkProps) {
-    return (
+    const isActive = pathname === href;
+
+    const content = (
         <Link
             href={href}
             onClick={onClick}
@@ -275,9 +323,9 @@ function SidebarLink({ href, icon, isCollapsed, label, pathname, onClick }: Side
             })}
         >
             <div
-                className={clsx("flex items-center rounded-md transition-colors", {
-                    "text-gray-900 bg-gray-200 font-medium": pathname === href,
-                    "text-gray-700 hover:bg-gray-100": pathname !== href,
+                className={clsx("flex items-center transition-colors", {
+                    "bg-gray-100 text-gray-900 font-medium rounded-md": isActive,
+                    "text-gray-600 hover:bg-gray-100/60 hover:text-gray-900 rounded-md": !isActive,
                     "h-10 w-10 justify-center items-center": isCollapsed,
                     "gap-2 px-3 py-2 w-full": !isCollapsed,
                 })}
@@ -287,4 +335,21 @@ function SidebarLink({ href, icon, isCollapsed, label, pathname, onClick }: Side
             </div>
         </Link>
     );
+
+    if (isCollapsed) {
+        return (
+            <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        {content}
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                        {label}
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        );
+    }
+
+    return content;
 }

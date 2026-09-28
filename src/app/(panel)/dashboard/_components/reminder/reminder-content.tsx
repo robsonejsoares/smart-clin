@@ -32,7 +32,7 @@ export function ReminderContent({ closeDialog }: ReminderContentProps) {
 
         const [response] = await Promise.all([
             createReminder({ description: formData.description }),
-            new Promise((resolve) => setTimeout(resolve, 2000)),
+            new Promise((resolve) => setTimeout(resolve, 1000)),
         ]);
 
         if (response.error) {
@@ -47,7 +47,7 @@ export function ReminderContent({ closeDialog }: ReminderContentProps) {
     }
 
     return (
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 py-3">
             <Form {...form}>
                 <form
                     className="flex flex-col gap-4"
