@@ -82,7 +82,7 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                     className={clsx(
                                         "cursor-pointer transition-all rounded-md shrink-0 border shadow-xs active:scale-95",
                                         "bg-white text-emerald-700 border-emerald-200/80",
-                                        "hover:bg-emerald-200 hover:text-emerald-700 hover:border-emerald-300 hover:shadow-md",
+                                        "hover:bg-emerald-100 hover:text-emerald-700 hover:border-emerald-200 hover:shadow-md",
                                         {
                                             "ml-auto h-9 w-9": !isCollapsed,
                                             "mx-auto h-11 w-11": isCollapsed,
@@ -182,7 +182,7 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                     <TooltipTrigger asChild>
                                         <SheetTrigger asChild>
                                             <Button
-                                                className="md:hidden transition-all cursor-pointer h-11 w-11 p-0 bg-white text-emerald-700 border border-emerald-200/80 hover:bg-emerald-200 hover:text-emerald-700 hover:border-emerald-300 hover:shadow-md active:scale-95 shadow-xs rounded-md"
+                                                className="md:hidden transition-all cursor-pointer h-11 w-11 p-0 bg-white text-emerald-700 border border-emerald-200/80 hover:bg-emerald-100 hover:text-emerald-700 hover:border-emerald-100 hover:shadow-md active:scale-95 shadow-xs rounded-md"
                                                 onClick={() => setIsCollapsed(false)}
                                                 aria-label="Painel administrativo"
                                             >
@@ -229,7 +229,7 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-9 w-9 bg-white text-emerald-700 border border-emerald-200/80 hover:bg-emerald-200 hover:text-emerald-700 hover:border-emerald-300 hover:shadow-md shadow-xs rounded-md transition-all cursor-pointer active:scale-95"
+                                                    className="h-9 w-9 bg-white text-emerald-700 border border-emerald-200/80 hover:bg-emerald-100 hover:text-emerald-700 hover:border-emerald-200 hover:shadow-md shadow-xs rounded-md transition-all cursor-pointer active:scale-95"
                                                 >
                                                     <X className="h-4 w-4" />
                                                 </Button>
