@@ -89,7 +89,7 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                         }
                                     )}
                                     onClick={() => setIsCollapsed((collapsed) => !collapsed)}
-                                    aria-label={isCollapsed ? "Menu Administrativo" : "Recolher"}
+                                    aria-label={isCollapsed ? "Painel Administrativo" : "Recolher"}
                                 >
                                     {isCollapsed ? (
                                         <List className="h-6 w-6" />
@@ -99,7 +99,7 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent side="right">
-                                {isCollapsed ? "Menu Administrativo" : "Recolher"}
+                                {isCollapsed ? "Painel Administrativo" : "Recolher"}
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
@@ -184,14 +184,14 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                                             <Button
                                                 className="md:hidden transition-all cursor-pointer h-11 w-11 p-0 bg-white text-emerald-700 border border-emerald-200/80 hover:bg-emerald-200 hover:text-emerald-700 hover:border-emerald-300 hover:shadow-md active:scale-95 shadow-xs rounded-md"
                                                 onClick={() => setIsCollapsed(false)}
-                                                aria-label="Menu administrativo"
+                                                aria-label="Painel administrativo"
                                             >
                                                 <List className="h-6 w-6" />
                                             </Button>
                                         </SheetTrigger>
                                     </TooltipTrigger>
                                     <TooltipContent side="bottom">
-                                        Menu Administrativo
+                                        Painel Administrativo
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
@@ -203,7 +203,7 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
                             <div className="-mx-6 -mt-6 mb-4 bg-emerald-50 p-4 border-b border-gray-200 flex items-center justify-between">
                                 <SheetHeader className="sr-only">
                                     <SheetTitle>SmartClin</SheetTitle>
-                                    <SheetDescription>Menu Administrativo</SheetDescription>
+                                    <SheetDescription>Painel Administrativo</SheetDescription>
                                 </SheetHeader>
 
                                 <Link

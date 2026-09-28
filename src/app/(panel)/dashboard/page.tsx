@@ -1,11 +1,12 @@
-import { ButtonCopyLink } from "./_components/button-copy-link";
-import { Reminders } from "./_components/reminder/reminders";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Calendar } from "lucide-react";
 import getSession from "@/lib/getSession";
 import { redirect } from "next/navigation";
-import { Calendar } from "lucide-react";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Reminders } from "./_components/reminder/reminders";
+import { ButtonCopyLink } from "./_components/button-copy-link";
+import { Appointments } from "./_components/appointments/appointments";
 
 export default async function Dashboard() {
     const session = await getSession();
@@ -31,9 +32,7 @@ export default async function Dashboard() {
                     </Link>
                 </div>
                 <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4">
-                    <div>
-                        Agenda
-                    </div>
+                    <Appointments userId={session.user.id} />
 
                     <Reminders userId={session.user.id} />
                 </section>
