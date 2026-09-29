@@ -37,7 +37,7 @@ export function SidebarDashboard({ children }: { children: React.ReactNode }) {
 
     const router = useRouter();
     const pathname = usePathname();
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const { update } = useSession();
 
