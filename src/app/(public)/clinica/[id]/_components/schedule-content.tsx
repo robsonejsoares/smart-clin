@@ -17,7 +17,6 @@ import {
     useState,
     useEffect,
     useCallback,
-    use,
 } from "react"
 
 import {
@@ -68,6 +67,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
 
     const [selectedTime, setSelectedTime] = useState("")
     const [loadingSlots, setLoadingSlots] = useState(false)
+    const [loadingAppointment, setLoadingAppointment] = useState(false)
     const [blockedTimes, setBlockedTimes] = useState<string[]>([])
     const [availableTimesSlots, setAvailableTimesSlots] = useState<TimeSlot[]>([])
 
@@ -170,24 +170,35 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
             return
         }
 
-        const response = await createNewAppointment({
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            time: selectedTime,
-            date: formData.date,
-            serviceId: formData.serviceId,
-            clinicId: clinic.id
-        })
+        setLoadingAppointment(true)
 
-        if (response.error) {
-            toast.error(response.error)
-            return
+        try {
+            const response = await createNewAppointment({
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                time: selectedTime,
+                date: formData.date,
+                serviceId: formData.serviceId,
+                clinicId: clinic.id
+            })
+
+            // Mesmo tempo do botão "Adicionando serviço..."
+            await new Promise(resolve => setTimeout(resolve, 1000))
+
+            if (response.error) {
+                toast.error(response.error)
+                return
+            }
+
+            toast.success("Agendamento realizado com sucesso!")
+
+            form.reset()
+            setSelectedTime("")
+
+        } finally {
+            setLoadingAppointment(false)
         }
-
-        toast.success("Agendamento realizado com sucesso!")
-        form.reset()
-        setSelectedTime("")
     }
 
     return (
@@ -205,13 +216,18 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                 fill
                             />
                         </div>
-                        <h1 className="text-2xl font-bold mb-2" >
+
+                        <h1 className="text-2xl font-bold mb-2">
                             {clinic.name}
                         </h1>
+
                         <div className="flex items-center gap-1">
                             <MapPin className="w-5 h-5" />
+
                             <span>
-                                {clinic.address ? clinic.address : "Endereço não informado"}
+                                {clinic.address
+                                    ? clinic.address
+                                    : "Endereço não informado"}
                             </span>
                         </div>
                     </article>
@@ -233,6 +249,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                     <FormLabel className="font-semibold">
                                         Nome Completo:
                                     </FormLabel>
+
                                     <FormControl>
                                         <Input
                                             id="name"
@@ -240,10 +257,12 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                             {...field}
                                         />
                                     </FormControl>
+
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
                         <FormField
                             control={form.control}
                             name="email"
@@ -252,6 +271,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                     <FormLabel className="font-semibold">
                                         E-mail:
                                     </FormLabel>
+
                                     <FormControl>
                                         <Input
                                             id="email"
@@ -259,10 +279,12 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                             {...field}
                                         />
                                     </FormControl>
+
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
                         <FormField
                             control={form.control}
                             name="phone"
@@ -271,21 +293,26 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                     <FormLabel className="font-semibold">
                                         Telefone:
                                     </FormLabel>
+
                                     <FormControl>
                                         <Input
                                             {...field}
                                             id="phone"
                                             placeholder="(00) 00000-0000"
                                             onChange={(e) => {
-                                                const formattedValue = formatPhone(e.target.value);
-                                                field.onChange(formattedValue);
+                                                const formattedValue =
+                                                    formatPhone(e.target.value)
+
+                                                field.onChange(formattedValue)
                                             }}
                                         />
                                     </FormControl>
+
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
                         <FormField
                             control={form.control}
                             name="date"
@@ -294,6 +321,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                     <FormLabel className="font-semibold">
                                         Data do Agendamento:
                                     </FormLabel>
+
                                     <FormControl>
                                         <DateTimePicker
                                             initialDate={field.value}
@@ -306,16 +334,21 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                             }}
                                         />
                                     </FormControl>
+
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
                         <FormField
                             control={form.control}
                             name="serviceId"
                             render={({ field }) => (
-                                <FormItem className="">
-                                    <FormLabel className="font-semibold">Serviço:</FormLabel>
+                                <FormItem>
+                                    <FormLabel className="font-semibold">
+                                        Serviço:
+                                    </FormLabel>
+
                                     <FormControl>
                                         <Select
                                             onValueChange={(value) => {
@@ -327,15 +360,20 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Selecione um serviço..." />
                                             </SelectTrigger>
+
                                             <SelectContent>
                                                 {clinic.services.map((service) => (
-                                                    <SelectItem key={service.id} value={service.id}>
+                                                    <SelectItem
+                                                        key={service.id}
+                                                        value={service.id}
+                                                    >
                                                         {service.name} - R$ {service.price / 100} ({service.duration} min)
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                     </FormControl>
+
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -346,6 +384,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                 <label className="font-semibold">
                                     Horários Disponíveis:
                                 </label>
+
                                 <div className="bg-gray-100 p-4 rounded-lg">
                                     {loadingSlots ? (
                                         <p>
@@ -357,21 +396,31 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                         </p>
                                     ) : (
                                         <ScheduleTimeList
-                                            onSelectTime={(time) => setSelectedTime(time)}
+                                            onSelectTime={(time) =>
+                                                setSelectedTime(time)
+                                            }
                                             clinicTimes={clinic.times}
                                             blockedTimes={blockedTimes}
                                             availableTimeSlots={availableTimesSlots}
                                             selectedTime={selectedTime}
                                             selectedDate={selectedDate}
                                             requiredSlots={
-                                                clinic.services.find(service => service.id === selectedServiceId) ? Math.ceil(clinic.services.find(service =>
-                                                    service.id === selectedServiceId)!.duration / 30) : 1
+                                                clinic.services.find(
+                                                    service =>
+                                                        service.id === selectedServiceId
+                                                )
+                                                    ? Math.ceil(
+                                                        clinic.services.find(
+                                                            service =>
+                                                                service.id === selectedServiceId
+                                                        )!.duration / 30
+                                                    )
+                                                    : 1
                                             }
                                         />
                                     )}
                                 </div>
                             </div>
-
                         )}
 
                         {/* Botão Realizar Agendamento */}
@@ -380,6 +429,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                 className="w-full bg-emerald-500 enabled:hover:bg-emerald-400 disabled:bg-emerald-500 disabled:hover:bg-emerald-500 font-semibold"
                                 type="submit"
                                 disabled={
+                                    loadingAppointment ||
                                     !watch("name") ||
                                     !watch("email") ||
                                     !watch("phone") ||
@@ -387,17 +437,18 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                                     !watch("serviceId")
                                 }
                             >
-                                Realizar Agendamento
+                                {loadingAppointment
+                                    ? "Realizando agendamento..."
+                                    : "Realizar Agendamento"}
                             </Button>
                         ) : (
-                            <p
-                                className="text-red-600 bg-red-100 text-center px-4 py-2 rounded-md cursor-not-allowed">
+                            <p className="text-red-600 bg-red-100 text-center px-4 py-2 rounded-md cursor-not-allowed">
                                 Neste momento, a clínica está fechada.
                             </p>
                         )}
                     </form>
                 </Form>
             </section>
-        </div >
+        </div>
     )
 }

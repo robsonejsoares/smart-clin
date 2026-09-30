@@ -123,7 +123,7 @@ export function ReminderList({ reminder }: ReminderListProps) {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button
-                                            className="bg-red-500 hover:bg-red-400 shadow-none rounded-full w-7 h-7 shrink-0 cursor-pointer"
+                                            className="bg-red-500 hover:bg-red-600 shadow-none rounded-full w-7 h-7 shrink-0 cursor-pointer"
                                             size="sm"
                                             onClick={() => setReminderToDelete(item.id)}
                                         >
@@ -141,44 +141,51 @@ export function ReminderList({ reminder }: ReminderListProps) {
                 </CardContent>
             </Card>
 
-            <AlertDialog
-                open={!!reminderToDelete}
-                onOpenChange={(open) => {
-                    if (!open) {
+<Dialog
+    open={!!reminderToDelete}
+    onOpenChange={(open) => {
+        if (!open) {
+            setReminderToDelete(null);
+        }
+    }}
+>
+    <DialogContent>
+        <DialogHeader>
+            <DialogTitle>
+                Excluir lembrete
+            </DialogTitle>
+
+            <DialogDescription>
+                Tem certeza que deseja excluir este lembrete?
+                Essa ação não poderá ser desfeita.
+            </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex justify-end gap-2">
+            <Button
+                type="button"
+                variant="outline"
+                className="cursor-pointer"
+                onClick={() => setReminderToDelete(null)}
+            >
+                Cancelar
+            </Button>
+
+            <Button
+                type="button"
+                className="bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+                onClick={() => {
+                    if (reminderToDelete) {
+                        handleDeleteReminder(reminderToDelete);
                         setReminderToDelete(null);
                     }
                 }}
             >
-                <AlertDialogContent className="">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>
-                            Excluir lembrete
-                        </AlertDialogTitle>
-
-                        <AlertDialogDescription>
-                            Tem certeza que deseja excluir este lembrete? Essa ação não poderá ser desfeita.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-
-                    <AlertDialogFooter>
-                        <AlertDialogCancel className="cursor-pointer">
-                            Cancelar
-                        </AlertDialogCancel>
-
-                        <AlertDialogAction
-                            className="bg-red-500 hover:bg-red-400 cursor-pointer"
-                            onClick={() => {
-                                if (reminderToDelete) {
-                                    handleDeleteReminder(reminderToDelete);
-                                    setReminderToDelete(null);
-                                }
-                            }}
-                        >
-                            Excluir
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+                Excluir
+            </Button>
+        </div>
+    </DialogContent>
+</Dialog>
         </div>
     )
 }
