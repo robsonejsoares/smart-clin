@@ -95,12 +95,6 @@ const [isOpen, setIsOpen] =
     useState(false)
 
 useEffect(() => {
-    if (value) {
-        setDisplayMonth(value)
-    }
-}, [value])
-
-useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
         if (
             containerRef.current &&

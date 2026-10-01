@@ -17,7 +17,7 @@ export async function getReminders({ userId }: { userId: string }) {
 
         return reminders;
 
-    } catch (error) {
+    } catch {
         return [];
     }
 }

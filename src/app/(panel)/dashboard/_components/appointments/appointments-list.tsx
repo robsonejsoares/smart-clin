@@ -1,10 +1,10 @@
 "use client"
 
+import Link from "next/link"
 import { toast } from "sonner"
 import { useState } from "react"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
-import Link, { type LinkProps } from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Prisma } from "@/generated/prisma/client"
 import { ButtonPickerAppointment } from "./button-date"
@@ -143,14 +143,6 @@ export function AppointmentsList({
         await refetch()
         toast.success(response.data)
         setAppointmentToCancel(null)
-    }
-
-    function handleScheduleAppointment() {
-        window.open(
-            `${process.env.NEXT_PUBLIC_URL}/clinica/${userId}`,
-            "_blank",
-            "noopener,noreferrer"
-        )
     }
 
     function handleWhatsApp(appointment: AppointmentWithService) {
