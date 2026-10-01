@@ -39,7 +39,7 @@ export async function updateProfile(formData: FormSchema) {
             },
             data: {
                 name: formData.name,
-                adress: formData.address,
+                address: formData.address,
                 phone: formData.phone,
                 status: formData.status,
                 timeZone: formData.timeZone,

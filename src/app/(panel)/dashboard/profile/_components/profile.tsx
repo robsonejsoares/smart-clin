@@ -2,14 +2,14 @@
 
 import {
     ProfileFormData,
-    useProfileForm
+    useProfileForm,
 } from "./profile-form"
 
 import {
     Card,
     CardContent,
     CardHeader,
-    CardTitle
+    CardTitle,
 } from "@/components/ui/card"
 
 import {
@@ -17,16 +17,15 @@ import {
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue
+    SelectValue,
 } from "@/components/ui/select"
 
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger
+    DialogTrigger,
 } from "@/components/ui/dialog"
 
 import {
@@ -35,65 +34,80 @@ import {
     FormField,
     FormItem,
     FormLabel,
-    FormMessage
+    FormMessage,
 } from "@/components/ui/form"
 
 import { cn } from "cn"
 import Image from "next/image"
 import { toast } from "sonner"
 import { useState } from "react"
-import { ArrowRight } from "lucide-react"
+
+import {
+    Info,
+    Phone,
+    Check,
+    Clock3,
+    MapPin,
+    UserRound,
+    ArrowRight,
+} from "lucide-react"
+
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { formatPhone } from "@/utils/formatPhone"
 import { Prisma } from "@/generated/prisma/client"
 import { updateProfile } from "../_actions/update-profile"
-import imgTest from "../../../../../../public/icone-criar-foto-perfil.webp"
+import imgTest from "../../../../../../public/logo-smart-clin.png"
 
 type UserWithSubcription = Prisma.UserGetPayload<{
     include: {
         subscription: true;
     };
-}>;
+}>
 
 interface ProfileContentProps {
     user: UserWithSubcription;
 }
 
 export function ProfileContent({ user }: ProfileContentProps) {
+    const [selectedHours, setSelectedHours] = useState<string[]>(
+        user.times ?? []
+    )
 
-    
-    const [selectedHours, setSelectedHours] = useState<string[]>(user.times ?? []);
-    const [dialogIsOpen, setDialogIsOpen] = useState(false);
+    const [dialogIsOpen, setDialogIsOpen] = useState(false)
 
     const form = useProfileForm({
         name: user.name,
-        address: user.adress,
+        address: user.address,
         phone: user.phone,
         status: user.status,
-        timeZone: user.timeZone
-    });
+        timeZone: user.timeZone,
+    })
 
     function generateTimeSlots(): string[] {
-        const hours: string[] = [];
+        const hours: string[] = []
 
         for (let i = 8; i <= 22; i++) {
             for (let j = 0; j < 2; j++) {
+                const hour = i.toString().padStart(2, "0")
+                const minute = (j * 30).toString().padStart(2, "0")
 
-                const hour = i.toString().padStart(2, "0");
-                const minute = (j * 30).toString().padStart(2, "0");
-                hours.push(`${hour}:${minute}`);
+                hours.push(`${hour}:${minute}`)
             }
         }
 
-        return hours;
+        return hours
     }
 
-    const hours = generateTimeSlots();
+    const hours = generateTimeSlots()
 
     function toggleHour(hour: string) {
-        setSelectedHours(prev => prev.includes(hour) ? prev.filter(h => h !== hour) : [...prev, hour].sort());
+        setSelectedHours(prev =>
+            prev.includes(hour)
+                ? prev.filter(h => h !== hour)
+                : [...prev, hour].sort()
+        )
     }
 
     const brazilianTimeZones = [
@@ -112,140 +126,311 @@ export function ProfileContent({ user }: ProfileContentProps) {
         "America/Boa_Vista",
         "America/Manaus",
         "America/Rio_Branco",
-        "America/Noronha"
-    ];
+        "America/Noronha",
+    ]
 
-    const timeZones = Intl.supportedValuesOf("timeZone").filter((zone) =>
+    const timeZones = Intl.supportedValuesOf("timeZone").filter(zone =>
         brazilianTimeZones.includes(zone)
-    );
+    )
 
     async function onSubmit(values: ProfileFormData) {
         const response = await updateProfile({
             name: values.name,
             address: values.address,
-            status: values.status === "active" ? true : false,
+            status: values.status === "active",
             phone: values.phone,
             timeZone: values.timeZone,
             times: selectedHours || [],
         })
 
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
         if (response.error) {
-            toast.error(response.error);
-            return;
+            toast.error(response.error)
+            return
         }
 
         toast.success(response.data)
     }
 
+    if (form.formState.isSubmitting) {
+        return (
+            <div className="flex min-h-[calc(100vh-7rem)] items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="relative flex h-12 w-12 items-center justify-center">
+                        <span className="absolute inset-0 rounded-full border-2 border-[#252579]/10" />
+
+                        <span className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[#252579] border-r-emerald-500" />
+
+                        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.35)]" />
+                    </div>
+
+                    <div className="flex flex-col items-center gap-1">
+                        <span className="text-sm font-medium text-foreground">
+                            Carregando...
+                        </span>
+
+                        <span className="text-xs text-muted-foreground">
+                            Aguarde um momento.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <div className="mx-auto">
+        <div className="mx-auto w-full max-w-5xl space-y-3">
+            <Card className="group relative overflow-hidden border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
+                {/* Linha gradiente superior */}
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px"
+                >
+                    <div className="smartclin-profile-line-top h-full bg-gradient-to-r from-emerald-400 via-[#252579] to-violet-500 blur-[0.5px]" />
+                </div>
+
+                {/* Linha gradiente inferior */}
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-px"
+                >
+                    <div className="smartclin-profile-line-bottom ml-auto h-full bg-gradient-to-l from-emerald-400 via-[#252579] to-violet-500 blur-[0.5px]" />
+                </div>
+
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_88%_8%,rgba(16,185,129,0.075),transparent_30%),radial-gradient(circle_at_8%_100%,rgba(37,37,121,0.055),transparent_34%),linear-gradient(135deg,rgba(16,185,129,0.025),transparent_42%,rgba(37,37,121,0.025))]"
+                />
+
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-24 -top-24 h-48 w-48 rounded-full bg-emerald-500/[0.055] blur-3xl"
+                />
+
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -bottom-32 left-1/3 h-48 w-48 rounded-full bg-[#252579]/[0.045] blur-3xl"
+                />
+
+                <CardHeader className="relative z-10 flex flex-row items-center justify-between gap-5 space-y-0 px-5 py-5 md:px-6">
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2.5">
+                            <span
+                                aria-hidden="true"
+                                className="relative flex h-2.5 w-2.5 shrink-0"
+                            >
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/40" />
+
+                                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.28)]" />
+                            </span>
+
+                            <span className="text-[11px] font-semibold tracking-[0.04em] text-emerald-700/80">
+                                Painel de
+                            </span>
+                        </div>
+
+                        <CardTitle className="relative mt-2 w-fit max-w-full overflow-hidden text-2xl font-bold tracking-tight sm:text-3xl">
+                            <span className="relative z-10 inline-block bg-gradient-to-r from-[#252579] via-[#10b981] to-[#252579] bg-[length:300%_100%] bg-[position:0%_50%] bg-clip-text text-transparent transition-[background-position] duration-1000 ease-out group-hover:bg-[position:100%_50%]">
+                                Perfil
+                            </span>
+
+                            <span
+                                aria-hidden="true"
+                                className="pointer-events-none absolute inset-y-0 -left-1/2 z-20 w-1/3 skew-x-[-20deg] bg-gradient-to-r from-transparent via-white/90 to-transparent opacity-0 blur-[2px] transition-[left,opacity] duration-[1400ms] ease-out group-hover:left-[120%] group-hover:opacity-100"
+                            />
+                        </CardTitle>
+                    </div>
+                </CardHeader>
+            </Card>
+
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>
-                                Meu Perfil
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="flex justify-center">
-                                <div className="relative w-40 h-40 rounded-full overflow-hidden">
-                                    <Image
-                                        src={user.image ? user.image : imgTest}
-                                        alt="Foto de perfil"
-                                        fill
-                                        className="object-cover"
-                                    />
+                    <Card className="group relative overflow-hidden border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
+                        <div
+                            aria-hidden="true"
+                            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_92%_5%,rgba(16,185,129,0.045),transparent_25%),radial-gradient(circle_at_5%_95%,rgba(37,37,121,0.035),transparent_30%)]"
+                        />
+
+                        <CardHeader className="relative z-10 border-b border-border/60 bg-gradient-to-br from-background via-background to-emerald-500/[0.02] px-5 py-5 sm:px-7">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover:border-[#252579]/20 group-hover:bg-[#252579]/[0.09] group-hover:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
+                                    <UserRound className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3" />
+                                </div>
+
+                                <div className="min-w-0">
+                                    <CardTitle className="text-base font-semibold tracking-tight">
+                                        Informações do Perfil
+                                    </CardTitle>
                                 </div>
                             </div>
-                            <div className="space-y-4">
+                        </CardHeader>
+
+                        <CardContent className="relative z-10 space-y-8 px-5 py-6 sm:px-7 sm:py-7">
+                            <div className="flex flex-col items-center gap-3">
+                                <div className="group/avatar relative h-32 w-32">
+                                    <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-[#252579]/20 via-emerald-500/20 to-transparent opacity-60 blur-sm transition-opacity duration-500 group-hover/avatar:opacity-100" />
+
+                                    <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-background bg-muted shadow-lg ring-1 ring-border/70 transition-[transform,box-shadow] duration-500 group-hover/avatar:scale-[1.025] group-hover/avatar:shadow-xl">
+                                        <Image
+                                            src={user.image ? user.image : imgTest}
+                                            alt="Foto de perfil"
+                                            fill
+                                            sizes="128px"
+                                            className="object-cover transition-transform duration-700 group-hover/avatar:scale-105"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="text-center">
+                                    <p className="text-sm font-semibold tracking-tight">
+                                        Foto de perfil
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-5">
                                 <FormField
                                     control={form.control}
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-semibold">
+                                            <FormLabel className="font-medium">
                                                 Nome Completo
                                             </FormLabel>
+
                                             <FormControl>
-                                                <Input
-                                                    {...field}
-                                                    placeholder="Digite o seu nome completo..."
-                                                    onChange={(event) => {
-                                                        const apenasLetras = event.target.value.replace(
-                                                            /[^A-Za-zÀ-ÿ\s]/g,
-                                                            ""
-                                                        );
-                                                        field.onChange(apenasLetras);
-                                                    }}
-                                                />
+                                                <div className="group/field relative">
+                                                    <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-[color,transform] duration-200 group-focus-within/field:scale-105 group-focus-within/field:text-[#252579]" />
+
+                                                    <Input
+                                                        {...field}
+                                                        className="h-11 rounded-lg border-border/70 bg-background pl-10 shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] focus:border-[#252579]/40 focus:bg-background focus:ring-[#252579]/15 focus:shadow-[0_4px_14px_rgba(37,37,121,0.06)]"
+                                                        placeholder="Digite o seu nome completo..."
+                                                        onChange={event => {
+                                                            const apenasLetras =
+                                                                event.target.value.replace(
+                                                                    /[^A-Za-zÀ-ÿ\s]/g,
+                                                                    ""
+                                                                )
+
+                                                            field.onChange(
+                                                                apenasLetras
+                                                            )
+                                                        }}
+                                                    />
+                                                </div>
                                             </FormControl>
+
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
+
                                 <FormField
                                     control={form.control}
                                     name="address"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-semibold">
+                                            <FormLabel className="font-medium">
                                                 Endereço Completo
                                             </FormLabel>
+
                                             <FormControl>
-                                                <Input
-                                                    {...field}
-                                                    placeholder="Digite o seu endereço da clínica..."
-                                                />
+                                                <div className="group/field relative">
+                                                    <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-[color,transform] duration-200 group-focus-within/field:scale-105 group-focus-within/field:text-[#252579]" />
+
+                                                    <Input
+                                                        {...field}
+                                                        className="h-11 rounded-lg border-border/70 bg-background pl-10 shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] focus:border-[#252579]/40 focus:bg-background focus:ring-[#252579]/15 focus:shadow-[0_4px_14px_rgba(37,37,121,0.06)]"
+                                                        placeholder="Digite o seu endereço da clínica..."
+                                                    />
+                                                </div>
                                             </FormControl>
+
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
+
                                 <FormField
                                     control={form.control}
                                     name="phone"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-semibold">
+                                            <FormLabel className="font-medium">
                                                 Telefone
                                             </FormLabel>
+
                                             <FormControl>
-                                                <Input
-                                                    {...field}
-                                                    placeholder="(61) 99501-5804"
-                                                    onChange={(event) => {
-                                                        const formattedValue = formatPhone(event.target.value);
-                                                        field.onChange(formattedValue);
-                                                    }}
-                                                />
+                                                <div className="group/field relative">
+                                                    <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-[color,transform] duration-200 group-focus-within/field:scale-105 group-focus-within/field:text-[#252579]" />
+
+                                                    <Input
+                                                        {...field}
+                                                        className="h-11 rounded-lg border-border/70 bg-background pl-10 shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] focus:border-[#252579]/40 focus:bg-background focus:ring-[#252579]/15 focus:shadow-[0_4px_14px_rgba(37,37,121,0.06)]"
+                                                        placeholder="(61) 99501-5804"
+                                                        onChange={event => {
+                                                            const formattedValue =
+                                                                formatPhone(
+                                                                    event.target.value
+                                                                )
+
+                                                            field.onChange(
+                                                                formattedValue
+                                                            )
+                                                        }}
+                                                    />
+                                                </div>
                                             </FormControl>
+
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
+
                                 <FormField
                                     control={form.control}
                                     name="status"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-semibold">
+                                            <FormLabel className="font-medium">
                                                 Status da Clínica
                                             </FormLabel>
+
                                             <FormControl>
                                                 <Select
                                                     onValueChange={field.onChange}
                                                     defaultValue={field.value}
                                                 >
-                                                    <SelectTrigger>
+                                                    <SelectTrigger className="group/status h-11 cursor-pointer rounded-lg border-border/70 bg-background shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] focus:border-[#252579]/40 focus:ring-[#252579]/15">
                                                         <SelectValue placeholder="Selecione o status da clínica..." />
                                                     </SelectTrigger>
+
                                                     <SelectContent>
-                                                        <SelectItem value="active">Ativa (clínica aberta)</SelectItem>
-                                                        <SelectItem value="inactive">Inativa (clínica fechada)</SelectItem>
+                                                        <SelectItem
+                                                            value="active"
+                                                            className="cursor-pointer"
+                                                        >
+                                                            <span className="flex items-center gap-2">
+                                                                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.25)]" />
+                                                                Ativa (clínica aberta)
+                                                            </span>
+                                                        </SelectItem>
+
+                                                        <SelectItem
+                                                            value="inactive"
+                                                            className="cursor-pointer"
+                                                        >
+                                                            <span className="flex items-center gap-2">
+                                                                <span className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.25)]" />
+                                                                Inativa (clínica fechada)
+                                                            </span>
+                                                        </SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
+
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -255,20 +440,26 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="timeZone"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-semibold">
+                                            <FormLabel className="font-medium">
                                                 Selecione o fuso horário
                                             </FormLabel>
+
                                             <FormControl>
                                                 <Select
                                                     onValueChange={field.onChange}
                                                     defaultValue={field.value}
                                                 >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Selecione o fuso horário... " />
+                                                    <SelectTrigger className="group/timezone h-11 cursor-pointer rounded-lg border-border/70 bg-background shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] focus:border-[#252579]/40 focus:ring-[#252579]/15">
+                                                        <SelectValue placeholder="Selecione o fuso horário..." />
                                                     </SelectTrigger>
+
                                                     <SelectContent>
-                                                        {timeZones.map((zone) => (
-                                                            <SelectItem key={zone} value={zone} className="cursor-pointer">
+                                                        {timeZones.map(zone => (
+                                                            <SelectItem
+                                                                key={zone}
+                                                                value={zone}
+                                                                className="cursor-pointer"
+                                                            >
                                                                 {zone}
                                                             </SelectItem>
                                                         ))}
@@ -279,63 +470,200 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                         </FormItem>
                                     )}
                                 />
-                                <div className="space-y-2">
-                                    <Label className="font-semibold">
-                                        Configurar Horário de Funcionamento
-                                    </Label>
-                                    <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
-                                        <DialogTrigger asChild>
-                                            <Button variant="outline" className="w-full justify-between cursor-pointer">
+                            </div>
+
+                            <div className="group/hours relative space-y-4 overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-muted/[0.28] via-background to-emerald-500/[0.025] p-4 shadow-sm transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-emerald-500/20 hover:shadow-md hover:shadow-emerald-500/[0.035] sm:p-5">
+                                <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-emerald-500/[0.06] blur-2xl transition-transform duration-700 group-hover/hours:scale-125" />
+
+                                <div className="relative flex items-start gap-3">
+                                    {/* Ícone com Cores Padronizadas no Tom Azul da Marca (#252579) e Animação no Hover */}
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover/hours:scale-105 group-hover/hours:border-[#252579]/20 group-hover/hours:bg-[#252579]/[0.09] group-hover/hours:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
+                                        <Clock3 className="h-4 w-4 transition-transform duration-300 group-hover/hours:-rotate-12 group-hover/hours:scale-110" />
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <Label className="text-sm font-semibold tracking-tight">
+                                            Configurar Horário de Funcionamento
+                                        </Label>
+
+                                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                                            Defina os horários em que sua clínica estará disponível para atendimento.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <Dialog
+                                    open={dialogIsOpen}
+                                    onOpenChange={setDialogIsOpen}
+                                >
+                                    <DialogTrigger asChild>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="group/button relative h-11 w-full cursor-pointer justify-between overflow-hidden rounded-lg border-border/70 bg-background/80 px-4 shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] active:scale-[0.99]"
+                                        >
+                                            <span className="font-medium">
                                                 Clique aqui para selecionar o horário
-                                                <ArrowRight className="w-5 h-5" />
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent>
-                                            <DialogHeader>
-                                                <DialogTitle>Horários da Clínica</DialogTitle>
-                                                <DialogDescription>
-                                                    Selecione os horários de funcionamento da clínica:
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <section className="py-4">
+                                            </span>
 
-                                                {/* <p className="text-sm text-muted-foreground mb-2">
-                                                    Clique nos horários abaixo para marcar ou desmarcar:
-                                                </p> */}
+                                            <ArrowRight className="h-4 w-4 text-[#252579] transition-transform duration-300 group-hover/button:translate-x-1" />
+                                        </Button>
+                                    </DialogTrigger>
+                                    
+                                    {/* group/modal adicionado aqui no DialogContent */}
+                                    <DialogContent className="group/modal max-w-4xl overflow-hidden rounded-2xl border-border/70 p-0">
+                                        <DialogHeader className="border-b border-border/60 bg-gradient-to-br from-background via-background to-[#252579]/[0.025] px-6 py-5">
+                                            <DialogTitle className="flex items-center gap-3">
+                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover/modal:scale-105 group-hover/modal:border-[#252579]/20 group-hover/modal:bg-[#252579]/[0.09] group-hover/modal:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
+                                                    <Clock3 className="h-4 w-4 transition-transform duration-300 group-hover/modal:rotate-[-8deg]" />
+                                                </div>
 
-                                                <div className="grid grid-cols-5 gap-2">
-                                                    {hours.map((hour) => (
+                                                <span>Horários da Clínica</span>
+                                            </DialogTitle>
+                                        </DialogHeader>
+                                        
+                                        <section className="px-6 py-5 space-y-4">
+                                            <div className="flex items-center justify-between gap-3">
+
+                                                <div className="flex items-center gap-2.5 rounded-lg border border-[#252579]/15 bg-[#252579]/[0.035] px-3.5 py-2.5 shadow-sm transition-colors duration-200 group-hover/modal:border-[#252579]/25">
+                                                    <Info className="h-4 w-4 shrink-0 text-[#252579] transition-transform duration-500 ease-out group-hover/modal:rotate-[18deg] group-hover/modal:scale-110" />
+                                                    <p className="text-xs text-muted-foreground">
+                                                        <strong className="font-semibold text-foreground">Horários disponíveis:</strong> Selecione os horários de atendimento.
+                                                    </p>
+                                                </div>
+
+                                                {/* Contador com dimensões reduzidas e mais compacto */}
+                                                <div
+                                                    className={cn(
+                                                        "flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors duration-200 shadow-2xs",
+                                                        selectedHours.length === 0
+                                                            ? "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                                                            : "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                                                    )}
+                                                >
+                                                    <span
+                                                        className={cn(
+                                                            "h-1.5 w-1.5 rounded-full transition-colors duration-200",
+                                                            selectedHours.length === 0 ? "bg-rose-500 animate-pulse" : "bg-emerald-500"
+                                                        )}
+                                                    />
+                                                    <span className="whitespace-nowrap tabular-nums">
+                                                        {selectedHours.length} selecionado{selectedHours.length === 1 ? "" : "s"}
+                                                    </span>
+                                                </div>
+
+                                            </div>
+
+                                            {/* Grid de Horários */}
+                                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+                                                {hours.map(hour => {
+                                                    const isSelected = selectedHours.includes(hour)
+
+                                                    return (
                                                         <Button
                                                             key={hour}
+                                                            type="button"
                                                             variant="outline"
-                                                            className={cn("h-10 cursor-pointer", selectedHours.includes(hour) && "border-2 border-emerald-500 text-primary")}
+                                                            className={cn(
+                                                                "group/hour h-10 cursor-pointer rounded-lg border-border/70 bg-background font-medium tabular-nums transition-[background-color,border-color,color,box-shadow,transform] duration-200 hover:border-[#252579]/25 hover:bg-[#252579]/[0.035] hover:text-[#252579] active:scale-[0.97]",
+                                                                isSelected &&
+                                                                "border-emerald-500/40 bg-emerald-500/[0.09] text-emerald-700 shadow-sm shadow-emerald-500/[0.08] hover:border-emerald-500/50 hover:bg-emerald-500/[0.13] hover:text-emerald-700 dark:text-emerald-400"
+                                                            )}
                                                             onClick={() => toggleHour(hour)}
                                                         >
-                                                            {hour}
+                                                            <span className="flex items-center justify-center gap-1.5">
+                                                                {isSelected && (
+                                                                    <Check className="h-3.5 w-3.5 transition-transform duration-200 group-hover/hour:scale-110" />
+                                                                )}
+                                                                {hour}
+                                                            </span>
                                                         </Button>
-                                                    ))}
-                                                </div>
-                                            </section>
+                                                    )
+                                                })}
+                                            </div>
+                                        </section>
+
+                                        <div className="border-t border-border/60 bg-muted/[0.16] px-6 py-4">
                                             <Button
-                                                className="w-full cursor-pointer bg-emerald-500 hover:bg-emerald-400"
-                                                onClick={() => setDialogIsOpen(false)}
+                                                type="button"
+                                                className="h-11 w-full rounded-lg bg-[#252579] text-white shadow-sm transition-[background-color,box-shadow,transform] duration-200 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 active:scale-[0.99]"
+                                                onClick={() =>
+                                                    setDialogIsOpen(false)
+                                                }
                                             >
                                                 Fechar Modal
                                             </Button>
-                                        </DialogContent>
-                                    </Dialog>
-                                </div>
-                                <Button
-                                    type="submit"
-                                    className="w-full bg-sky-500 text-white hover:bg-sky-600 transition-colors text-sm font-semibold py-2.5"
-                                >
-                                    Salvar
-                                </Button>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
                             </div>
+
+                            <Button
+                                type="submit"
+                                disabled={form.formState.isSubmitting}
+                                className="group/save relative h-10 w-full cursor-pointer overflow-hidden rounded-lg border border-[#252579]/40 bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-[length:200%_100%] bg-[position:0%_50%] font-semibold text-white shadow-[0_4px_16px_rgba(37,37,121,0.20)] transition-[background-position,border-color,box-shadow,transform] duration-500 ease-out hover:-translate-y-0.5 hover:border-[#2d2d8f]/60 hover:bg-[position:100%_50%] hover:shadow-[0_8px_22px_rgba(37,37,121,0.28)] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#252579]/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-70"
+                            >
+                                <span
+                                    aria-hidden="true"
+                                    className="pointer-events-none absolute inset-y-0 -left-1/2 z-0 w-1/3 skew-x-[-18deg] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 blur-[2px] transition-[left,opacity] duration-[800ms] ease-out group-hover/save:left-[120%] group-hover/save:opacity-100"
+                                />
+
+                                <span className="relative z-10">
+                                    Salvar Alterações
+                                </span>
+                            </Button>
                         </CardContent>
                     </Card>
                 </form>
             </Form>
+
+            <style>{`
+    .smartclin-profile-line-top,
+    .smartclin-profile-line-bottom {
+        width: 59%;
+        opacity: 0.6;
+        animation-duration: 10s;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+        animation-fill-mode: both;
+    }
+
+    .smartclin-profile-line-top {
+        animation-name: smartclin-profile-line-top;
+    }
+
+    .smartclin-profile-line-bottom {
+        animation-name: smartclin-profile-line-bottom;
+    }
+
+    @keyframes smartclin-profile-line-top {
+        0% {
+            width: 59%;
+        }
+
+        50% {
+            width: 92%;
+        }
+
+        100% {
+            width: 59%;
+        }
+    }
+
+    @keyframes smartclin-profile-line-bottom {
+        0% {
+            width: 59%;
+        }
+
+        50% {
+            width: 92%;
+        }
+
+        100% {
+            width: 59%;
+        }
+    }
+`}</style>
         </div>
     )
 }
