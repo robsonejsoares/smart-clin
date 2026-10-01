@@ -118,12 +118,13 @@ model Appointment {
   name            String
   email           String
   phone           String
+  gender          Gender?
   appointmentDate DateTime
   time            String
   serviceId       String
   userId          String
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @default(now())
+  updatedAt       DateTime
   Service         Service  @relation(fields: [serviceId], references: [id], map: "Appointement_serviceId_fkey")
   User            User     @relation(fields: [userId], references: [id], map: "Appointement_userId_fkey")
 }
@@ -131,4 +132,10 @@ model Appointment {
 enum Plan {
   BASIC
   PROFESSIONAL
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
