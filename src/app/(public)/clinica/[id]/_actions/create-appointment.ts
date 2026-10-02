@@ -40,7 +40,7 @@ export async function createNewAppointment(formData: FormSchema) {
         const month = selectedDate.getMonth()
         const day = selectedDate.getDate()
 
-        const appointmentDate = new Date(
+        const appointmentDate = new Date(Date.UTC(
             year,
             month,
             day,
@@ -48,7 +48,7 @@ export async function createNewAppointment(formData: FormSchema) {
             0,
             0,
             0
-        )
+        ))
 
         const newAppointment = await prisma.appointment.create({
             data: {
@@ -68,8 +68,7 @@ export async function createNewAppointment(formData: FormSchema) {
             data: newAppointment
         }
 
-    } catch (err) {
-        console.log(err)
+    } catch {
 
         return {
             error: "Erro ao cadastrar agendamento"

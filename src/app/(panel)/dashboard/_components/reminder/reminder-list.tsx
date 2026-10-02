@@ -92,12 +92,10 @@ export function ReminderList({ reminder }: ReminderListProps) {
                                     </div>
                                 </TooltipTrigger>
 
-                                <TooltipContent>
+                                <TooltipContent side="left">
                                     Adicionar lembrete
                                 </TooltipContent>
                             </Tooltip>
-
-                            {/* Modal de cadastro com layout padronizado p-0 e max-w-xl */}
                             <DialogContent className="max-w-3xl w-full p-0 overflow-hidden border-none rounded-3xl bg-white shadow-2xl">
                                 <ReminderContent closeDialog={() => setIsDialogOpen(false)} />
                             </DialogContent>
@@ -152,7 +150,7 @@ export function ReminderList({ reminder }: ReminderListProps) {
                                                     </Button>
                                                 </TooltipTrigger>
 
-                                                <TooltipContent>
+                                                <TooltipContent side="left">
                                                     Excluir lembrete
                                                 </TooltipContent>
                                             </Tooltip>

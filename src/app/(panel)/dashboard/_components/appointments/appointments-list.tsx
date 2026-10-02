@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import { toast } from "sonner"
 import { useState } from "react"
 import { format } from "date-fns"
@@ -10,6 +9,7 @@ import { Prisma } from "@/generated/prisma/client"
 import { ButtonPickerAppointment } from "./button-date"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DialogAppointment } from "./dialog-appointment"
+import { DialogNewAppointment } from "./dialog-new-appointment"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { cancelAppointment } from "../../_actions/cancel-appointment"
 
@@ -51,20 +51,30 @@ export type AppointmentWithService = Prisma.AppointmentGetPayload<{
     }
 }>
 
+type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
+    include: {
+        subscription: true
+        services: true
+    }
+}>
+
 interface AppointmentsListProps {
     times: string[]
     userId: string
+    clinic?: UserWithServiceAndSubscription
 }
 
 export function AppointmentsList({
     times,
     userId,
+    clinic,
 }: AppointmentsListProps) {
     const searchParams = useSearchParams()
     const date = searchParams.get("date")
     const queryClient = useQueryClient()
 
     const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const [isNewAppointmentOpen, setIsNewAppointmentOpen] = useState(false)
     const [detailAppointment, setDetailAppointment] =
         useState<AppointmentWithService | null>(null)
 
@@ -161,6 +171,12 @@ export function AppointmentsList({
         window.open(url, "_blank", "noopener,noreferrer")
     }
 
+    function handleAppointmentCreated() {
+        queryClient.invalidateQueries({
+            queryKey: ["get-appointments"],
+        })
+    }
+
     return (
         <>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -216,10 +232,10 @@ export function AppointmentsList({
                                                     return (
                                                         <div
                                                             key={slot}
-                                                            className="group flex min-h-14 items-center gap-3 rounded-xl border border-[#252579]/10 bg-background px-3.5 py-3.5 shadow-sm shadow-black/[0.025] transition-[background-color,border-color,box-shadow] duration-200 hover:border-[#252579]/15 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.035]"
+                                                            className="group flex min-h-14 items-center gap-3 rounded-xl border border-[#252579]/10 bg-background px-3.5 py-3.5 shadow-sm shadow-black/[0.025] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#252579]/25 hover:bg-[#252579]/[0.035] hover:shadow-md hover:shadow-[#252579]/[0.05]"
                                                         >
                                                             <div className="flex w-16 shrink-0 items-center">
-                                                                <span className="rounded-lg border border-[#252579]/10 bg-[#252579]/[0.07] px-2.5 py-1 text-sm font-bold tabular-nums text-[#252579]">
+                                                                <span className="rounded-lg border border-[#252579]/15 bg-[#252579]/[0.05] px-2.5 py-1 text-sm font-bold tabular-nums text-[#252579]/90 transition-[background-color,border-color,color] duration-200 group-hover:border-[#252579]/30 group-hover:bg-[#252579]/[0.08] group-hover:text-[#252579]">
                                                                     {slot}
                                                                 </span>
                                                             </div>
@@ -246,10 +262,7 @@ export function AppointmentsList({
                                                                         </button>
                                                                     </TooltipTrigger>
 
-                                                                    <TooltipContent
-                                                                        side="top"
-                                                                        className="rounded-lg border border-border/60 bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-lg"
-                                                                    >
+                                                                    <TooltipContent side="top">
                                                                         Entrar em contato via WhatsApp
                                                                     </TooltipContent>
                                                                 </Tooltip>
@@ -282,10 +295,7 @@ export function AppointmentsList({
                                                                         </DialogTrigger>
                                                                     </TooltipTrigger>
 
-                                                                    <TooltipContent
-                                                                        side="top"
-                                                                        className="rounded-lg border border-border/60 bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-lg"
-                                                                    >
+                                                                    <TooltipContent side="top">
                                                                         Visualizar agendamento
                                                                     </TooltipContent>
                                                                 </Tooltip>
@@ -305,10 +315,7 @@ export function AppointmentsList({
                                                                         </Button>
                                                                     </TooltipTrigger>
 
-                                                                    <TooltipContent
-                                                                        side="top"
-                                                                        className="rounded-lg border border-border/60 bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-lg"
-                                                                    >
+                                                                    <TooltipContent side="left">
                                                                         Cancelar agendamento
                                                                     </TooltipContent>
                                                                 </Tooltip>
@@ -320,10 +327,10 @@ export function AppointmentsList({
                                                 return (
                                                     <div
                                                         key={slot}
-                                                        className="group flex min-h-14 items-center gap-3 rounded-xl border border-border/50 bg-background px-3.5 py-3.5 shadow-sm shadow-black/[0.02] transition-[background-color,border-color,box-shadow] duration-200 hover:border-emerald-500/20 hover:bg-emerald-500/[0.02] hover:shadow-md hover:shadow-black/[0.025]"
+                                                        className="group flex min-h-14 items-center gap-3 rounded-xl border border-border/50 bg-background px-3.5 py-3.5 shadow-sm shadow-black/[0.02] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-emerald-500/20 hover:bg-emerald-500/[0.02] hover:shadow-md hover:shadow-black/[0.025]"
                                                     >
                                                         <div className="flex w-16 shrink-0 items-center">
-                                                            <span className="rounded-lg border border-border/60 bg-muted/50 px-2.5 py-1 text-sm font-semibold tabular-nums text-muted-foreground transition-[background-color,border-color,color] duration-200 group-hover:border-emerald-500/15 group-hover:bg-emerald-500/[0.035] group-hover:text-emerald-700">
+                                                            <span className="rounded-lg border border-emerald-500/15 bg-emerald-500/[0.06] px-2.5 py-1 text-sm font-bold tabular-nums text-emerald-600 transition-[background-color,border-color,color] duration-200 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/[0.1] group-hover:text-emerald-700">
                                                                 {slot}
                                                             </span>
                                                         </div>
@@ -340,28 +347,19 @@ export function AppointmentsList({
 
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
-                                                                <Link
-                                                                    href={`/clinica/${userId}`}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="shrink-0 inline-flex"
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() => setIsNewAppointmentOpen(true)}
+                                                                    aria-label="Novo agendamento"
+                                                                    className="group/schedule h-8 w-8 cursor-pointer rounded-md text-[#252579]/70 transition-[background-color,color,transform] duration-200 hover:bg-[#252579]/[0.07] hover:text-[#252579] active:scale-95 focus-visible:ring-2 focus-visible:ring-[#252579]/25 focus-visible:ring-offset-1 dark:text-[#252579]/80 dark:hover:text-[#252579]"
                                                                 >
-                                                                    <Button
-                                                                        type="button"
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        aria-label="Novo agendamento"
-                                                                        className="group/schedule h-8 w-8 cursor-pointer rounded-md text-[#252579]/70 transition-[background-color,color,transform] duration-200 hover:bg-[#252579]/[0.07] hover:text-[#252579] active:scale-95 focus-visible:ring-2 focus-visible:ring-[#252579]/25 focus-visible:ring-offset-1 dark:text-[#252579]/80 dark:hover:text-[#252579]"
-                                                                    >
-                                                                        <CalendarPlus className="h-4 w-4 origin-bottom transition-[transform,color] duration-300 ease-out group-hover/schedule:-translate-y-0.5 group-hover/schedule:rotate-[-3deg] group-hover/schedule:scale-110" />
-                                                                    </Button>
-                                                                </Link>
+                                                                    <CalendarPlus className="h-4 w-4 origin-bottom transition-[transform,color] duration-300 ease-out group-hover/schedule:-translate-y-0.5 group-hover/schedule:rotate-[-3deg] group-hover/schedule:scale-110" />
+                                                                </Button>
                                                             </TooltipTrigger>
 
-                                                            <TooltipContent
-                                                                side="top"
-                                                                className="rounded-lg border border-border/60 bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-lg"
-                                                            >
+                                                            <TooltipContent side="left">
                                                                 Novo agendamento
                                                             </TooltipContent>
                                                         </Tooltip>
@@ -388,6 +386,15 @@ export function AppointmentsList({
 
                 <DialogAppointment appointment={detailAppointment} />
             </Dialog>
+
+            {/* Modal de Novo Agendamento */}
+            <DialogNewAppointment
+                isOpen={isNewAppointmentOpen}
+                onOpenChange={setIsNewAppointmentOpen}
+                userId={userId}
+                clinic={clinic}
+                onSuccess={handleAppointmentCreated}
+            />
 
             {/* Modal de confirmação para cancelamento (Padronizada para o tom vermelho/rose) */}
             <Dialog

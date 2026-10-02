@@ -1,23 +1,24 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { addMonths, format, subMonths } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { useRouter } from "next/navigation"
 import { DayPicker } from "react-day-picker"
-import {
-  CalendarDays,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react"
-
 import { Button } from "@/components/ui/button"
+import { useEffect, useRef, useState } from "react"
+import { addMonths, format, subMonths } from "date-fns"
+
 import {
   Tooltip,
-  TooltipContent,
   TooltipTrigger,
+  TooltipContent,
 } from "@/components/ui/tooltip"
+
+import {
+  ChevronLeft,
+  ChevronDown,
+  ChevronRight,
+  CalendarDays,
+} from "lucide-react"
 
 export function ButtonPickerAppointment() {
   const router = useRouter()

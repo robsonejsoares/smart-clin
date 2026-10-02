@@ -144,7 +144,8 @@ export function Header() {
                         <Button
                             onClick={handleLogin}
                             loading={isLoggingIn}
-                            className="group relative h-10 min-w-36 rounded-xl bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/40"
+                            style={{ borderRadius: "0.75rem" }}
+                            className="group relative h-10 min-w-36 bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/40"
                         >
                             <LogIn className="h-4 w-4 transition-transform duration-200 ease-out group-hover:-translate-x-0.5" />
                             Portal da Clínica
@@ -204,12 +205,11 @@ export function Header() {
                             ))}
 
                             {status === "loading" ? (
-                                <div className="mt-2 h-11 w-full animate-pulse rounded-xl bg-[#252579]/10" />
+                                <div className="relative h-10 w-36 animate-pulse rounded-xl bg-[#252579]/10" />
                             ) : session ? (
                                 <LoadingLink
                                     href="/dashboard"
-                                    className="group mt-2 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
-                                    onClick={() => setIsOpen(false)}
+                                    className="group relative inline-flex h-10 min-w-36 items-center justify-center gap-2 rounded-xl bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
                                 >
                                     Acessar Clínica
 
@@ -219,7 +219,8 @@ export function Header() {
                                 <Button
                                     onClick={handleLogin}
                                     loading={isLoggingIn}
-                                    className="group mt-2 h-11 w-full cursor-pointer rounded-xl bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/40"
+                                    style={{ borderRadius: "0.75rem" }}
+                                    className="group relative h-10 min-w-36 bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/40"
                                 >
                                     <LogIn className="h-4 w-4 transition-transform duration-200 ease-out group-hover:-translate-x-0.5" />
                                     Portal da Clínica

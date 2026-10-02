@@ -2,11 +2,11 @@
 
 import Link, { type LinkProps } from "next/link"
 import { Loader2 } from "lucide-react"
-import { useState, type MouseEvent, type ReactNode } from "react"
+import { useState, type MouseEvent, type ReactNode, type AnchorHTMLAttributes } from "react"
 
 import { cn } from "@/lib/utils"
 
-interface LoadingLinkProps extends LinkProps {
+interface LoadingLinkProps extends LinkProps, Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof LinkProps> {
     children: ReactNode
     className?: string
     loadingText?: string
