@@ -49,16 +49,16 @@ export function DialogNewAppointment({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            {/* Largura ajustada para 1120px para dar espaço às duas colunas lado a lado */}
-            <DialogContent className="sm:max-w-[1120px] w-full max-h-[94vh] overflow-y-auto p-5 sm:p-7 [&>button]:text-[#6866ad] [&>button]:bg-[#f0effa] [&>button]:opacity-100 [&>button]:hover:bg-[#e2e0f7] [&>button]:hover:text-[#4b4591] [&>button]:transition-colors">
-                <DialogHeader className="mb-4">
-                    <DialogTitle className="text-lg font-bold text-[#252579]">
+            {/* Removido o overflow-y-auto e reduzido o padding vertical para eliminar a barra de rolagem */}
+            <DialogContent className="sm:max-w-[1120px] w-full p-5 overflow-visible [&>button]:text-[#6866ad] [&>button]:bg-[#f0effa] [&>button]:opacity-100 [&>button]:hover:bg-[#e2e0f7] [&>button]:hover:text-[#4b4591] [&>button]:transition-colors">
+                <DialogHeader className="mb-2">
+                    <DialogTitle className="text-base font-bold text-[#252579]">
                         Novo Agendamento
                     </DialogTitle>
                 </DialogHeader>
 
                 {isLoading && !clinic ? (
-                    <div className="flex min-h-[250px] w-full items-center justify-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex min-h-[220px] w-full items-center justify-center gap-2 text-sm text-muted-foreground">
                         <Loader2 className="h-6 w-6 animate-spin text-[#252579]" />
                         <span>Carregando dados...</span>
                     </div>

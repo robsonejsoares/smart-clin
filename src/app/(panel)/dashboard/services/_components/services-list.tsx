@@ -26,16 +26,13 @@ import {
     Dialog,
     DialogContent,
     DialogTrigger,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
 } from "@/components/ui/dialog"
 
 import { toast } from "sonner"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DialogService } from "./dialog-service"
+import { ModalDeleteService } from "./modals/modal-delete-service"
 import { Service } from "@/generated/prisma/client"
 import { formatCurrency } from "@/utils/formatCurrency"
 import { deleteService } from "../_actions/delete-service"
@@ -170,7 +167,7 @@ export function ServicesList({ services }: ServicesListProps) {
 
                             <DialogTrigger asChild>
                                 <Button
-                                    className="group/add relative h-10 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-[#252579]/40 bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-[length:200%_100%] bg-[position:0%_50%] px-3 font-semibold text-white shadow-[0_4px_16px_rgba(37,37,121,0.20)] transition-[background-position,border-color,box-shadow,transform] duration-500 ease-out hover:-translate-y-0.5 hover:border-[#2d2d8f]/60 hover:bg-[position:100%_50%] hover:shadow-[0_8px_22px_rgba(37,37,121,0.28)] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#252579]/30 focus-visible:ring-offset-2 sm:px-4"
+                                    className="group/add relative h-10 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-[#252579]/40 bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-[length:200%_100%] bg-[position:0%_50%] px-4 font-semibold text-white shadow-[0_4px_16px_rgba(37,37,121,0.20)] transition-[background-position,border-color,box-shadow,transform] duration-500 ease-out hover:-translate-y-0.5 hover:border-[#2d2d8f]/60 hover:bg-[position:100%_50%] hover:shadow-[0_8px_22px_rgba(37,37,121,0.28)] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#252579]/30 focus-visible:ring-offset-2"
                                 >
                                     <span
                                         aria-hidden="true"
@@ -194,32 +191,21 @@ export function ServicesList({ services }: ServicesListProps) {
                                     setIsDialogOpen(false)
                                     setEditingService(null)
                                 }}
+                                className="sm:max-w-lg h-[550px] flex flex-col overflow-hidden rounded-2xl border-border/70 p-0 shadow-2xl"
                             >
                                 <DialogService
                                     closeModal={() => {
                                         setIsDialogOpen(false)
                                         setEditingService(null)
                                     }}
-                                    serviceId={
-                                        editingService
-                                            ? editingService.id
-                                            : undefined
-                                    }
+                                    serviceId={editingService ? editingService.id : undefined}
                                     initialValues={
                                         editingService
                                             ? {
                                                 name: editingService.name,
-                                                price: (
-                                                    editingService.price / 100
-                                                )
-                                                    .toFixed(2)
-                                                    .replace(".", ","),
-                                                hours: Math.floor(
-                                                    editingService.duration / 60
-                                                ).toString(),
-                                                minutes: (
-                                                    editingService.duration % 60
-                                                ).toString(),
+                                                price: (editingService.price / 100).toFixed(2).replace(".", ","),
+                                                hours: Math.floor(editingService.duration / 60).toString(),
+                                                minutes: (editingService.duration % 60).toString(),
                                             }
                                             : undefined
                                     }
@@ -358,55 +344,13 @@ export function ServicesList({ services }: ServicesListProps) {
                 </div>
             </Dialog>
 
-            <Dialog
-                open={!!serviceToDelete}
-                onOpenChange={(open) => {
-                    if (!open && !loadingDelete) {
-                        setServiceToDelete(null)
-                    }
-                }}
-            >
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-semibold">
-                            Excluir serviço
-                        </DialogTitle>
-
-                        <DialogDescription className="leading-relaxed">
-                            Tem certeza que deseja excluir o serviço{" "}
-                            <span className="font-semibold text-foreground">
-                                {serviceToDelete?.name}
-                            </span>
-                            ?
-                            <br />
-                            Essa ação não poderá ser desfeita.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="cursor-pointer"
-                            onClick={handleCloseDeleteDialog}
-                            disabled={loadingDelete}
-                        >
-                            Cancelar
-                        </Button>
-
-                        <Button
-                            type="button"
-                            className="cursor-pointer bg-red-500 text-white shadow-sm hover:bg-red-600 disabled:hover:bg-red-400"
-                            onClick={handleDeleteService}
-                            disabled={loadingDelete}
-                        >
-                            {loadingDelete
-                                ? "Excluindo serviço..."
-                                : "Excluir serviço"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <ModalDeleteService
+                service={serviceToDelete}
+                isOpen={!!serviceToDelete}
+                onClose={handleCloseDeleteDialog}
+                onConfirm={handleDeleteService}
+                loading={loadingDelete}
+            />
 
             <style>{`
     .smartclin-services-line-top,

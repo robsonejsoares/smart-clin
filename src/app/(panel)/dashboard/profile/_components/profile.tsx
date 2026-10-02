@@ -59,6 +59,7 @@ import { formatPhone } from "@/utils/formatPhone"
 import { Prisma } from "@/generated/prisma/client"
 import { updateProfile } from "../_actions/update-profile"
 import imgTest from "../../../../../../public/logo-smart-clin.png"
+import { ModalClinicHours } from "./modals/modal-clinic-hours"
 
 type UserWithSubcription = Prisma.UserGetPayload<{
     include: {
@@ -500,101 +501,22 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                         <Button
                                             type="button"
                                             variant="outline"
-                                            className="group/button relative h-11 w-full cursor-pointer justify-between overflow-hidden rounded-lg border-border/70 bg-background/80 px-4 shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] active:scale-[0.99]"
+                                            className="group/button relative h-11 w-full cursor-pointer justify-between overflow-hidden rounded-lg border-border/70 bg-background/80 px-4 shadow-sm transition-all duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025]"
                                         >
                                             <span className="font-medium">
                                                 Clique aqui para selecionar o horário
                                             </span>
-
                                             <ArrowRight className="h-4 w-4 text-[#252579] transition-transform duration-300 group-hover/button:translate-x-1" />
                                         </Button>
                                     </DialogTrigger>
-                                    
-                                    {/* group/modal adicionado aqui no DialogContent */}
-                                    <DialogContent className="group/modal max-w-4xl overflow-hidden rounded-2xl border-border/70 p-0">
-                                        <DialogHeader className="border-b border-border/60 bg-gradient-to-br from-background via-background to-[#252579]/[0.025] px-6 py-5">
-                                            <DialogTitle className="flex items-center gap-3">
-                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover/modal:scale-105 group-hover/modal:border-[#252579]/20 group-hover/modal:bg-[#252579]/[0.09] group-hover/modal:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
-                                                    <Clock3 className="h-4 w-4 transition-transform duration-300 group-hover/modal:rotate-[-8deg]" />
-                                                </div>
 
-                                                <span>Horários da Clínica</span>
-                                            </DialogTitle>
-                                        </DialogHeader>
-                                        
-                                        <section className="px-6 py-5 space-y-4">
-                                            <div className="flex items-center justify-between gap-3">
-
-                                                <div className="flex items-center gap-2.5 rounded-lg border border-[#252579]/15 bg-[#252579]/[0.035] px-3.5 py-2.5 shadow-sm transition-colors duration-200 group-hover/modal:border-[#252579]/25">
-                                                    <Info className="h-4 w-4 shrink-0 text-[#252579] transition-transform duration-500 ease-out group-hover/modal:rotate-[18deg] group-hover/modal:scale-110" />
-                                                    <p className="text-xs text-muted-foreground">
-                                                        <strong className="font-semibold text-foreground">Horários disponíveis:</strong> Selecione os horários de atendimento.
-                                                    </p>
-                                                </div>
-
-                                                {/* Contador com dimensões reduzidas e mais compacto */}
-                                                <div
-                                                    className={cn(
-                                                        "flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors duration-200 shadow-2xs",
-                                                        selectedHours.length === 0
-                                                            ? "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                                                            : "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                                                    )}
-                                                >
-                                                    <span
-                                                        className={cn(
-                                                            "h-1.5 w-1.5 rounded-full transition-colors duration-200",
-                                                            selectedHours.length === 0 ? "bg-rose-500 animate-pulse" : "bg-emerald-500"
-                                                        )}
-                                                    />
-                                                    <span className="whitespace-nowrap tabular-nums">
-                                                        {selectedHours.length} selecionado{selectedHours.length === 1 ? "" : "s"}
-                                                    </span>
-                                                </div>
-
-                                            </div>
-
-                                            {/* Grid de Horários */}
-                                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-                                                {hours.map(hour => {
-                                                    const isSelected = selectedHours.includes(hour)
-
-                                                    return (
-                                                        <Button
-                                                            key={hour}
-                                                            type="button"
-                                                            variant="outline"
-                                                            className={cn(
-                                                                "group/hour h-10 cursor-pointer rounded-lg border-border/70 bg-background font-medium tabular-nums transition-[background-color,border-color,color,box-shadow,transform] duration-200 hover:border-[#252579]/25 hover:bg-[#252579]/[0.035] hover:text-[#252579] active:scale-[0.97]",
-                                                                isSelected &&
-                                                                "border-emerald-500/40 bg-emerald-500/[0.09] text-emerald-700 shadow-sm shadow-emerald-500/[0.08] hover:border-emerald-500/50 hover:bg-emerald-500/[0.13] hover:text-emerald-700 dark:text-emerald-400"
-                                                            )}
-                                                            onClick={() => toggleHour(hour)}
-                                                        >
-                                                            <span className="flex items-center justify-center gap-1.5">
-                                                                {isSelected && (
-                                                                    <Check className="h-3.5 w-3.5 transition-transform duration-200 group-hover/hour:scale-110" />
-                                                                )}
-                                                                {hour}
-                                                            </span>
-                                                        </Button>
-                                                    )
-                                                })}
-                                            </div>
-                                        </section>
-
-                                        <div className="border-t border-border/60 bg-muted/[0.16] px-6 py-4">
-                                            <Button
-                                                type="button"
-                                                className="h-11 w-full rounded-lg bg-[#252579] text-white shadow-sm transition-[background-color,box-shadow,transform] duration-200 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 active:scale-[0.99]"
-                                                onClick={() =>
-                                                    setDialogIsOpen(false)
-                                                }
-                                            >
-                                                Fechar Modal
-                                            </Button>
-                                        </div>
-                                    </DialogContent>
+                                    <ModalClinicHours
+                                        isOpen={dialogIsOpen}
+                                        onClose={() => setDialogIsOpen(false)}
+                                        selectedHours={selectedHours}
+                                        toggleHour={toggleHour}
+                                        hours={hours}
+                                    />
                                 </Dialog>
                             </div>
 

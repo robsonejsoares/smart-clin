@@ -45,7 +45,12 @@ import {
     FormControl,
     FormMessage,
 } from "@/components/ui/form"
-import { TooltipProvider } from "@/components/ui/tooltip"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
     include: {
@@ -95,61 +100,174 @@ function AppointmentDatePicker({
         }
     }, [isOpen])
 
+    function handleChangeDate(date: Date | undefined) {
+        if (!date) return
+        onChange(date)
+        setDisplayMonth(date)
+        setIsOpen(false)
+    }
+
+    function handlePreviousMonth() {
+        setDisplayMonth(month => subMonths(month, 1))
+    }
+
+    function handleNextMonth() {
+        setDisplayMonth(month => addMonths(month, 1))
+    }
+
     return (
         <div ref={containerRef} className="relative w-full">
             <Button
                 type="button"
                 variant="outline"
                 onClick={() => setIsOpen(current => !current)}
-                className="h-9 w-full justify-between gap-3 rounded-md border-border/70 bg-background px-3.5 font-medium shadow-sm hover:bg-muted/50 text-xs"
+                aria-expanded={isOpen}
+                aria-haspopup="dialog"
+                className="group h-9 w-full justify-between gap-3 rounded-md border-border/70 bg-background px-3.5 font-medium shadow-sm hover:bg-muted/50 text-xs transition-all duration-200 hover:border-[#252579]/30 hover:shadow-md active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-[#252579]/20"
             >
-                <span className="flex items-center gap-2.5">
-                    <CalendarDays className="h-4 w-4 text-[#252579]" />
-                    <span className="text-xs font-medium">
+                <span className="flex min-w-0 items-center gap-2.5">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#252579]/[0.08] text-[#252579] transition-transform duration-200 group-hover:scale-105">
+                        <CalendarDays className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="truncate text-xs font-medium text-foreground">
                         {format(selectedDate, "dd/MM/yyyy")}
                     </span>
                 </span>
-                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                    className={`ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180 text-[#252579]" : ""
+                        }`}
+                />
             </Button>
 
             {isOpen && (
-                <div className={`absolute left-0 z-[110] w-[318px] rounded-md border border-border/70 bg-background p-3 shadow-2xl ${openUpward ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"}`}>
-                    <div className="mb-2 flex items-center justify-between px-1">
-                        <button
-                            type="button"
-                            onClick={() => setDisplayMonth(m => subMonths(m, 1))}
-                            className="flex h-7 w-7 items-center justify-center rounded border hover:bg-muted"
-                        >
-                            <ChevronLeft className="h-3.5 w-3.5" />
-                        </button>
-                        <span className="text-sm font-bold capitalize">
-                            {format(displayMonth, "MMMM yyyy", { locale: ptBR })}
-                        </span>
-                        <button
-                            type="button"
-                            onClick={() => setDisplayMonth(m => addMonths(m, 1))}
-                            className="flex h-7 w-7 items-center justify-center rounded border hover:bg-muted"
-                        >
-                            <ChevronRight className="h-3.5 w-3.5" />
-                        </button>
+                <div
+                    role="dialog"
+                    aria-label="Selecionar data"
+                    className={`absolute left-0 z-[110] w-[318px] max-w-[calc(100vw-2rem)] overflow-visible rounded-xl border border-border/80 bg-background/95 backdrop-blur-xl shadow-2xl shadow-black/[0.15] animate-in fade-in-0 zoom-in-95 duration-150 ${openUpward
+                            ? "bottom-[calc(100%+8px)]"
+                            : "top-[calc(100%+8px)]"
+                        }`}
+                >
+                    <div className="border-b border-border/60 bg-gradient-to-r from-[#252579]/[0.03] via-background to-emerald-500/[0.03] px-4 py-3 rounded-t-xl">
+                        <div className="flex items-center gap-2.5">
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#252579]/[0.08] text-[#252579]">
+                                <CalendarDays className="h-3.5 w-3.5" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-xs font-semibold tracking-tight">
+                                    Selecionar data
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <DayPicker
-                        mode="single"
-                        month={displayMonth}
-                        onMonthChange={setDisplayMonth}
-                        selected={selectedDate}
-                        onSelect={date => {
-                            if (date) {
-                                onChange(date)
-                                setDisplayMonth(date)
-                                setIsOpen(false)
-                            }
-                        }}
-                        locale={ptBR}
-                        weekStartsOn={1}
-                        className="w-full"
-                    />
+                    <div className="px-3 py-3">
+                        <div className="mb-2 flex h-9 items-center justify-between px-1">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <button
+                                        type="button"
+                                        onClick={handlePreviousMonth}
+                                        aria-label="Mês anterior"
+                                        className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground transition-all duration-200 hover:border-[#252579]/30 hover:bg-[#252579]/[0.06] hover:text-[#252579] hover:shadow-sm active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/25"
+                                    >
+                                        <ChevronLeft className="h-3.5 w-3.5" />
+                                    </button>
+                                </TooltipTrigger>
+                                <TooltipContent
+                                    side="top"
+                                    sideOffset={6}
+                                    className="z-[99999] rounded-md border border-border/80 bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-xl"
+                                >
+                                    Mês anterior
+                                </TooltipContent>
+                            </Tooltip>
+
+                            <span className="text-xs font-bold capitalize tracking-tight text-foreground">
+                                {format(displayMonth, "MMMM yyyy", {
+                                    locale: ptBR,
+                                })}
+                            </span>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <button
+                                        type="button"
+                                        onClick={handleNextMonth}
+                                        aria-label="Próximo mês"
+                                        className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground transition-all duration-200 hover:border-[#252579]/30 hover:bg-[#252579]/[0.06] hover:text-[#252579] hover:shadow-sm active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/25"
+                                    >
+                                        <ChevronRight className="h-3.5 w-3.5" />
+                                    </button>
+                                </TooltipTrigger>
+                                <TooltipContent
+                                    side="top"
+                                    sideOffset={6}
+                                    className="z-[99999] rounded-md border border-border/80 bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-xl"
+                                >
+                                    Próximo mês
+                                </TooltipContent>
+                            </Tooltip>
+                        </div>
+
+                        <DayPicker
+                            mode="single"
+                            month={displayMonth}
+                            onMonthChange={setDisplayMonth}
+                            selected={selectedDate}
+                            onSelect={handleChangeDate}
+                            locale={ptBR}
+                            weekStartsOn={1}
+                            showOutsideDays
+                            fixedWeeks
+                            hideNavigation
+                            className="w-full"
+                            classNames={{
+                                root: "w-full",
+                                months: "w-full",
+                                month: "w-full",
+                                month_caption: "hidden",
+                                nav: "hidden",
+                                caption_label: "hidden",
+                                month_grid: "w-full border-collapse",
+                                weekdays: "mb-2 grid grid-cols-7",
+                                weekday:
+                                    "flex h-7 items-center justify-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70",
+                                weeks: "space-y-1",
+                                week: "grid grid-cols-7",
+                                day: "relative flex h-9 items-center justify-center p-0 text-center",
+                                day_button:
+                                    "relative flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-xs font-medium text-foreground transition-all duration-150 hover:bg-[#252579]/[0.08] hover:text-[#252579] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/25",
+                                selected:
+                                    "!rounded-lg !bg-[#252579]/15 !text-[#252579] font-bold !shadow-sm hover:!bg-[#252579]/20 hover:!text-[#252579]",
+                                today:
+                                    "font-bold text-emerald-600 after:absolute after:bottom-1 after:h-1 after:w-1 after:rounded-full after:bg-emerald-400",
+                                outside: "text-muted-foreground/30",
+                                disabled:
+                                    "cursor-not-allowed text-muted-foreground/20 opacity-40",
+                            }}
+                        />
+                    </div>
+
+                    <div className="border-t border-border/60 bg-muted/[0.15] px-4 py-2.5 rounded-b-xl">
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-2">
+                                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                                <span className="text-[11px] font-normal text-muted-foreground">
+                                    Hoje
+                                </span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <span className="h-2 w-2 rounded-full bg-[#252579]/70" />
+                                <span className="text-[11px] font-normal tabular-nums text-muted-foreground">
+                                    {format(selectedDate, "dd 'de' MMMM", {
+                                        locale: ptBR,
+                                    })}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
@@ -243,7 +361,7 @@ export function ScheduleModal({ clinic, onSuccess }: ScheduleModalProps) {
     return (
         <TooltipProvider>
             <div className="w-full space-y-3">
-                
+
                 {/* Cabeçalho da Clínica */}
                 <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4 rounded-md border border-border/70 bg-card p-4 shadow-sm">
                     <div className="flex items-center gap-3.5">
@@ -283,9 +401,8 @@ export function ScheduleModal({ clinic, onSuccess }: ScheduleModalProps) {
                 {/* Formulário Principal */}
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleRegisterAppointment)}>
-                        {/* Adicionado items-stretch para forçar ambas as colunas a terem exatamente a mesma altura */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
-                            
+
                             {/* Coluna Esquerda: Dados Pessoais e Serviço */}
                             <div className="flex flex-col justify-between space-y-3.5 rounded-md border border-border/60 bg-card/40 p-4 shadow-sm">
                                 <div className="space-y-3.5">
@@ -387,6 +504,7 @@ export function ScheduleModal({ clinic, onSuccess }: ScheduleModalProps) {
                                                     <FormControl>
                                                         <AppointmentDatePicker
                                                             value={field.value}
+                                                            openUpward={true}
                                                             onChange={date => {
                                                                 field.onChange(date)
                                                                 setSelectedTime("")
@@ -430,7 +548,6 @@ export function ScheduleModal({ clinic, onSuccess }: ScheduleModalProps) {
                                         )}
                                     />
                                 </div>
-                                {/* Espaçador invisível apenas para igualar perfeitamente o alinhamento inferior caso necessário */}
                                 <div className="pt-2" />
                             </div>
 

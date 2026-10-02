@@ -143,10 +143,10 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="group/modal w-full bg-background text-foreground">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="group/modal flex h-full flex-col justify-between w-full bg-background text-foreground">
                 
-                {/* 1. Cabeçalho */}
-                <DialogHeader className="border-b border-border/60 bg-gradient-to-br from-background via-background to-[#252579]/[0.025] px-6 py-5">
+                {/* 1. Cabeçalho (Fixo) */}
+                <DialogHeader className="shrink-0 border-b border-border/60 bg-gradient-to-br from-background via-background to-[#252579]/[0.025] px-6 py-5">
                     <DialogTitle className="flex items-center gap-3 text-lg font-bold">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover/modal:scale-105 group-hover/modal:border-[#252579]/20 group-hover/modal:bg-[#252579]/[0.09] group-hover/modal:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
                             <Clock3 className="h-4 w-4 transition-transform duration-300 group-hover/modal:-rotate-12 group-hover/modal:scale-110" />
@@ -157,13 +157,13 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                     </DialogTitle>
                 </DialogHeader>
 
-                {/* 2. Conteúdo Principal */}
-                <div className="p-6 space-y-4">
-                    {/* Caixa de Aviso */}
-                    <div className="flex w-fit max-w-full items-center gap-2.5 rounded-md border border-[#252579]/15 bg-[#252579]/[0.035] px-3.5 py-2.5 shadow-sm transition-colors duration-200 group-hover/modal:border-[#252579]/25">
+                {/* 2. Conteúdo Principal (Rolável e isolado) */}
+                <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4">
+                    {/* Caixa de Aviso sem quebrar linha e truncada */}
+                    <div className="flex w-full min-w-0 items-center gap-2.5 rounded-md border border-[#252579]/15 bg-[#252579]/[0.035] px-3.5 py-2.5 shadow-sm transition-colors duration-200 group-hover/modal:border-[#252579]/25">
                         <Info className="h-4 w-4 shrink-0 text-[#252579] transition-transform duration-500 ease-out group-hover/modal:rotate-[18deg] group-hover/modal:scale-110" />
-                        <p className="text-xs text-muted-foreground">
-                            <strong className="font-semibold text-foreground">Aviso importante:</strong> Os serviços cadastrados estarão disponíveis no seu agendamento.
+                        <p className="text-xs text-muted-foreground truncate min-w-0">
+                            Os serviços cadastrados estarão disponíveis no seu agendamento.
                         </p>
                     </div>
 
@@ -268,8 +268,8 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                     </div>
                 </div>
 
-                {/* 3. Rodapé */}
-                <div className="border-t border-border/60 bg-muted/[0.16] px-6 py-4 flex items-center justify-end gap-3">
+                {/* 3. Rodapé (Fixo) */}
+                <div className="shrink-0 border-t border-border/60 bg-muted/[0.16] px-6 py-4 flex items-center justify-end gap-3">
                     <Button
                         type="button"
                         variant="outline"
