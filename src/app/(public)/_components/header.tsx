@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
     Sheet,
@@ -85,7 +85,7 @@ export function Header() {
                 <Link
                     href="/"
                     aria-label="Ir para a página inicial"
-                    className="group/logo relative flex items-center rounded-xl px-1 py-1 text-2xl font-bold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2 sm:text-3xl"
+                    className="group/logo relative flex items-center rounded-md px-1 py-1 text-2xl font-bold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2 sm:text-3xl"
                 >
                     <span className="text-[#17172f] transition-[color,transform] duration-500 ease-out group-hover/logo:-translate-y-0.5 group-hover/logo:text-[#11112a]">
                         Smart
@@ -109,7 +109,7 @@ export function Header() {
                 <nav className="relative hidden items-center gap-2 md:flex">
                     <div
                         aria-hidden="true"
-                        className="pointer-events-none absolute -inset-x-4 -inset-y-3 rounded-xl bg-gradient-to-r from-emerald-500/[0.015] via-[#252579]/[0.035] to-violet-500/[0.015] opacity-0 blur-xl transition-[opacity,transform] duration-[1600ms] ease-out group-hover:scale-105 group-hover:opacity-100"
+                        className="pointer-events-none absolute -inset-x-4 -inset-y-3 rounded-md bg-gradient-to-r from-emerald-500/[0.015] via-[#252579]/[0.035] to-violet-500/[0.015] opacity-0 blur-xl transition-[opacity,transform] duration-[1600ms] ease-out group-hover:scale-105 group-hover:opacity-100"
                     />
 
                     {navItems.map((item) => (
@@ -128,7 +128,7 @@ export function Header() {
                     ))}
 
                     {status === "loading" ? (
-                        <div className="relative h-10 w-36 animate-pulse rounded-xl bg-[#252579]/10" />
+                        <div className="relative h-10 w-36 animate-pulse rounded-md bg-[#252579]/10" />
                     ) : session ? (
                         <LoadingLink
                             href="/dashboard"
@@ -203,7 +203,7 @@ export function Header() {
                             ))}
 
                             {status === "loading" ? (
-                                <div className="relative h-10 w-36 animate-pulse rounded-xl bg-[#252579]/10" />
+                                <div className="relative h-10 w-36 animate-pulse rounded-md bg-[#252579]/10" />
                             ) : session ? (
                                 <LoadingLink
                                     href="/dashboard"

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { signOut, useSession } from "next-auth/react"
 import {
@@ -86,7 +86,7 @@ export function SidebarDashboard({
                                     <Link
                                         href="/"
                                         aria-label="Ir para a página inicial"
-                                        className="group/logo relative flex items-center rounded-xl px-1 py-1 text-xl font-bold tracking-tight transition-[transform,opacity] duration-300 ease-out hover:-translate-y-0.5 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
+                                        className="group/logo relative flex items-center rounded-md px-1 py-1 text-xl font-bold tracking-tight transition-[transform,opacity] duration-300 ease-out hover:-translate-y-0.5 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
                                     >
                                         <span className="text-[#17172f] transition-colors duration-500 group-hover/logo:text-[#11112a]">
                                             Smart
@@ -220,8 +220,8 @@ export function SidebarDashboard({
                                     className={clsx(
                                         "group/logout cursor-pointer text-muted-foreground transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:bg-red-500/[0.065] hover:text-red-600 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-red-500/30 active:scale-[0.98]",
                                         isCollapsed
-                                            ? "h-11 w-full rounded-xl p-0"
-                                            : "h-10 w-full justify-start gap-3 rounded-xl px-3"
+                                            ? "h-11 w-full rounded-md p-0"
+                                            : "h-10 w-full justify-start gap-3 rounded-md px-3"
                                     )}
                                 >
                                     <LogOut className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover/logout:-translate-x-0.5" />
@@ -317,7 +317,7 @@ export function SidebarDashboard({
                                                     <Link
                                                         href="/"
                                                         aria-label="Ir para a página inicial"
-                                                        className="group/logo relative flex items-center rounded-xl px-1 py-1 text-xl font-bold tracking-tight transition-[transform,opacity] duration-300 hover:-translate-y-0.5 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
+                                                        className="group/logo relative flex items-center rounded-md px-1 py-1 text-xl font-bold tracking-tight transition-[transform,opacity] duration-300 hover:-translate-y-0.5 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
                                                         onClick={() =>
                                                             setIsSheetOpen(false)
                                                         }
@@ -504,7 +504,7 @@ function SidebarLink({
             href={href}
             onClick={onClick}
             className={clsx(
-                "group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/25 focus-visible:ring-offset-2",
+                "group block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/25 focus-visible:ring-offset-2",
                 isCollapsed && "flex justify-center"
             )}
         >
@@ -512,8 +512,8 @@ function SidebarLink({
                 className={clsx(
                     "relative flex items-center overflow-hidden transition-[background-color,color,box-shadow,transform] duration-200 ease-out",
                     isCollapsed
-                        ? "h-11 w-11 justify-center rounded-xl"
-                        : "w-full gap-3 rounded-xl px-3 py-2.5",
+                        ? "h-11 w-11 justify-center rounded-md"
+                        : "w-full gap-3 rounded-md px-3 py-2.5",
                     isActive
                         ? "bg-[#252579]/[0.065] font-medium text-[#252579] shadow-sm shadow-[#252579]/[0.035]"
                         : "text-muted-foreground hover:bg-muted/70 hover:text-foreground hover:shadow-sm"

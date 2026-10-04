@@ -89,31 +89,32 @@ export async function createNewAppointment(
                 throw new Error("SERVICE_NOT_FOUND")
             }
 
+            const clinicTimes = clinic.times.filter((time) => time <= "21:30")
             const requiredSlots = Math.ceil(service.duration / 30)
-            const startIndex = clinic.times.indexOf(data.time)
+            const startIndex = clinicTimes.indexOf(data.time)
 
             if (
                 startIndex === -1 ||
-                startIndex + requiredSlots > clinic.times.length
+                startIndex + requiredSlots > clinicTimes.length
             ) {
                 throw new Error("TIME_UNAVAILABLE")
             }
 
-            const requestedSlots = clinic.times.slice(
+            const requestedSlots = clinicTimes.slice(
                 startIndex,
                 startIndex + requiredSlots
             )
             const blockedSlots = new Set<string>()
 
             for (const appointment of existingAppointments) {
-                const appointmentStartIndex = clinic.times.indexOf(appointment.time)
+                const appointmentStartIndex = clinicTimes.indexOf(appointment.time)
                 const appointmentSlots = Math.ceil(appointment.Service.duration / 30)
 
                 if (appointmentStartIndex === -1) {
                     continue
                 }
 
-                for (const slot of clinic.times.slice(
+                for (const slot of clinicTimes.slice(
                     appointmentStartIndex,
                     appointmentStartIndex + appointmentSlots
                 )) {

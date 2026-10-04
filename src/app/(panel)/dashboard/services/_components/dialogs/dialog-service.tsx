@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
     useDialogServiceForm,
@@ -175,7 +175,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold tracking-wider text-muted-foreground">
+                                    <FormLabel className="text-xs font-medium text-foreground">
                                         Nome do serviço
                                     </FormLabel>
                                     <FormControl>
@@ -195,7 +195,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                             name="price"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold tracking-wider text-muted-foreground">
+                                    <FormLabel className="text-xs font-medium text-foreground">
                                         Valor do serviço
                                     </FormLabel>
                                     <FormControl>
@@ -217,7 +217,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                         />
                     </div>
 
-                    <div className="rounded-xl border border-border/70 bg-muted/[0.12] p-4 space-y-3">
+                    <div className="rounded-md border border-border/70 bg-muted/[0.12] p-4 space-y-3">
                         <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground">
                             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 ease-out group-hover/modal:scale-105 group-hover/modal:border-[#252579]/20 group-hover/modal:bg-[#252579]/[0.09] group-hover/modal:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
                                 <Clock3 className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover/modal:scale-110 group-hover/modal:-rotate-3" />
@@ -231,7 +231,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                                 name="hours"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-xs font-medium text-muted-foreground">
+                                        <FormLabel className="text-xs font-medium text-foreground">
                                             Horas
                                         </FormLabel>
                                         <FormControl>
@@ -252,7 +252,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                                 name="minutes"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-xs font-medium text-muted-foreground">
+                                        <FormLabel className="text-xs font-medium text-foreground">
                                             Minutos
                                         </FormLabel>
                                         <FormControl>

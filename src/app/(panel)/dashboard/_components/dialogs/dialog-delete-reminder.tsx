@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Bell, AlertTriangle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -73,7 +73,7 @@ export function DialogDeleteReminder({
                 </DialogHeader>
 
                 <div className="px-6 py-5 space-y-4">
-                    <div className="relative overflow-hidden rounded-xl border border-rose-500/20 bg-gradient-to-br from-rose-500/[0.04] via-white to-rose-500/[0.02] p-4 shadow-lg backdrop-blur-xl transition-all duration-300 hover:border-rose-500/40 hover:shadow-xl">
+                    <div className="relative overflow-hidden rounded-md border border-rose-500/20 bg-gradient-to-br from-rose-500/[0.04] via-white to-rose-500/[0.02] p-4 shadow-lg backdrop-blur-xl transition-all duration-300 hover:border-rose-500/40 hover:shadow-xl">
                         <div aria-hidden="true" className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-rose-500/10 blur-2xl pointer-events-none" />
 
                         <p className="text-sm leading-relaxed text-foreground/90 font-medium">
@@ -81,7 +81,7 @@ export function DialogDeleteReminder({
                         </p>
 
                         <div className="mt-3">
-                            <div className="group/card relative flex items-start gap-3 rounded-xl border border-rose-500/15 bg-white/90 p-3 shadow-xs transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/30 hover:bg-white hover:shadow-md">
+                            <div className="group/card relative flex items-start gap-3 rounded-md border border-rose-500/15 bg-white/90 p-3 shadow-xs transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/30 hover:bg-white hover:shadow-md">
                                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-rose-500/25 bg-rose-500/10 text-rose-600 shadow-sm transition-transform duration-300 group-hover/card:rotate-6 mt-0.5">
                                     <Bell className="h-4 w-4" />
                                 </div>

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
     X,
@@ -213,9 +213,9 @@ export function ServicesList({ services }: ServicesListProps) {
                     <Card className="overflow-hidden border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
                         <CardContent className="p-3.5 md:p-4">
                             {services.length === 0 ? (
-                                <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-border/70 bg-muted/[0.12] px-6">
+                                <div className="flex min-h-[220px] items-center justify-center rounded-md border border-dashed border-border/70 bg-muted/[0.12] px-6">
                                     <div className="text-center">
-                                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-[#252579]/[0.08] text-[#252579]">
+                                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-md bg-[#252579]/[0.08] text-[#252579]">
                                             <Plus className="h-5 w-5" />
                                         </div>
 
@@ -233,7 +233,7 @@ export function ServicesList({ services }: ServicesListProps) {
                                     {services.map(service => (
                                         <article
                                             key={service.id}
-                                            className="group flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-background px-4 py-3.5 transition-[border-color,background-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:border-[#252579]/15 hover:bg-[#252579]/[0.018] hover:shadow-sm"
+                                            className="group flex items-center justify-between gap-4 rounded-md border border-border/60 bg-background px-4 py-3.5 transition-[border-color,background-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:border-[#252579]/15 hover:bg-[#252579]/[0.018] hover:shadow-sm"
                                         >
                                             <div className="flex min-w-0 items-center gap-3">
                                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover:scale-105 group-hover:border-[#252579]/20 group-hover:bg-[#252579]/[0.09] group-hover:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">

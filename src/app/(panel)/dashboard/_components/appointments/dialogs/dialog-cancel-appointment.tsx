@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Loader2, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -66,7 +66,7 @@ export function DialogCancelAppointment({
                 </DialogHeader>
 
                 <div className="px-6 py-5 space-y-4">
-                    <div className="relative overflow-hidden rounded-xl border border-rose-500/20 bg-gradient-to-br from-rose-500/[0.04] via-white to-rose-500/[0.02] p-4 shadow-lg backdrop-blur-xl transition-all duration-300 hover:border-rose-500/40 hover:shadow-xl">
+                    <div className="relative overflow-hidden rounded-md border border-rose-500/20 bg-gradient-to-br from-rose-500/[0.04] via-white to-rose-500/[0.02] p-4 shadow-lg backdrop-blur-xl transition-all duration-300 hover:border-rose-500/40 hover:shadow-xl">
                         <div aria-hidden="true" className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-rose-500/10 blur-2xl pointer-events-none" />
 
                         <p className="text-sm leading-relaxed text-foreground/90 font-medium">
@@ -74,7 +74,7 @@ export function DialogCancelAppointment({
                         </p>
 
                         <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            <div className="group/card relative flex items-center gap-3 rounded-xl border border-rose-500/20 bg-white/90 p-2.5 shadow-xs transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/40 hover:bg-white hover:shadow-md">
+                            <div className="group/card relative flex items-center gap-3 rounded-md border border-rose-500/20 bg-white/90 p-2.5 shadow-xs transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/40 hover:bg-white hover:shadow-md">
                                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-rose-500/25 bg-rose-500/10 text-rose-600 shadow-sm transition-transform duration-300 group-hover/card:rotate-6">
                                     <span className="text-xs font-bold">👤</span>
                                 </div>
@@ -84,7 +84,7 @@ export function DialogCancelAppointment({
                                 </div>
                             </div>
 
-                            <div className="group/card-time relative flex items-center gap-3 rounded-xl border border-rose-500/20 bg-white/90 p-2.5 shadow-xs transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/40 hover:bg-white hover:shadow-md">
+                            <div className="group/card-time relative flex items-center gap-3 rounded-md border border-rose-500/20 bg-white/90 p-2.5 shadow-xs transition-all duration-300 hover:scale-[1.01] hover:border-rose-500/40 hover:bg-white hover:shadow-md">
                                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-rose-500/25 bg-rose-500/10 text-rose-600 shadow-sm transition-transform duration-300 group-hover/card-time:-rotate-6">
                                     <span className="text-xs font-bold">⏰</span>
                                 </div>

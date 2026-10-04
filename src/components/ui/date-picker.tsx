@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useRef } from "react"
 import { format, addMonths, subMonths } from "date-fns"
@@ -85,7 +85,7 @@ export function DatePicker({
 
             {isOpen && (
                 <div
-                    className={`absolute ${alignmentClass} ${verticalClass} z-[110] w-[318px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border/70 bg-background shadow-2xl`}
+                    className={`absolute ${alignmentClass} ${verticalClass} z-[110] w-[318px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-md border border-border/70 bg-background shadow-2xl`}
                 >
                     <div className="border-b border-border/60 bg-gradient-to-r from-[#252579]/[0.045] via-background to-emerald-500/[0.045] px-4 py-3.5">
                         <div className="flex items-center gap-2.5">

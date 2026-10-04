@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { toast } from "sonner"
@@ -144,16 +144,16 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="group space-y-3 sm:space-y-4 px-1">
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-border/70 bg-card p-3 sm:p-4 shadow-sm">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-md border border-border/70 bg-card p-3 sm:p-4 shadow-sm">
                     <div className="flex items-center gap-3">
                         {clinic.image ? (
                             <img
                                 src={clinic.image}
                                 alt={clinic.name ?? "Clínica"}
-                                className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl object-cover border border-[#252579]/20 shadow-sm shrink-0"
+                                className="h-10 w-10 sm:h-12 sm:w-12 rounded-md object-cover border border-[#252579]/20 shadow-sm shrink-0"
                             />
                         ) : (
-                            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-[#252579]/10 text-[#252579] font-bold text-sm shrink-0">
+                            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-md bg-[#252579]/10 text-[#252579] font-bold text-sm shrink-0">
                                 {clinic.name ? clinic.name.substring(0, 2).toUpperCase() : "CL"}
                             </div>
                         )}
@@ -172,7 +172,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                             )}
                         </div>
                     </div>
-                    <div className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-700 shrink-0 self-start sm:self-auto">
+                    <div className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-700 shrink-0 self-start sm:self-auto">
                         <Calendar className="h-3.5 w-3.5 text-emerald-600" />
                         Agendamento online
                     </div>
@@ -185,9 +185,9 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
 
-                    <div className="group border rounded-xl p-3 sm:p-5 space-y-3 sm:space-y-4 bg-card shadow-sm">
+                    <div className="group flex h-full flex-col space-y-3 rounded-md border bg-card p-3 shadow-sm sm:space-y-4 sm:p-5">
                         <div>
                             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover:scale-105 group-hover:border-[#252579]/20 group-hover:bg-[#252579]/[0.09] group-hover:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
@@ -202,7 +202,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs sm:text-sm font-medium">Nome Completo</FormLabel>
+                                    <FormLabel className="text-xs font-medium text-foreground">Nome Completo</FormLabel>
                                     <FormControl>
                                         <div className="relative">
                                             <UserRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -225,7 +225,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-xs sm:text-sm font-medium">E-mail</FormLabel>
+                                        <FormLabel className="text-xs font-medium text-foreground">E-mail</FormLabel>
                                         <FormControl>
                                             <div className="relative">
                                                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -248,7 +248,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                 name="phone"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-xs sm:text-sm font-medium">Telefone / WhatsApp</FormLabel>
+                                        <FormLabel className="text-xs font-medium text-foreground">Telefone / WhatsApp</FormLabel>
                                         <FormControl>
                                             <div className="relative">
                                                 <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -278,7 +278,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                 name="gender"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-xs sm:text-sm font-medium">Gênero</FormLabel>
+                                        <FormLabel className="text-xs font-medium text-foreground">Gênero</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className="relative h-9 sm:h-10 w-full rounded-lg border-border/80 bg-background px-3 pl-9 text-xs sm:text-sm font-normal text-foreground shadow-sm focus:ring-0 focus:ring-offset-0 focus:border-input cursor-pointer">
@@ -302,7 +302,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                 name="date"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-xs sm:text-sm font-medium">Data do Agendamento</FormLabel>
+                                        <FormLabel className="text-xs font-medium text-foreground">Data do Agendamento</FormLabel>
                                         <FormControl>
                                             <DatePicker
                                                 value={field.value}
@@ -326,7 +326,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                             name="serviceId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs sm:text-sm font-medium">Serviço / Especialidade</FormLabel>
+                                    <FormLabel className="text-xs font-medium text-foreground">Serviço / Especialidade</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm rounded-md bg-background text-foreground border-input focus:ring-0 focus:ring-offset-0 focus:border-input cursor-pointer">
@@ -350,7 +350,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                         />
                     </div>
 
-                    <div className="group border rounded-xl p-3 sm:p-5 flex flex-col justify-between bg-card shadow-sm h-full space-y-4">
+                    <div className="group border rounded-md p-3 sm:p-5 flex flex-col justify-between bg-card shadow-sm h-full space-y-4">
                         <div>
                             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 ease-out group-hover:scale-105 group-hover:border-[#252579]/20 group-hover:bg-[#252579]/[0.09] group-hover:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
@@ -362,7 +362,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
 
                             <div className="mt-4">
                                 {(!selectedServiceId || !selectedDate) ? (
-                                    <div className="text-center py-8 sm:py-12 text-muted-foreground text-xs sm:text-sm border border-dashed rounded-xl p-4">
+                                    <div className="text-center py-8 sm:py-12 text-muted-foreground text-xs sm:text-sm border border-dashed rounded-md p-4">
                                         Selecione um serviço e uma data para ver os horários disponíveis.
                                     </div>
                                 ) : isLoadingSlots ? (
@@ -371,7 +371,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                         Carregando horários...
                                     </div>
                                 ) : slots.length === 0 ? (
-                                    <div className="text-center py-8 sm:py-12 text-muted-foreground text-xs sm:text-sm border border-dashed rounded-xl p-4">
+                                    <div className="text-center py-8 sm:py-12 text-muted-foreground text-xs sm:text-sm border border-dashed rounded-md p-4">
                                         Nenhum horário disponível para esta data.
                                     </div>
                                 ) : (

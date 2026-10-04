@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { toast } from "sonner"
 import { useState } from "react"
@@ -53,7 +53,7 @@ export function ReminderList({ reminder }: ReminderListProps) {
     return (
         <div className="flex flex-col gap-3">
             <Card className="group overflow-hidden border-border/60 bg-background shadow-sm shadow-black/[0.035]">
-                <CardHeader className="relative flex flex-row items-center justify-between gap-4 space-y-0 border-b border-border/60 bg-gradient-to-r from-background via-background to-amber-500/[0.025] px-5 py-4 md:px-6">
+                <CardHeader className="relative flex flex-row items-center justify-between gap-4 space-y-0 border-b border-border/60 bg-gradient-to-r from-background via-background to-[#252579]/[0.025] px-5 py-4 md:px-6">
                     <div className="flex min-w-0 flex-1 items-center gap-2.5">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-amber-400/20 bg-amber-400/[0.10] text-amber-500 transition-[background-color,border-color,transform,box-shadow] duration-300 ease-out group-hover:scale-105 group-hover:border-amber-400/30 group-hover:bg-amber-400/[0.14] group-hover:shadow-[0_4px_14px_rgba(245,158,11,0.12)]">
                             <Bell className="h-4 w-4 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:-rotate-3" />
@@ -94,11 +94,11 @@ export function ReminderList({ reminder }: ReminderListProps) {
 
                 <CardContent className="p-0">
                     <ScrollArea className="h-[calc(100vh-20rem)] px-3 lg:h-[calc(100vh-15rem)] lg:px-5">
-                        <div className="rounded-xl bg-muted/[0.12] p-2.5 sm:p-3">
+                        <div className="rounded-md bg-muted/[0.12] p-2.5 sm:p-3">
                             {reminder.length === 0 ? (
                                 <div className="flex min-h-[calc(100vh-26rem)] items-center justify-center px-6">
                                     <div className="max-w-xs text-center">
-                                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/[0.10] text-amber-500 shadow-sm">
+                                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md border border-amber-400/20 bg-amber-400/[0.10] text-amber-500 shadow-sm">
                                             <Bell className="h-5 w-5 transition-transform duration-300 hover:scale-110" />
                                         </div>
 
@@ -116,7 +116,7 @@ export function ReminderList({ reminder }: ReminderListProps) {
                                     {reminder.map((item) => (
                                         <article
                                             key={item.id}
-                                            className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border/60 bg-background px-3.5 py-3 shadow-sm shadow-black/[0.02] transition-[border-color,background-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:border-amber-400/20 hover:bg-amber-400/[0.025] hover:shadow-sm"
+                                            className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-border/60 bg-background px-3.5 py-3 shadow-sm shadow-black/[0.02] transition-[border-color,background-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:border-amber-400/20 hover:bg-amber-400/[0.025] hover:shadow-sm"
                                         >
                                             <div className="flex min-w-0 items-center gap-3">
                                                 <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400 shadow-[0_0_7px_rgba(245,158,11,0.28)] transition-transform duration-200 group-hover:scale-125" />

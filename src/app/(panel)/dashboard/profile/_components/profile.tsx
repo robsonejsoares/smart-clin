@@ -74,7 +74,7 @@ interface ProfileContentProps {
 
 export function ProfileContent({ user }: ProfileContentProps) {
     const [selectedHours, setSelectedHours] = useState<string[]>(
-        user.times ?? []
+        (user.times ?? []).filter((time) => time <= "21:30")
     )
 
     const [dialogIsOpen, setDialogIsOpen] = useState(false)
@@ -90,7 +90,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
     function generateTimeSlots(): string[] {
         const hours: string[] = []
 
-        for (let i = 8; i <= 22; i++) {
+        for (let i = 8; i <= 21; i++) {
             for (let j = 0; j < 2; j++) {
                 const hour = i.toString().padStart(2, "0")
                 const minute = (j * 30).toString().padStart(2, "0")
@@ -269,7 +269,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-medium">
+                                            <FormLabel className="text-xs font-medium text-foreground">
                                                 Nome Completo
                                             </FormLabel>
 
@@ -306,7 +306,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="address"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-medium">
+                                            <FormLabel className="text-xs font-medium text-foreground">
                                                 Endereço Completo
                                             </FormLabel>
 
@@ -332,7 +332,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="phone"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-medium">
+                                            <FormLabel className="text-xs font-medium text-foreground">
                                                 Telefone
                                             </FormLabel>
 
@@ -368,7 +368,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="status"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-medium">
+                                            <FormLabel className="text-xs font-medium text-foreground">
                                                 Status da Clínica
                                             </FormLabel>
 
@@ -414,7 +414,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="timeZone"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-medium">
+                                            <FormLabel className="text-xs font-medium text-foreground">
                                                 Selecione o fuso horário
                                             </FormLabel>
 

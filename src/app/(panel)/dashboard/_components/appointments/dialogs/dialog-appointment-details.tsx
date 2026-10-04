@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
   DialogContent,
@@ -71,7 +71,7 @@ export function DialogAppointmentDetails({
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="group relative overflow-hidden rounded-xl border border-border/60 bg-muted/[0.08] p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md">
+          <div className="group relative overflow-hidden rounded-md border border-border/60 bg-muted/[0.08] p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md">
             <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-[#252579]/10 blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#252579]/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
@@ -90,7 +90,7 @@ export function DialogAppointmentDetails({
             </div>
           </div>
 
-          <div className="group relative overflow-hidden rounded-xl border border-border/60 bg-muted/[0.08] p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-500/25 hover:bg-violet-500/[0.025] hover:shadow-md">
+          <div className="group relative overflow-hidden rounded-md border border-border/60 bg-muted/[0.08] p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-500/25 hover:bg-violet-500/[0.025] hover:shadow-md">
             <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-violet-500/10 blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
@@ -110,7 +110,7 @@ export function DialogAppointmentDetails({
           </div>
         </div>
 
-        <section className="group relative overflow-hidden rounded-xl border border-border/60 bg-muted/[0.08] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#252579]/20 hover:bg-[#252579]/[0.015] hover:shadow-md">
+        <section className="group relative overflow-hidden rounded-md border border-border/60 bg-muted/[0.08] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#252579]/20 hover:bg-[#252579]/[0.015] hover:shadow-md">
           <div className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[#252579]/10 blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
           <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[#252579]/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
@@ -152,7 +152,7 @@ export function DialogAppointmentDetails({
           </div>
         </section>
 
-        <section className="group relative overflow-hidden rounded-xl border border-border/60 bg-muted/[0.08] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#252579]/20 hover:bg-[#252579]/[0.015] hover:shadow-md">
+        <section className="group relative overflow-hidden rounded-md border border-border/60 bg-muted/[0.08] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#252579]/20 hover:bg-[#252579]/[0.015] hover:shadow-md">
           <div className="pointer-events-none absolute -bottom-16 -right-16 h-32 w-32 rounded-full bg-[#252579]/10 blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
           <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[#252579]/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 

@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 
 export function Footer() {
     return (<footer className="group relative overflow-hidden border-t border-border/60 bg-background"> <div
@@ -63,7 +63,7 @@ export function Footer() {
                     href="https://www.linkedin.com/in/robson-soares-b22513170/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-xl font-medium text-[#252579]/80 transition-[color,transform] duration-500 ease-out hover:-translate-y-0.5 hover:text-[#252579] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
+                    className="rounded-md font-medium text-[#252579]/80 transition-[color,transform] duration-500 ease-out hover:-translate-y-0.5 hover:text-[#252579] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
                 >
                     @oProgramadorAutonomo
                 </a>

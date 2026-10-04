@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import { Calendar } from "lucide-react"
 import getSession from "@/lib/getSession"
 import { redirect } from "next/navigation"
@@ -17,7 +17,7 @@ export default async function Dashboard() {
     return (
         <TooltipProvider>
             <main className="mx-auto w-full max-w-[1600px]">
-                <section className="group relative mb-6 overflow-hidden rounded-xl border border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
+                <section className="group relative mb-6 overflow-hidden rounded-md border border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
                     <div
                         aria-hidden="true"
                         className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px"

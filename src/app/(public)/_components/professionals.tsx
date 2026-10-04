@@ -1,4 +1,4 @@
-import Image from "next/image"
+﻿import Image from "next/image"
 import { ArrowRight, MapPin } from "lucide-react"
 import { LoadingLink } from "@/components/loading-link"
 import fotoImg from "../../../../public/logo-smart-clin.png"
@@ -67,7 +67,7 @@ export function Professionals({ professionals }: ProfessionalsProps) {
                 {professionals.map((clinic, index) => (
                     <Card
                         key={clinic.id}
-                        className="group flex h-full overflow-hidden rounded-xl border-border/60 bg-background shadow-sm transition-[transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-[#252579]/20 hover:shadow-lg hover:shadow-[#252579]/[0.05]"
+                        className="group flex h-full overflow-hidden rounded-md border-border/60 bg-background shadow-sm transition-[transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-[#252579]/20 hover:shadow-lg hover:shadow-[#252579]/[0.05]"
                     >
                         <CardContent className="flex h-full w-full flex-col p-0">
                             <div className="relative h-48 shrink-0 overflow-hidden bg-muted">

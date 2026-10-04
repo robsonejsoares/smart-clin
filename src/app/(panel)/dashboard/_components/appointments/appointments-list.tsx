@@ -136,7 +136,7 @@ export function AppointmentsList({
 
     return (
         <>
-            <Card className="group overflow-hidden border-border/60 bg-background shadow-sm shadow-black/[0.035]">
+            <Card className="group overflow-hidden rounded-md border-border/60 bg-background shadow-sm shadow-black/[0.035]">
                 <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 border-b border-border/60 bg-gradient-to-r from-background via-background to-[#252579]/[0.025] px-5 py-4 md:px-6">
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2.5">
@@ -251,9 +251,9 @@ function OccupiedSlotItem({
     onCancel: () => void
 }) {
     return (
-        <div className="group flex min-h-14 items-center gap-3 rounded-xl border border-[#252579]/10 bg-background px-3.5 py-3.5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#252579]/25 hover:bg-[#252579]/[0.035]">
+        <div className="group flex min-h-14 items-center gap-3 rounded-md border border-[#252579]/10 bg-background px-3.5 py-3.5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#252579]/25 hover:bg-[#252579]/[0.035]">
             <div className="flex w-16 shrink-0 items-center">
-                <span className="rounded-lg border border-[#252579]/15 bg-[#252579]/[0.05] px-2.5 py-1 text-sm font-bold tabular-nums text-[#252579]/90">
+                <span className="rounded-md border border-[#252579]/15 bg-[#252579]/[0.05] px-2.5 py-1 text-sm font-semibold tabular-nums text-[#252579]/90">
                     {slot}
                 </span>
             </div>
@@ -296,7 +296,7 @@ function OccupiedSlotItem({
                             variant="ghost"
                             size="icon"
                             onClick={onCancel}
-                            className="h-8 w-8 rounded-md text-red-500/75 hover:bg-red-500/[0.07] hover:text-red-600 focus-visible:ring-2 focus-visible:ring-red-500/25"
+                            className="h-8 w-8 rounded-md text-red-500/75 transition-[background-color,color,box-shadow] duration-200 hover:bg-red-500/[0.07] hover:text-red-600 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-red-500/25"
                         >
                             <X className="h-4 w-4" />
                         </Button>
@@ -316,15 +316,15 @@ function AvailableSlotItem({
     onNewAppointment: () => void
 }) {
     return (
-        <div className="group flex min-h-14 items-center gap-3 rounded-xl border border-border/50 bg-background px-3.5 py-3.5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-500/20 hover:bg-emerald-500/[0.02]">
+        <div className="group flex min-h-14 items-center gap-3 rounded-md border border-border/50 bg-background px-3.5 py-3.5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-500/20 hover:bg-emerald-500/[0.02]">
             <div className="flex w-16 shrink-0 items-center">
-                <span className="rounded-lg border border-emerald-500/15 bg-emerald-500/[0.06] px-2.5 py-1 text-sm font-bold tabular-nums text-emerald-600">
+                <span className="rounded-md border border-emerald-500/15 bg-emerald-500/[0.06] px-2.5 py-1 text-sm font-semibold tabular-nums text-emerald-600">
                     {slot}
                 </span>
             </div>
 
             <div className="flex min-w-0 flex-1 items-center gap-2.5 text-sm text-muted-foreground">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-emerald-500/[0.07]">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md">
                     <Clock3 className="h-3.5 w-3.5 text-emerald-600/75" />
                 </span>
                 <span className="font-medium">Disponível</span>
@@ -337,7 +337,7 @@ function AvailableSlotItem({
                         variant="ghost"
                         size="icon"
                         onClick={onNewAppointment}
-                        className="h-8 w-8 cursor-pointer rounded-md text-[#252579]/70 hover:bg-[#252579]/[0.07] hover:text-[#252579] focus-visible:ring-2 focus-visible:ring-[#252579]/25"
+                        className="h-8 w-8 cursor-pointer rounded-md text-[#252579]/70 transition-[background-color,color,box-shadow] duration-200 hover:bg-[#252579]/[0.07] hover:text-[#252579] hover:shadow-sm focus-visible:ring-2 focus-visible:ring-[#252579]/25"
                     >
                         <CalendarPlus className="h-4 w-4" />
                     </Button>
