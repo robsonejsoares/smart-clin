@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
     X,
@@ -26,18 +26,15 @@ import {
     Dialog,
     DialogContent,
     DialogTrigger,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
 } from "@/components/ui/dialog"
 
 import { toast } from "sonner"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { DialogService } from "./dialog-service"
+import { DialogService } from "./dialogs/dialog-service"
+import { DialogDeleteService } from "./dialogs/dialog-delete-service"
 import { Service } from "@/generated/prisma/client"
-import { formatCurrency } from "@/utils/formatCurrency"
+import { formatCurrency } from "@/lib/formatCurrency"
 import { deleteService } from "../_actions/delete-service"
 
 interface ServicesListProps {
@@ -64,12 +61,12 @@ export function ServicesList({ services }: ServicesListProps) {
 
             await new Promise(resolve => setTimeout(resolve, 1000))
 
-            if (response.error) {
-                toast(response.error)
+            if (!response.success) {
+                toast(response.message)
                 return
             }
 
-            toast.success(response.data)
+            toast.success(response.message)
             setServiceToDelete(null)
         } finally {
             setLoadingDelete(false)
@@ -106,9 +103,7 @@ export function ServicesList({ services }: ServicesListProps) {
                 }}
             >
                 <div className="mx-auto w-full max-w-5xl space-y-3">
-                    {/* Painel de Serviços */}
                     <Card className="group relative overflow-hidden border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
-                        {/* Linha gradiente superior */}
                         <div
                             aria-hidden="true"
                             className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px"
@@ -116,7 +111,6 @@ export function ServicesList({ services }: ServicesListProps) {
                             <div className="smartclin-services-line-top h-full bg-gradient-to-r from-emerald-400 via-[#252579] to-violet-500 blur-[0.5px]" />
                         </div>
 
-                        {/* Linha gradiente inferior */}
                         <div
                             aria-hidden="true"
                             className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-px"
@@ -147,7 +141,6 @@ export function ServicesList({ services }: ServicesListProps) {
                                         className="relative flex h-2.5 w-2.5 shrink-0"
                                     >
                                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/40" />
-
                                         <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.28)]" />
                                     </span>
 
@@ -170,7 +163,7 @@ export function ServicesList({ services }: ServicesListProps) {
 
                             <DialogTrigger asChild>
                                 <Button
-                                    className="group/add relative h-10 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-[#252579]/40 bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-[length:200%_100%] bg-[position:0%_50%] px-3 font-semibold text-white shadow-[0_4px_16px_rgba(37,37,121,0.20)] transition-[background-position,border-color,box-shadow,transform] duration-500 ease-out hover:-translate-y-0.5 hover:border-[#2d2d8f]/60 hover:bg-[position:100%_50%] hover:shadow-[0_8px_22px_rgba(37,37,121,0.28)] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#252579]/30 focus-visible:ring-offset-2 sm:px-4"
+                                    className="group/add relative h-10 shrink-0 cursor-pointer overflow-hidden rounded-md border border-[#252579]/40 bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-[length:200%_100%] bg-[position:0%_50%] px-4 font-semibold text-white shadow-[0_4px_16px_rgba(37,37,121,0.20)] transition-[background-position,border-color,box-shadow,transform] duration-500 ease-out hover:-translate-y-0.5 hover:border-[#2d2d8f]/60 hover:bg-[position:100%_50%] hover:shadow-[0_8px_22px_rgba(37,37,121,0.28)] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#252579]/30 focus-visible:ring-offset-2"
                                 >
                                     <span
                                         aria-hidden="true"
@@ -194,32 +187,21 @@ export function ServicesList({ services }: ServicesListProps) {
                                     setIsDialogOpen(false)
                                     setEditingService(null)
                                 }}
+                                className="sm:max-w-lg h-[550px] flex flex-col overflow-hidden rounded-xl border-border/70 p-0 shadow-2xl"
                             >
                                 <DialogService
                                     closeModal={() => {
                                         setIsDialogOpen(false)
                                         setEditingService(null)
                                     }}
-                                    serviceId={
-                                        editingService
-                                            ? editingService.id
-                                            : undefined
-                                    }
+                                    serviceId={editingService ? editingService.id : undefined}
                                     initialValues={
                                         editingService
                                             ? {
                                                 name: editingService.name,
-                                                price: (
-                                                    editingService.price / 100
-                                                )
-                                                    .toFixed(2)
-                                                    .replace(".", ","),
-                                                hours: Math.floor(
-                                                    editingService.duration / 60
-                                                ).toString(),
-                                                minutes: (
-                                                    editingService.duration % 60
-                                                ).toString(),
+                                                price: (editingService.price / 100).toFixed(2).replace(".", ","),
+                                                hours: Math.floor(editingService.duration / 60).toString(),
+                                                minutes: (editingService.duration % 60).toString(),
                                             }
                                             : undefined
                                     }
@@ -228,13 +210,12 @@ export function ServicesList({ services }: ServicesListProps) {
                         </CardHeader>
                     </Card>
 
-                    {/* Painel da lista de serviços */}
                     <Card className="overflow-hidden border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
                         <CardContent className="p-3.5 md:p-4">
                             {services.length === 0 ? (
-                                <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-border/70 bg-muted/[0.12] px-6">
+                                <div className="flex min-h-[220px] items-center justify-center rounded-md border border-dashed border-border/70 bg-muted/[0.12] px-6">
                                     <div className="text-center">
-                                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#252579]/[0.08] text-[#252579]">
+                                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-md bg-[#252579]/[0.08] text-[#252579]">
                                             <Plus className="h-5 w-5" />
                                         </div>
 
@@ -252,10 +233,10 @@ export function ServicesList({ services }: ServicesListProps) {
                                     {services.map(service => (
                                         <article
                                             key={service.id}
-                                            className="group flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-background px-4 py-3.5 transition-[border-color,background-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:border-[#252579]/15 hover:bg-[#252579]/[0.018] hover:shadow-sm"
+                                            className="group flex items-center justify-between gap-4 rounded-md border border-border/60 bg-background px-4 py-3.5 transition-[border-color,background-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:border-[#252579]/15 hover:bg-[#252579]/[0.018] hover:shadow-sm"
                                         >
                                             <div className="flex min-w-0 items-center gap-3">
-                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover:scale-105 group-hover:border-[#252579]/20 group-hover:bg-[#252579]/[0.09] group-hover:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
+                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover:scale-105 group-hover:border-[#252579]/20 group-hover:bg-[#252579]/[0.09] group-hover:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
                                                     <Stethoscope className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3" />
                                                 </div>
 
@@ -265,7 +246,7 @@ export function ServicesList({ services }: ServicesListProps) {
                                                     </p>
 
                                                     <div className="mt-1 grid grid-cols-[96px_1fr] items-center gap-2">
-                                                        <span className="truncate text-sm font-semibold text-foreground">
+                                                        <span className="truncate text-sm font-medium text-muted-foreground">
                                                             {formatCurrency(
                                                                 service.price / 100
                                                             )}
@@ -317,7 +298,7 @@ export function ServicesList({ services }: ServicesListProps) {
 
                                                             <TooltipContent
                                                                 side="top"
-                                                                className="rounded-lg border border-border/60 bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-lg"
+                                                                className="text-xs font-medium"
                                                             >
                                                                 Editar serviço
                                                             </TooltipContent>
@@ -341,7 +322,7 @@ export function ServicesList({ services }: ServicesListProps) {
 
                                                             <TooltipContent
                                                                 side="top"
-                                                                className="rounded-lg border border-border/60 bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-lg"
+                                                                className="text-xs font-medium"
                                                             >
                                                                 Excluir serviço
                                                             </TooltipContent>
@@ -358,55 +339,13 @@ export function ServicesList({ services }: ServicesListProps) {
                 </div>
             </Dialog>
 
-            <Dialog
-                open={!!serviceToDelete}
-                onOpenChange={(open) => {
-                    if (!open && !loadingDelete) {
-                        setServiceToDelete(null)
-                    }
-                }}
-            >
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-semibold">
-                            Excluir serviço
-                        </DialogTitle>
-
-                        <DialogDescription className="leading-relaxed">
-                            Tem certeza que deseja excluir o serviço{" "}
-                            <span className="font-semibold text-foreground">
-                                {serviceToDelete?.name}
-                            </span>
-                            ?
-                            <br />
-                            Essa ação não poderá ser desfeita.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="cursor-pointer"
-                            onClick={handleCloseDeleteDialog}
-                            disabled={loadingDelete}
-                        >
-                            Cancelar
-                        </Button>
-
-                        <Button
-                            type="button"
-                            className="cursor-pointer bg-red-500 text-white shadow-sm hover:bg-red-600 disabled:hover:bg-red-400"
-                            onClick={handleDeleteService}
-                            disabled={loadingDelete}
-                        >
-                            {loadingDelete
-                                ? "Excluindo serviço..."
-                                : "Excluir serviço"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <DialogDeleteService
+                service={serviceToDelete}
+                isOpen={!!serviceToDelete}
+                onClose={handleCloseDeleteDialog}
+                onConfirm={handleDeleteService}
+                loading={loadingDelete}
+            />
 
             <style>{`
     .smartclin-services-line-top,

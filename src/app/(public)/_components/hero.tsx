@@ -126,7 +126,8 @@ export function Hero() {
                     >
                         <Button
                             size="lg"
-                            className="group relative h-12 overflow-hidden rounded-xl bg-[#252579] px-7 font-semibold text-white shadow-lg shadow-[#252579]/20 transition-[background-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#2d2d8f] hover:shadow-xl hover:shadow-[#252579]/25"
+                            style={{ borderRadius: "0.75rem" }}
+                            className="group relative h-12 overflow-hidden bg-[#252579] px-7 font-semibold text-white shadow-lg shadow-[#252579]/20 transition-[background-color,box-shadow,transform] duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#2d2d8f] hover:shadow-xl hover:shadow-[#252579]/25"
                         >
                             <span
                                 aria-hidden="true"

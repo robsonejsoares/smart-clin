@@ -31,12 +31,12 @@ export async function getTimesClinic({ userId }: { userId: string }) {
         }
 
         return {
-            times: user.times,
+            times: user.times.filter((time) => time <= "21:30"),
             userId: user.id
         }
 
-    } catch (err) {
-        console.log(err);
+    } catch {
+        
         return {
             times: [],
             userId: "",

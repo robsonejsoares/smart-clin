@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 
 export function Footer() {
     return (<footer className="group relative overflow-hidden border-t border-border/60 bg-background"> <div

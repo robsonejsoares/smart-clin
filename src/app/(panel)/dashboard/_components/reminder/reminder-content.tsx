@@ -44,33 +44,30 @@ export function ReminderContent({ closeDialog }: ReminderContentProps) {
             new Promise((resolve) => setTimeout(resolve, 600)),
         ])
 
-        if (response.error) {
-            toast.error(response.error)
+        if (!response.success) {
+            toast.error(response.message)
             setLoading(false)
             return
         }
 
-        toast.success(response.data)
+        toast.success(response.message)
         router.refresh()
         closeDialog()
     }
 
     return (
         <Form {...form}>
-            {/* Adicionado group/modal para disparar as animações nos ícones ao passar o mouse */}
             <form onSubmit={form.handleSubmit(onSubmit)} className="group/modal w-full bg-background text-foreground">
-                
-                {/* 1. Header: Ícone idêntico ao de Horários da Clínica */}
+
                 <DialogHeader className="border-b border-border/60 bg-gradient-to-br from-background via-background to-[#252579]/[0.025] px-6 py-5">
                     <DialogTitle className="flex items-center gap-3 text-lg font-bold">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover/modal:scale-105 group-hover/modal:border-[#252579]/20 group-hover/modal:bg-[#252579]/[0.09] group-hover/modal:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
-                            <Bell className="h-4 w-4 transition-transform duration-300 group-hover/modal:-rotate-12 group-hover/modal:scale-110" />
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 ease-out group-hover/modal:scale-105 group-hover/modal:border-[#252579]/20 group-hover/modal:bg-[#252579]/[0.09] group-hover/modal:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
+                            <Bell className="h-4 w-4 transition-transform duration-300 ease-out group-hover/modal:scale-110 group-hover/modal:-rotate-3" />
                         </div>
-                        <span className="text-lg font-bold tracking-tight text-foreground">Novo Lembrete</span>
+                        <span className="bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-clip-text text-lg font-bold tracking-tight text-transparent">Novo Lembrete</span>
                     </DialogTitle>
                 </DialogHeader>
 
-                {/* 2. Corpo */}
                 <div className="p-6 space-y-4">
                     <FormField
                         control={form.control}
@@ -81,15 +78,13 @@ export function ReminderContent({ closeDialog }: ReminderContentProps) {
                             return (
                                 <FormItem className="space-y-4">
                                     <div className="flex items-center justify-between gap-3">
-                                        {/* Box de Aviso: w-fit (vai só até o final do texto) + animação de rotação no ícone Info */}
-                                        <div className="flex w-fit max-w-full items-center gap-2.5 rounded-lg border border-[#252579]/15 bg-[#252579]/[0.035] px-3.5 py-2.5 shadow-sm transition-colors duration-200 group-hover/modal:border-[#252579]/25">
-                                            <Info className="h-4 w-4 shrink-0 text-[#252579] transition-transform duration-500 ease-out group-hover/modal:rotate-[18deg] group-hover/modal:scale-110" />
+                                        <div className="flex w-fit max-w-full items-center gap-2 rounded-lg border border-[#252579]/15 bg-[#252579]/[0.035] px-3 py-1 shadow-sm transition-colors duration-200 group-hover/modal:border-[#252579]/25">
+                                            <Info className="h-3 w-3 shrink-0 text-[#252579] transition-transform duration-500 ease-out group-hover/modal:rotate-[18deg] group-hover/modal:scale-110" />
                                             <p className="text-xs text-muted-foreground">
-                                                <strong className="font-semibold text-foreground">Aviso importante:</strong> Os lembretes cadastrados aqui ficam visíveis no seu painel principal.
+                                                <span className="font-semibold">Aviso importante:</span> Os lembretes cadastrados aqui ficam visíveis no seu painel principal.
                                             </p>
                                         </div>
 
-                                        {/* Contador do tamanho e padding exatos do badge de seleção */}
                                         <div
                                             className={cn(
                                                 "flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors duration-200 shadow-2xs",
@@ -115,7 +110,7 @@ export function ReminderContent({ closeDialog }: ReminderContentProps) {
                                             {...field}
                                             placeholder="Descreva aqui as informações importantes do seu lembrete..."
                                             maxLength={maxLength}
-                                            className="min-h-[160px] rounded-xl border-border/70 bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground transition-[border-color,box-shadow] duration-200 hover:border-[#252579]/25 focus-visible:border-[#252579]/40 focus-visible:ring-0"
+                                            className="min-h-[160px] rounded-md border-border/70 bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground transition-[border-color,box-shadow] duration-200 hover:border-[#252579]/25 focus-visible:border-[#252579]/40 focus-visible:ring-0"
                                         />
                                     </FormControl>
 
@@ -126,14 +121,13 @@ export function ReminderContent({ closeDialog }: ReminderContentProps) {
                     />
                 </div>
 
-                {/* 3. Rodapé */}
                 <div className="border-t border-border/60 bg-muted/[0.16] px-6 py-4 flex items-center justify-end gap-3">
                     <Button
                         type="button"
                         variant="outline"
                         onClick={closeDialog}
                         disabled={loading}
-                        className="h-10 rounded-lg border border-border/70 bg-background px-5 text-xs font-semibold text-muted-foreground hover:bg-muted"
+                        className="h-10 rounded-md border border-border/70 bg-background px-5 text-xs font-semibold text-muted-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-[#252579]/25"
                     >
                         Cancelar
                     </Button>
@@ -141,7 +135,7 @@ export function ReminderContent({ closeDialog }: ReminderContentProps) {
                     <Button
                         type="submit"
                         disabled={isSubmitDisabled}
-                        className="h-10 rounded-lg bg-[#252579] px-5 text-xs font-semibold text-white transition-[background-color,box-shadow,transform] duration-200 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 disabled:opacity-50 active:scale-[0.99]"
+                        className="h-10 rounded-md bg-[#252579] px-5 text-xs font-semibold text-white transition-[background-color,box-shadow,transform] duration-200 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/30 disabled:opacity-50 active:scale-[0.99]"
                     >
                         {loading ? (
                             <span className="flex items-center gap-2">

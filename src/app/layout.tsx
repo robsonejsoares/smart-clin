@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+﻿import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { SessionAuthProvider } from "@/components/session-auth"
@@ -37,7 +37,7 @@ export default function RootLayout({
           closeButton
           toastOptions={{
             classNames: {
-              toast: "rounded-xl border border-border/70 bg-background/95 text-foreground shadow-xl shadow-black/5 backdrop-blur-sm transition-all duration-300 ease-out",
+              toast: "rounded-md border border-border/70 bg-background/95 text-foreground shadow-xl shadow-black/5 backdrop-blur-sm transition-all duration-300 ease-out",
               title: "font-semibold tracking-tight",
               description:
                 "text-sm leading-5 text-muted-foreground",

@@ -1,0 +1,15 @@
+{
+    "name": "Node.js & TypeScript",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "tailwindlabs.vscode-tailwindcss"
+            ]
+        }
+    },
+    "forwardPorts": [
+        3000
+    ],
+    "postStartCommand": "npm run dev"
+}

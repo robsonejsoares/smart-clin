@@ -44,6 +44,7 @@ import { useState } from "react"
 
 import {
     Info,
+    Loader2,
     Phone,
     Check,
     Clock3,
@@ -55,24 +56,25 @@ import {
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { formatPhone } from "@/utils/formatPhone"
+import { formatPhone } from "@/lib/formatPhone"
 import { Prisma } from "@/generated/prisma/client"
 import { updateProfile } from "../_actions/update-profile"
 import imgTest from "../../../../../../public/logo-smart-clin.png"
+import { DialogClinicHours } from "./dialogs/dialog-clinic-hours"
 
-type UserWithSubcription = Prisma.UserGetPayload<{
+type UserWithSubscription = Prisma.UserGetPayload<{
     include: {
         subscription: true;
     };
 }>
 
 interface ProfileContentProps {
-    user: UserWithSubcription;
+    user: UserWithSubscription;
 }
 
 export function ProfileContent({ user }: ProfileContentProps) {
     const [selectedHours, setSelectedHours] = useState<string[]>(
-        user.times ?? []
+        (user.times ?? []).filter((time) => time <= "21:30")
     )
 
     const [dialogIsOpen, setDialogIsOpen] = useState(false)
@@ -88,7 +90,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
     function generateTimeSlots(): string[] {
         const hours: string[] = []
 
-        for (let i = 8; i <= 22; i++) {
+        for (let i = 8; i <= 21; i++) {
             for (let j = 0; j < 2; j++) {
                 const hour = i.toString().padStart(2, "0")
                 const minute = (j * 30).toString().padStart(2, "0")
@@ -145,44 +147,17 @@ export function ProfileContent({ user }: ProfileContentProps) {
 
         await new Promise(resolve => setTimeout(resolve, 1000))
 
-        if (response.error) {
-            toast.error(response.error)
+        if (!response.success) {
+            toast.error(response.message)
             return
         }
 
-        toast.success(response.data)
-    }
-
-    if (form.formState.isSubmitting) {
-        return (
-            <div className="flex min-h-[calc(100vh-7rem)] items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="relative flex h-12 w-12 items-center justify-center">
-                        <span className="absolute inset-0 rounded-full border-2 border-[#252579]/10" />
-
-                        <span className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[#252579] border-r-emerald-500" />
-
-                        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.35)]" />
-                    </div>
-
-                    <div className="flex flex-col items-center gap-1">
-                        <span className="text-sm font-medium text-foreground">
-                            Carregando...
-                        </span>
-
-                        <span className="text-xs text-muted-foreground">
-                            Aguarde um momento.
-                        </span>
-                    </div>
-                </div>
-            </div>
-        )
+        toast.success(response.message)
     }
 
     return (
         <div className="mx-auto w-full max-w-5xl space-y-3">
             <Card className="group relative overflow-hidden border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
-                {/* Linha gradiente superior */}
                 <div
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px"
@@ -190,7 +165,6 @@ export function ProfileContent({ user }: ProfileContentProps) {
                     <div className="smartclin-profile-line-top h-full bg-gradient-to-r from-emerald-400 via-[#252579] to-violet-500 blur-[0.5px]" />
                 </div>
 
-                {/* Linha gradiente inferior */}
                 <div
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-px"
@@ -254,12 +228,12 @@ export function ProfileContent({ user }: ProfileContentProps) {
 
                         <CardHeader className="relative z-10 border-b border-border/60 bg-gradient-to-br from-background via-background to-emerald-500/[0.02] px-5 py-5 sm:px-7">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover:border-[#252579]/20 group-hover:bg-[#252579]/[0.09] group-hover:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
-                                    <UserRound className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3" />
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 ease-out group-hover:scale-105 group-hover:border-[#252579]/20 group-hover:bg-[#252579]/[0.09] group-hover:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
+                                    <UserRound className="h-4 w-4 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:-rotate-3" />
                                 </div>
 
                                 <div className="min-w-0">
-                                    <CardTitle className="text-base font-semibold tracking-tight">
+                                    <CardTitle className="bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-clip-text text-base font-semibold tracking-tight text-transparent">
                                         Informações do Perfil
                                     </CardTitle>
                                 </div>
@@ -295,7 +269,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-medium">
+                                            <FormLabel className="text-xs font-medium text-foreground">
                                                 Nome Completo
                                             </FormLabel>
 
@@ -305,7 +279,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
 
                                                     <Input
                                                         {...field}
-                                                        className="h-11 rounded-lg border-border/70 bg-background pl-10 shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] focus:border-[#252579]/40 focus:bg-background focus:ring-[#252579]/15 focus:shadow-[0_4px_14px_rgba(37,37,121,0.06)]"
+                                                        className="h-11 pl-10"
                                                         placeholder="Digite o seu nome completo..."
                                                         onChange={event => {
                                                             const apenasLetras =
@@ -332,7 +306,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="address"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-medium">
+                                            <FormLabel className="text-xs font-medium text-foreground">
                                                 Endereço Completo
                                             </FormLabel>
 
@@ -342,7 +316,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
 
                                                     <Input
                                                         {...field}
-                                                        className="h-11 rounded-lg border-border/70 bg-background pl-10 shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] focus:border-[#252579]/40 focus:bg-background focus:ring-[#252579]/15 focus:shadow-[0_4px_14px_rgba(37,37,121,0.06)]"
+                                                        className="h-11 pl-10"
                                                         placeholder="Digite o seu endereço da clínica..."
                                                     />
                                                 </div>
@@ -358,7 +332,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="phone"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-medium">
+                                            <FormLabel className="text-xs font-medium text-foreground">
                                                 Telefone
                                             </FormLabel>
 
@@ -368,7 +342,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
 
                                                     <Input
                                                         {...field}
-                                                        className="h-11 rounded-lg border-border/70 bg-background pl-10 shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] focus:border-[#252579]/40 focus:bg-background focus:ring-[#252579]/15 focus:shadow-[0_4px_14px_rgba(37,37,121,0.06)]"
+                                                        className="h-11 pl-10"
                                                         placeholder="(61) 99501-5804"
                                                         onChange={event => {
                                                             const formattedValue =
@@ -394,7 +368,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="status"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-medium">
+                                            <FormLabel className="text-xs font-medium text-foreground">
                                                 Status da Clínica
                                             </FormLabel>
 
@@ -403,7 +377,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                                     onValueChange={field.onChange}
                                                     defaultValue={field.value}
                                                 >
-                                                    <SelectTrigger className="group/status h-11 cursor-pointer rounded-lg border-border/70 bg-background shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] focus:border-[#252579]/40 focus:ring-[#252579]/15">
+                                                    <SelectTrigger className="group/status h-11 cursor-pointer">
                                                         <SelectValue placeholder="Selecione o status da clínica..." />
                                                     </SelectTrigger>
 
@@ -440,7 +414,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="timeZone"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-medium">
+                                            <FormLabel className="text-xs font-medium text-foreground">
                                                 Selecione o fuso horário
                                             </FormLabel>
 
@@ -449,7 +423,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                                     onValueChange={field.onChange}
                                                     defaultValue={field.value}
                                                 >
-                                                    <SelectTrigger className="group/timezone h-11 cursor-pointer rounded-lg border-border/70 bg-background shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] focus:border-[#252579]/40 focus:ring-[#252579]/15">
+                                                    <SelectTrigger className="group/timezone h-11 cursor-pointer">
                                                         <SelectValue placeholder="Selecione o fuso horário..." />
                                                     </SelectTrigger>
 
@@ -470,138 +444,40 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                         </FormItem>
                                     )}
                                 />
-                            </div>
 
-                            <div className="group/hours relative space-y-4 overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-muted/[0.28] via-background to-emerald-500/[0.025] p-4 shadow-sm transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-emerald-500/20 hover:shadow-md hover:shadow-emerald-500/[0.035] sm:p-5">
-                                <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-emerald-500/[0.06] blur-2xl transition-transform duration-700 group-hover/hours:scale-125" />
+                                <div className="space-y-2 w-full">
+                                    <label className="text-sm font-medium text-foreground">
+                                        Configurar Horário de Funcionamento
+                                    </label>
 
-                                <div className="relative flex items-start gap-3">
-                                    {/* Ícone com Cores Padronizadas no Tom Azul da Marca (#252579) e Animação no Hover */}
-                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover/hours:scale-105 group-hover/hours:border-[#252579]/20 group-hover/hours:bg-[#252579]/[0.09] group-hover/hours:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
-                                        <Clock3 className="h-4 w-4 transition-transform duration-300 group-hover/hours:-rotate-12 group-hover/hours:scale-110" />
-                                    </div>
-
-                                    <div className="min-w-0">
-                                        <Label className="text-sm font-semibold tracking-tight">
-                                            Configurar Horário de Funcionamento
-                                        </Label>
-
-                                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                                            Defina os horários em que sua clínica estará disponível para atendimento.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <Dialog
-                                    open={dialogIsOpen}
-                                    onOpenChange={setDialogIsOpen}
-                                >
-                                    <DialogTrigger asChild>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            className="group/button relative h-11 w-full cursor-pointer justify-between overflow-hidden rounded-lg border-border/70 bg-background/80 px-4 shadow-sm transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-px hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md hover:shadow-[#252579]/[0.05] active:scale-[0.99]"
-                                        >
-                                            <span className="font-medium">
-                                                Clique aqui para selecionar o horário
-                                            </span>
-
-                                            <ArrowRight className="h-4 w-4 text-[#252579] transition-transform duration-300 group-hover/button:translate-x-1" />
-                                        </Button>
-                                    </DialogTrigger>
-                                    
-                                    {/* group/modal adicionado aqui no DialogContent */}
-                                    <DialogContent className="group/modal max-w-4xl overflow-hidden rounded-2xl border-border/70 p-0">
-                                        <DialogHeader className="border-b border-border/60 bg-gradient-to-br from-background via-background to-[#252579]/[0.025] px-6 py-5">
-                                            <DialogTitle className="flex items-center gap-3">
-                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover/modal:scale-105 group-hover/modal:border-[#252579]/20 group-hover/modal:bg-[#252579]/[0.09] group-hover/modal:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
-                                                    <Clock3 className="h-4 w-4 transition-transform duration-300 group-hover/modal:rotate-[-8deg]" />
-                                                </div>
-
-                                                <span>Horários da Clínica</span>
-                                            </DialogTitle>
-                                        </DialogHeader>
-                                        
-                                        <section className="px-6 py-5 space-y-4">
-                                            <div className="flex items-center justify-between gap-3">
-
-                                                <div className="flex items-center gap-2.5 rounded-lg border border-[#252579]/15 bg-[#252579]/[0.035] px-3.5 py-2.5 shadow-sm transition-colors duration-200 group-hover/modal:border-[#252579]/25">
-                                                    <Info className="h-4 w-4 shrink-0 text-[#252579] transition-transform duration-500 ease-out group-hover/modal:rotate-[18deg] group-hover/modal:scale-110" />
-                                                    <p className="text-xs text-muted-foreground">
-                                                        <strong className="font-semibold text-foreground">Horários disponíveis:</strong> Selecione os horários de atendimento.
-                                                    </p>
-                                                </div>
-
-                                                {/* Contador com dimensões reduzidas e mais compacto */}
-                                                <div
-                                                    className={cn(
-                                                        "flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors duration-200 shadow-2xs",
-                                                        selectedHours.length === 0
-                                                            ? "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                                                            : "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                                                    )}
-                                                >
-                                                    <span
-                                                        className={cn(
-                                                            "h-1.5 w-1.5 rounded-full transition-colors duration-200",
-                                                            selectedHours.length === 0 ? "bg-rose-500 animate-pulse" : "bg-emerald-500"
-                                                        )}
-                                                    />
-                                                    <span className="whitespace-nowrap tabular-nums">
-                                                        {selectedHours.length} selecionado{selectedHours.length === 1 ? "" : "s"}
-                                                    </span>
-                                                </div>
-
-                                            </div>
-
-                                            {/* Grid de Horários */}
-                                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-                                                {hours.map(hour => {
-                                                    const isSelected = selectedHours.includes(hour)
-
-                                                    return (
-                                                        <Button
-                                                            key={hour}
-                                                            type="button"
-                                                            variant="outline"
-                                                            className={cn(
-                                                                "group/hour h-10 cursor-pointer rounded-lg border-border/70 bg-background font-medium tabular-nums transition-[background-color,border-color,color,box-shadow,transform] duration-200 hover:border-[#252579]/25 hover:bg-[#252579]/[0.035] hover:text-[#252579] active:scale-[0.97]",
-                                                                isSelected &&
-                                                                "border-emerald-500/40 bg-emerald-500/[0.09] text-emerald-700 shadow-sm shadow-emerald-500/[0.08] hover:border-emerald-500/50 hover:bg-emerald-500/[0.13] hover:text-emerald-700 dark:text-emerald-400"
-                                                            )}
-                                                            onClick={() => toggleHour(hour)}
-                                                        >
-                                                            <span className="flex items-center justify-center gap-1.5">
-                                                                {isSelected && (
-                                                                    <Check className="h-3.5 w-3.5 transition-transform duration-200 group-hover/hour:scale-110" />
-                                                                )}
-                                                                {hour}
-                                                            </span>
-                                                        </Button>
-                                                    )
-                                                })}
-                                            </div>
-                                        </section>
-
-                                        <div className="border-t border-border/60 bg-muted/[0.16] px-6 py-4">
-                                            <Button
+                                    <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
+                                        <DialogTrigger asChild>
+                                            <button
                                                 type="button"
-                                                className="h-11 w-full rounded-lg bg-[#252579] text-white shadow-sm transition-[background-color,box-shadow,transform] duration-200 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 active:scale-[0.99]"
-                                                onClick={() =>
-                                                    setDialogIsOpen(false)
-                                                }
+                                                className="group/button relative flex h-11 w-full cursor-pointer items-center justify-between rounded-md border border-border/70 bg-background px-3.5 text-left shadow-sm transition-all duration-200 hover:border-[#252579]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/30"
                                             >
-                                                Fechar Modal
-                                            </Button>
-                                        </div>
-                                    </DialogContent>
-                                </Dialog>
+                                                <span className="text-sm text-muted-foreground">
+                                                    Clique aqui para selecionar o horário
+                                                </span>
+                                                <ArrowRight className="h-4 w-4 shrink-0 text-[#252579] transition-transform duration-300 group-hover/button:translate-x-1" />
+                                            </button>
+                                        </DialogTrigger>
+
+                                        <DialogClinicHours
+                                            isOpen={dialogIsOpen}
+                                            onClose={() => setDialogIsOpen(false)}
+                                            selectedHours={selectedHours}
+                                            toggleHour={toggleHour}
+                                            hours={hours}
+                                        />
+                                    </Dialog>
+                                </div>
                             </div>
 
                             <Button
                                 type="submit"
                                 disabled={form.formState.isSubmitting}
-                                className="group/save relative h-10 w-full cursor-pointer overflow-hidden rounded-lg border border-[#252579]/40 bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-[length:200%_100%] bg-[position:0%_50%] font-semibold text-white shadow-[0_4px_16px_rgba(37,37,121,0.20)] transition-[background-position,border-color,box-shadow,transform] duration-500 ease-out hover:-translate-y-0.5 hover:border-[#2d2d8f]/60 hover:bg-[position:100%_50%] hover:shadow-[0_8px_22px_rgba(37,37,121,0.28)] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#252579]/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-70"
+                                className="group/save relative h-10 w-full cursor-pointer overflow-hidden rounded-md border border-[#252579]/40 bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-[length:200%_100%] bg-[position:0%_50%] font-semibold text-white shadow-[0_4px_16px_rgba(37,37,121,0.20)] transition-[background-position,border-color,box-shadow,transform] duration-500 ease-out hover:-translate-y-0.5 hover:border-[#2d2d8f]/60 hover:bg-[position:100%_50%] hover:shadow-[0_8px_22px_rgba(37,37,121,0.28)] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#252579]/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-70"
                             >
                                 <span
                                     aria-hidden="true"
@@ -609,7 +485,17 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                 />
 
                                 <span className="relative z-10">
-                                    Salvar Alterações
+                                    {form.formState.isSubmitting ? (
+                                        <>
+                                            <Loader2
+                                                aria-hidden="true"
+                                                className="mr-2 inline-block h-4 w-4 animate-spin"
+                                            />
+                                            Salvando alterações...
+                                        </>
+                                    ) : (
+                                        "Salvar Alterações"
+                                    )}
                                 </span>
                             </Button>
                         </CardContent>

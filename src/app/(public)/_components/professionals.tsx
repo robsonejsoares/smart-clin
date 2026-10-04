@@ -1,11 +1,13 @@
+﻿import Image from "next/image"
+import { ArrowRight, MapPin } from "lucide-react"
+import { LoadingLink } from "@/components/loading-link"
+import fotoImg from "../../../../public/logo-smart-clin.png"
+
 import {
     Card,
     CardContent,
 } from "@/components/ui/card"
-import Image from "next/image"
-import fotoImg from "../../../../public/logo-smart-clin.png"
-import { ArrowRight, MapPin } from "lucide-react"
-import { LoadingLink } from "@/components/loading-link"
+import { User } from "@/generated/prisma/client"
 
 const clinics = [
     {
@@ -34,7 +36,11 @@ const clinics = [
     },
 ]
 
-export function Professionals() {
+interface ProfessionalsProps {
+    professionals: User[]
+}
+
+export function Professionals({ professionals }: ProfessionalsProps) {
     return (<section className="relative overflow-hidden border-y border-border/50 bg-muted/20 py-20 sm:py-24"> <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-48 top-20 h-96 w-96 rounded-full bg-emerald-500/[0.04] blur-3xl"
@@ -58,15 +64,15 @@ export function Professionals() {
             </div>
 
             <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {clinics.map((clinic, index) => (
+                {professionals.map((clinic, index) => (
                     <Card
-                        key={clinic.name}
-                        className="group flex h-full overflow-hidden rounded-2xl border-border/60 bg-background shadow-sm transition-[transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-[#252579]/20 hover:shadow-lg hover:shadow-[#252579]/[0.05]"
+                        key={clinic.id}
+                        className="group flex h-full overflow-hidden rounded-md border-border/60 bg-background shadow-sm transition-[transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-[#252579]/20 hover:shadow-lg hover:shadow-[#252579]/[0.05]"
                     >
                         <CardContent className="flex h-full w-full flex-col p-0">
                             <div className="relative h-48 shrink-0 overflow-hidden bg-muted">
                                 <Image
-                                    src={clinic.image}
+                                    src={clinic.image ?? fotoImg}
                                     alt={`Imagem da ${clinic.name}`}
                                     fill
                                     priority={index === 0}
@@ -80,25 +86,25 @@ export function Professionals() {
                                 />
 
                                 <div
-                                    className={`absolute right-3 top-3 flex h-6 items-center overflow-hidden rounded-full border bg-white/80 shadow-sm backdrop-blur-sm transition-[width,box-shadow,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${clinic.available
-                                            ? "w-6 border-emerald-500/15"
-                                            : "w-6 border-red-500/15"
+                                    className={`absolute right-3 top-3 flex h-6 items-center overflow-hidden rounded-full border bg-white/80 shadow-sm backdrop-blur-sm transition-[width,box-shadow,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${clinic.status
+                                        ? "w-6 border-emerald-500/15"
+                                        : "w-6 border-red-500/15"
                                         } group-hover:w-[82px]`}
                                 >
                                     <span
-                                        className={`mx-[7px] h-1.5 w-1.5 shrink-0 rounded-full transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110 ${clinic.available
-                                                ? "bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.08)]"
-                                                : "bg-red-500 shadow-[0_0_0_3px_rgba(239,68,68,0.08)]"
+                                        className={`mx-[7px] h-1.5 w-1.5 shrink-0 rounded-full transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110 ${clinic.status
+                                            ? "bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.08)]"
+                                            : "bg-red-500 shadow-[0_0_0_3px_rgba(239,68,68,0.08)]"
                                             }`}
                                     />
 
                                     <span
-                                        className={`min-w-0 truncate pr-2 text-[9px] font-medium opacity-0 transition-[opacity,transform] delay-75 duration-250 ease-out group-hover:translate-x-0 group-hover:opacity-100 ${clinic.available
-                                                ? "text-emerald-600"
-                                                : "text-red-600"
+                                        className={`min-w-0 truncate pr-2 text-[9px] font-medium opacity-0 transition-[opacity,transform] delay-75 duration-250 ease-out group-hover:translate-x-0 group-hover:opacity-100 ${clinic.status
+                                            ? "text-emerald-600"
+                                            : "text-red-600"
                                             }`}
                                     >
-                                        {clinic.available ? "Disponível" : "Indisponível"}
+                                        {clinic.status ? "Disponível" : "Indisponível"}
                                     </span>
                                 </div>
                             </div>
@@ -113,14 +119,15 @@ export function Professionals() {
                                         <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#252579]" />
 
                                         <p className="text-sm leading-6 text-muted-foreground">
-                                            {clinic.address}
+                                            {clinic.address ?? "Endereço não informado."}
                                         </p>
                                     </div>
                                 </div>
 
                                 <LoadingLink
-                                    href="/clinica/123"
-                                    className="mt-auto flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
+                                    href={`/clinica/${clinic.id}`}
+                                    target="_blank"
+                                    className="mt-auto flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
                                 >
                                     Agendar horário
 

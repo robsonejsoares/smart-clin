@@ -1,8 +1,10 @@
 "use server"
 
 import { z } from "zod";
+import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import type { ActionResult } from "@/lib/action-result"
 
 const formSchema = z.object({
     reminderId: z.string({ errorMap: () => ({ message: "O id do lembrete é obrigatório" }) }).min(1, "O id do lembrete é obrigatório"),
@@ -10,33 +12,55 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>
 
-export async function deleteReminder(formData: FormSchema) {
+export async function deleteReminder(formData: FormSchema): Promise<ActionResult> {
 
     const schema = formSchema.safeParse(formData)
 
     if (!schema.success) {
         return {
-            error: schema.error.issues[0].message
+            success: false,
+            message: schema.error.issues[0].message,
+        }
+    }
+
+    const session = await auth()
+    const userId = session?.user?.id
+
+    if (!userId) {
+        return {
+            success: false,
+            message: "Usuário não autenticado.",
         }
     }
 
     try {
 
-        await prisma.reminder.delete({
+        const deletedReminder = await prisma.reminder.deleteMany({
             where: {
-                id: formData.reminderId
+                id: schema.data.reminderId,
+                userId,
             }
         })
+
+        if (deletedReminder.count === 0) {
+            return {
+                success: false,
+                message: "Lembrete não encontrado.",
+            }
+        }
 
         revalidatePath("/dashboard")
 
         return {
-            data: "Lembrete excluído com sucesso."
+            success: true,
+            message: "Lembrete excluído com sucesso.",
         }
 
-    } catch {
+    } catch (error) {
+        console.error("Erro ao excluir lembrete:", error)
         return {
-            error: "Não foi possível excluir o lembrete."
+            success: false,
+            message: "Não foi possível excluir o lembrete.",
         }
     }
 }

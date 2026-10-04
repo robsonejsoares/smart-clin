@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
@@ -17,7 +17,7 @@ const SelectTrigger = React.forwardRef<React.ElementRef<typeof SelectPrimitive.T
     <SelectPrimitive.Trigger
       ref={ref}
       className={cn(
-        "group flex h-10 w-full items-center justify-between rounded-xl border border-border/70 bg-background px-3 py-2 text-sm text-foreground shadow-sm shadow-black/[0.025] outline-none transition-[border-color,box-shadow,background-color,transform] duration-200 ease-out hover:border-border focus:border-[#252579]/45 focus:bg-background focus:ring-2 focus:ring-[#252579]/15 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 data-placeholder:text-muted-foreground/80 [&>span]:line-clamp-1",
+        "group flex h-10 w-full items-center justify-between rounded-md border border-border/70 bg-background px-3 py-2 text-sm text-foreground shadow-sm shadow-black/[0.025] outline-none transition-[border-color,box-shadow,background-color,transform] duration-200 ease-out hover:border-[#252579]/25 focus-visible:border-[#252579]/40 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-[#252579]/15 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 data-placeholder:text-muted-foreground/80 [&>span]:line-clamp-1",
         className
       )}
       {...props}
@@ -76,7 +76,7 @@ const SelectContent = React.forwardRef<React.ElementRef<typeof SelectPrimitive.C
       <SelectPrimitive.Content
         ref={ref}
         className={cn(
-          "relative z-50 max-h-(--radix-select-content-available-height) min-w-32 overflow-y-auto overflow-x-hidden rounded-xl border border-border/70 bg-popover text-popover-foreground shadow-xl shadow-black/10 backdrop-blur-xl outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-(--radix-select-content-transform-origin)",
+          "relative z-50 max-h-(--radix-select-content-available-height) min-w-32 overflow-y-auto overflow-x-hidden rounded-md border border-border/70 bg-popover text-popover-foreground shadow-xl shadow-black/10 backdrop-blur-xl outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-(--radix-select-content-transform-origin)",
           position === "popper" &&
           "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
     Sheet,
@@ -39,7 +39,6 @@ export function Header() {
 
     return (
         <header className="group relative fixed left-0 right-0 top-0 z-[999] overflow-hidden border-b border-border/60 bg-background/90 px-4 py-3 shadow-sm shadow-black/[0.04] backdrop-blur-xl sm:px-6">
-            {/* Linha gradiente superior com a animação idêntica ao painel */}
             <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px"
@@ -47,7 +46,6 @@ export function Header() {
                 <div className="smartclin-dashboard-line-top h-full bg-gradient-to-r from-emerald-400 via-[#252579] to-violet-500 blur-[0.5px]" />
             </div>
 
-            {/* Linha gradiente inferior com a animação idêntica ao painel */}
             <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-px"
@@ -87,7 +85,7 @@ export function Header() {
                 <Link
                     href="/"
                     aria-label="Ir para a página inicial"
-                    className="group/logo relative flex items-center rounded-xl px-1 py-1 text-2xl font-bold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2 sm:text-3xl"
+                    className="group/logo relative flex items-center rounded-md px-1 py-1 text-2xl font-bold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2 sm:text-3xl"
                 >
                     <span className="text-[#17172f] transition-[color,transform] duration-500 ease-out group-hover/logo:-translate-y-0.5 group-hover/logo:text-[#11112a]">
                         Smart
@@ -111,7 +109,7 @@ export function Header() {
                 <nav className="relative hidden items-center gap-2 md:flex">
                     <div
                         aria-hidden="true"
-                        className="pointer-events-none absolute -inset-x-4 -inset-y-3 rounded-2xl bg-gradient-to-r from-emerald-500/[0.015] via-[#252579]/[0.035] to-violet-500/[0.015] opacity-0 blur-xl transition-[opacity,transform] duration-[1600ms] ease-out group-hover:scale-105 group-hover:opacity-100"
+                        className="pointer-events-none absolute -inset-x-4 -inset-y-3 rounded-md bg-gradient-to-r from-emerald-500/[0.015] via-[#252579]/[0.035] to-violet-500/[0.015] opacity-0 blur-xl transition-[opacity,transform] duration-[1600ms] ease-out group-hover:scale-105 group-hover:opacity-100"
                     />
 
                     {navItems.map((item) => (
@@ -119,7 +117,7 @@ export function Header() {
                             key={item.href}
                             asChild
                             variant="ghost"
-                            className="group relative h-10 rounded-xl px-4 text-sm font-medium text-zinc-700 transition-[background-color,color,transform] duration-200 ease-out hover:-translate-y-px hover:bg-white/75 hover:text-[#252579]"
+                            className="group relative h-10 rounded-md px-4 text-sm font-medium text-zinc-700 transition-[background-color,color,transform] duration-200 ease-out hover:-translate-y-px hover:bg-white/75 hover:text-[#252579]"
                         >
                             <Link href={item.href}>
                                 {item.label}
@@ -130,11 +128,11 @@ export function Header() {
                     ))}
 
                     {status === "loading" ? (
-                        <div className="relative h-10 w-36 animate-pulse rounded-xl bg-[#252579]/10" />
+                        <div className="relative h-10 w-36 animate-pulse rounded-md bg-[#252579]/10" />
                     ) : session ? (
                         <LoadingLink
                             href="/dashboard"
-                            className="group relative inline-flex h-10 min-w-36 items-center justify-center gap-2 rounded-xl bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
+                            className="group relative inline-flex h-10 min-w-36 items-center justify-center gap-2 rounded-md bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
                         >
                             Acessar Clínica
 
@@ -144,7 +142,8 @@ export function Header() {
                         <Button
                             onClick={handleLogin}
                             loading={isLoggingIn}
-                            className="group relative h-10 min-w-36 rounded-xl bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/40"
+                            style={{ borderRadius: "0.75rem" }}
+                            className="group relative h-10 min-w-36 bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/40"
                         >
                             <LogIn className="h-4 w-4 transition-transform duration-200 ease-out group-hover:-translate-x-0.5" />
                             Portal da Clínica
@@ -161,7 +160,7 @@ export function Header() {
                             variant="ghost"
                             size="icon"
                             aria-label="Abrir menu"
-                            className="group h-11 w-11 cursor-pointer rounded-xl border border-border/70 bg-background/80 text-[#252579] shadow-sm shadow-black/[0.04] transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:border-[#252579]/25 hover:bg-background hover:text-[#2d2d8f] hover:shadow-md active:translate-y-0 md:hidden"
+                            className="group h-11 w-11 cursor-pointer rounded-md border border-border/70 bg-background/80 text-[#252579] shadow-sm shadow-black/[0.04] transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:border-[#252579]/25 hover:bg-background hover:text-[#2d2d8f] hover:shadow-md active:translate-y-0 md:hidden"
                         >
                             <Menu className="h-5 w-5 transition-transform duration-200 ease-out group-hover:scale-105" />
                         </Button>
@@ -193,7 +192,7 @@ export function Header() {
                                     onClick={() => setIsOpen(false)}
                                     asChild
                                     variant="ghost"
-                                    className="group h-11 justify-start rounded-xl px-4 text-sm font-medium text-muted-foreground transition-[background-color,color,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#252579]/[0.055] hover:text-[#252579]"
+                                    className="group h-11 justify-start rounded-md px-4 text-sm font-medium text-muted-foreground transition-[background-color,color,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#252579]/[0.055] hover:text-[#252579]"
                                 >
                                     <Link href={item.href}>
                                         {item.label}
@@ -204,12 +203,11 @@ export function Header() {
                             ))}
 
                             {status === "loading" ? (
-                                <div className="mt-2 h-11 w-full animate-pulse rounded-xl bg-[#252579]/10" />
+                                <div className="relative h-10 w-36 animate-pulse rounded-md bg-[#252579]/10" />
                             ) : session ? (
                                 <LoadingLink
                                     href="/dashboard"
-                                    className="group mt-2 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
-                                    onClick={() => setIsOpen(false)}
+                                    className="group relative inline-flex h-10 min-w-36 items-center justify-center gap-2 rounded-md bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
                                 >
                                     Acessar Clínica
 
@@ -219,7 +217,8 @@ export function Header() {
                                 <Button
                                     onClick={handleLogin}
                                     loading={isLoggingIn}
-                                    className="group mt-2 h-11 w-full cursor-pointer rounded-xl bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/40"
+                                    style={{ borderRadius: "0.75rem" }}
+                                    className="group relative h-10 min-w-36 bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/40"
                                 >
                                     <LogIn className="h-4 w-4 transition-transform duration-200 ease-out group-hover:-translate-x-0.5" />
                                     Portal da Clínica
@@ -235,7 +234,6 @@ export function Header() {
                 </Sheet>
             </div>
 
-            {/* Estilos e animações copiados para manter o mesmo efeito de pulsação/transição */}
             <style>{`
                 .smartclin-dashboard-line-top,
                 .smartclin-dashboard-line-bottom {
