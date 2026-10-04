@@ -9,6 +9,16 @@ const formSchema = z.object({
     price: z.string().min(0, { message: "O preço do serviço é obrigatório" }),
     hours: z.string(),
     minutes: z.string(),
+}).superRefine((values, context) => {
+    const duration = (Number(values.hours) || 0) * 60 + (Number(values.minutes) || 0)
+
+    if (duration < 30) {
+        context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["minutes"],
+            message: "A duração mínima do serviço é de 30 minutos",
+        })
+    }
 })
 
 export interface UseDialogServiceFormProps {
@@ -28,8 +38,8 @@ export function useDialogServiceForm({ initialValues }: UseDialogServiceFormProp
         defaultValues: initialValues || {
             name: "",
             price: "",
-            hours: "",
-            minutes: "",
+            hours: "0",
+            minutes: "0",
         },
     })
 }

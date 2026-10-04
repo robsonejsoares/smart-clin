@@ -13,7 +13,11 @@ export async function getClinicDashboardData({ userId }: { userId: string }) {
         },
         include: {
             subscription: true,
-            services: true,
+            services: {
+                where: {
+                    status: true,
+                },
+            },
         },
     })
 }

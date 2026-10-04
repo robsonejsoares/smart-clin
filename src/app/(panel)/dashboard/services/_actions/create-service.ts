@@ -35,6 +35,13 @@ export async function createNewService(
         }
     }
 
+    if (schema.data.duration < 30) {
+        return {
+            success: false,
+            message: "A duração mínima do serviço é de 30 minutos.",
+        }
+    }
+
     try {
         const newService = await prisma.service.create({
             data: {
@@ -47,6 +54,7 @@ export async function createNewService(
         })
 
         revalidatePath("/dashboard/services")
+        revalidatePath("/dashboard")
 
         return {
             success: true,

@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input"
 import { DatePicker } from "@/components/ui/date-picker"
 import { useScheduleSlots } from "../_hooks/use-schedule-slots"
 import { createNewAppointment } from "../../../_actions/appointments"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 import {
     Form,
@@ -119,6 +120,8 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
         : "#"
 
     async function onSubmit(data: AppointmentFormData) {
+        const whatsappWindow = window.open("about:blank", "_blank")
+
         try {
             setIsSubmitting(true)
 
@@ -127,13 +130,68 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
             })
 
             if (!result.success) {
+                whatsappWindow?.close()
                 toast.error(result.message)
                 return
+            }
+
+            const service = clinic.services.find((item) => item.id === data.serviceId)
+            const appointmentDate = format(data.date, "dd/MM/yyyy")
+            const message = [
+                `*Olá, ${data.name}!*`,
+                "",
+                "Seu agendamento foi confirmado.",
+                "",
+                `*Serviço:* _${service?.name ?? "Atendimento"}_`,
+                `*Data:* _${appointmentDate}_`,
+                `*Horário:* _${data.time}_`,
+                `*Clínica:* _${clinic.name ?? "SmartClin"}_`,
+                clinic.address ? `*Endereço:* _${clinic.address}_\n${googleMapsUrl}` : "",
+            ].filter(Boolean).join("\n")
+
+            const whatsappPhone = data.phone.replace(/\D/g, "")
+            if (whatsappPhone) {
+                const normalizedPhone = whatsappPhone.startsWith("55")
+                    ? whatsappPhone
+                    : `55${whatsappPhone}`
+                const whatsappUrl = `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`
+                if (whatsappWindow) {
+                    whatsappWindow.location.href = whatsappUrl
+                } else {
+                    window.open(whatsappUrl, "_blank", "noopener,noreferrer")
+                }
+            } else {
+                whatsappWindow?.close()
+            }
+
+            let emailSent = false
+            try {
+                const emailResponse = await fetch("/api/notifications/appointment-confirmation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: data.name,
+                        email: data.email,
+                        date: appointmentDate,
+                        time: data.time,
+                        service: service?.name ?? "Atendimento",
+                        clinic: clinic.name ?? "SmartClin",
+                        address: clinic.address ?? "",
+                    }),
+                })
+                emailSent = emailResponse.ok
+            } catch (error) {
+                console.error("Erro ao solicitar e-mail de confirmação:", error)
+            }
+
+            if (!emailSent) {
+                toast.warning("Agendamento confirmado, mas o e-mail ainda não foi enviado.")
             }
 
             toast.success(result.message)
             onSuccess?.()
         } catch {
+            whatsappWindow?.close()
             toast.error("Ocorreu um erro inesperado ao realizar agendamento.")
         } finally {
             setIsSubmitting(false)
@@ -312,6 +370,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                                 }}
                                                 openUpward
                                                 align="left"
+                                                disablePastDates
                                                 placeholder="Selecione a data..."
                                             />
                                         </FormControl>
@@ -375,27 +434,41 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                         Nenhum horário disponível para esta data.
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                    <TooltipProvider delayDuration={150}>
+                                        <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4">
                                         {slots.map((slot) => {
                                             const isSelected = selectedTime === slot.time
                                             return (
-                                                <button
-                                                    key={slot.time}
-                                                    type="button"
-                                                    disabled={!slot.available}
-                                                    onClick={() => form.setValue("time", slot.time, { shouldValidate: true })}
-                                                    className={`py-2 text-xs font-medium rounded-md border transition-all ${!slot.available
-                                                        ? "bg-muted text-muted-foreground border-border/60 cursor-not-allowed line-through opacity-60"
-                                                        : isSelected
-                                                            ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/40 shadow-sm cursor-pointer font-semibold"
-                                                            : "bg-background text-foreground border-border hover:bg-[#252579]/10 hover:text-[#252579] hover:border-[#252579]/40 cursor-pointer"
-                                                        }`}
-                                                >
-                                                    {slot.time}
-                                                </button>
+                                                <Tooltip key={slot.time}>
+                                                    <TooltipTrigger asChild>
+                                                        <span className={`block ${!slot.available ? "cursor-not-allowed" : ""}`}>
+                                                            <button
+                                                                type="button"
+                                                                disabled={!slot.available}
+                                                                title={!slot.available ? "Horário indisponível" : undefined}
+                                                                aria-label={slot.available ? `Selecionar ${slot.time}` : `${slot.time}: horário indisponível`}
+                                                                onClick={() => form.setValue("time", slot.time, { shouldValidate: true })}
+                                                                className={`w-full py-2 text-xs font-medium rounded-md border transition-all ${!slot.available
+                                                                    ? "pointer-events-none bg-muted text-muted-foreground border-border/60 cursor-not-allowed line-through opacity-60"
+                                                                    : isSelected
+                                                                        ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/40 shadow-sm cursor-pointer font-semibold"
+                                                                        : "bg-background text-foreground border-border hover:bg-[#252579]/10 hover:text-[#252579] hover:border-[#252579]/40 cursor-pointer"
+                                                                    }`}
+                                                            >
+                                                                {slot.time}
+                                                            </button>
+                                                        </span>
+                                                    </TooltipTrigger>
+                                                    {!slot.available && (
+                                                        <TooltipContent side="top">
+                                                            Horário indisponível
+                                                        </TooltipContent>
+                                                    )}
+                                                </Tooltip>
                                             )
                                         })}
-                                    </div>
+                                        </div>
+                                    </TooltipProvider>
                                 )}
                                 <FormField
                                     control={form.control}

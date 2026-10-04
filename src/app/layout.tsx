@@ -32,7 +32,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-background font-sans text-foreground antialiased"><SessionAuthProvider><QueryClientContext>{children}</QueryClientContext>
         <Toaster
-          position="top-right"
+          position="bottom-right"
           richColors
           closeButton
           toastOptions={{

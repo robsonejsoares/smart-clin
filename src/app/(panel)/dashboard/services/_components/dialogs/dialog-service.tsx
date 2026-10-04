@@ -49,6 +49,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
         control: form.control,
         name: ["name", "price", "hours", "minutes"],
     })
+    const durationInMinutes = (parseInt(hours || "0") || 0) * 60 + (parseInt(minutes || "0") || 0)
 
     async function onSubmit(values: DialogServiceFormData) {
         setLoading(true)
@@ -57,6 +58,15 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
         const minutes = parseInt(values.minutes) || 0
 
         const duration = (hours * 60) + minutes
+
+        if (duration < 30) {
+            form.setError("minutes", {
+                type: "validate",
+                message: "A duração mínima do serviço é de 30 minutos",
+            })
+            setLoading(false)
+            return
+        }
 
         if (serviceId) {
             await editServiceById({
@@ -143,8 +153,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
         loading ||
         !name ||
         !price ||
-        !hours ||
-        !minutes
+        durationInMinutes < 30
 
     return (
         <Form {...form}>
@@ -237,12 +246,13 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                placeholder="1"
+                                                placeholder="0"
                                                 min="0"
                                                 type="number"
                                                 className="h-10 rounded-md border-border/70 bg-background p-3 text-sm text-foreground transition-[border-color,box-shadow] duration-200 hover:border-[#252579]/25 focus-visible:border-[#252579]/40 focus-visible:ring-0"
                                             />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -264,6 +274,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                                                 className="h-10 rounded-md border-border/70 bg-background p-3 text-sm text-foreground transition-[border-color,box-shadow] duration-200 hover:border-[#252579]/25 focus-visible:border-[#252579]/40 focus-visible:ring-0"
                                             />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
