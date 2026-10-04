@@ -19,9 +19,7 @@ export const GET = auth(async function GET(request) {
     return NextResponse.json({ error: "Usuário não encontrado" }, { status: 400 })
   }
 
-
   try {
-
     const [year, month, day] = dateString.split("-").map(Number)
 
     const startDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0))
@@ -46,7 +44,51 @@ export const GET = auth(async function GET(request) {
     console.log(err);
     return NextResponse.json({ error: "Falha ao buscar agendamentos" }, { status: 400 })
   }
+})
 
+export const POST = auth(async function POST(request) {
+  if (!request.auth) {
+    return NextResponse.json({ error: "Acesso nao autorizado!" }, { status: 401 })
+  }
 
+  const clinicId = request.auth?.user?.id
 
+  if (!clinicId) {
+    return NextResponse.json({ error: "Usuário não encontrado" }, { status: 400 })
+  }
+
+  try {
+    const body = await request.json()
+    const { name, email, phone, gender, serviceId, date, time } = body
+
+    if (!name || !email || !phone || !gender || !serviceId || !date || !time) {
+      return NextResponse.json(
+        { message: "Preencha todos os campos obrigatórios." },
+        { status: 400 }
+      )
+    }
+
+    const [year, month, day] = date.split("-").map(Number)
+    const appointmentDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0))
+
+    const appointment = await prisma.appointment.create({
+      data: {
+        name,
+        email,
+        phone,
+        gender,
+        serviceId,
+        appointmentDate,
+        time,
+        userId: clinicId,
+        updatedAt: new Date(),
+      },
+    })
+
+    return NextResponse.json(appointment, { status: 201 })
+
+  } catch (err) {
+    console.log("Erro ao criar agendamento:", err)
+    return NextResponse.json({ error: "Falha ao criar agendamento" }, { status: 400 })
+  }
 })

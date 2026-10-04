@@ -17,9 +17,7 @@ export default async function Dashboard() {
     return (
         <TooltipProvider>
             <main className="mx-auto w-full max-w-[1600px]">
-                {/* Header */}
-                <section className="group relative mb-6 overflow-hidden rounded-2xl border border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
-                    {/* Linha gradiente superior */}
+                <section className="group relative mb-6 overflow-hidden rounded-xl border border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
                     <div
                         aria-hidden="true"
                         className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px"
@@ -27,7 +25,6 @@ export default async function Dashboard() {
                         <div className="smartclin-dashboard-line-top h-full bg-gradient-to-r from-emerald-400 via-[#252579] to-violet-500 blur-[0.5px]" />
                     </div>
 
-                    {/* Linha gradiente inferior */}
                     <div
                         aria-hidden="true"
                         className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-px"
@@ -35,25 +32,21 @@ export default async function Dashboard() {
                         <div className="smartclin-dashboard-line-bottom ml-auto h-full bg-gradient-to-l from-emerald-400 via-[#252579] to-violet-500 blur-[0.5px]" />
                     </div>
 
-                    {/* Gradiente interno */}
                     <div
                         aria-hidden="true"
                         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_88%_8%,rgba(16,185,129,0.075),transparent_30%),radial-gradient(circle_at_8%_100%,rgba(37,37,121,0.055),transparent_34%),linear-gradient(135deg,rgba(16,185,129,0.025),transparent_42%,rgba(37,37,121,0.025))]"
                     />
 
-                    {/* Glow superior */}
                     <div
                         aria-hidden="true"
                         className="pointer-events-none absolute -right-24 -top-24 h-48 w-48 rounded-full bg-emerald-500/[0.055] blur-3xl"
                     />
 
-                    {/* Glow inferior */}
                     <div
                         aria-hidden="true"
                         className="pointer-events-none absolute -bottom-32 left-1/3 h-48 w-48 rounded-full bg-[#252579]/[0.045] blur-3xl"
                     />
 
-                    {/* Conteúdo mantido numa única linha no mobile */}
                     <div className="relative z-10 flex flex-row items-center justify-between gap-2 p-4 sm:p-6">
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5 sm:gap-2.5">
@@ -85,7 +78,6 @@ export default async function Dashboard() {
                     </div>
                 </section>
 
-                {/* Conteúdo */}
                 <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                     <Appointments userId={session.user.id} />
 

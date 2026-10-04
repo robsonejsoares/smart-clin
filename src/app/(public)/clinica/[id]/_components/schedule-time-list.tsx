@@ -1,7 +1,6 @@
 "use client"
 
 import { cn } from "@/lib/utils";
-import { TimeSlot } from "./schedule-content";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -9,6 +8,11 @@ import {
     isSlotInThePast,
     isSlotSequenceAvailable
 } from "./schedule-utils";
+
+export interface TimeSlot {
+    time: string;
+    available: boolean;
+}
 
 interface ScheduleTimeListProps {
     selectedDate: Date;
@@ -52,7 +56,7 @@ export function ScheduleTimeList({
                         variant="outline"
                         key={slot.time}
                         className={cn(
-                            "h-10 select-none",
+                            "h-10 rounded-md select-none",
                             selectedTime === slot.time &&
                             "border-2 border-emerald-500 text-primary",
                             !slotEnabled &&

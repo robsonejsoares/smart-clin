@@ -49,7 +49,6 @@ export function SidebarDashboard({
 
     return (
         <div className="flex min-h-screen w-full bg-muted/30">
-            {/* Sidebar Desktop */}
             <aside
                 className={clsx(
                     "group/sidebar sticky top-0 z-30 hidden h-screen flex-col overflow-hidden border-r border-border/60 bg-background shadow-xl shadow-black/[0.035] transition-[width,box-shadow] duration-300 ease-out md:flex",
@@ -57,7 +56,6 @@ export function SidebarDashboard({
                     isCollapsed ? "w-20" : "w-64"
                 )}
             >
-                {/* Accent */}
                 <div
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/70 to-transparent"
@@ -73,7 +71,6 @@ export function SidebarDashboard({
                     className="pointer-events-none absolute -left-24 bottom-32 h-56 w-56 rounded-full bg-[#252579]/[0.025] blur-3xl transition-transform duration-700 ease-out group-hover/sidebar:-translate-y-3"
                 />
 
-                {/* Header Desktop */}
                 <div
                     className={clsx(
                         "relative z-10 flex min-h-[76px] items-center border-b border-border/60 px-3",
@@ -113,7 +110,7 @@ export function SidebarDashboard({
 
                                 <TooltipContent
                                     side="bottom"
-                                    className="rounded-lg border-border/70 shadow-lg"
+                                    className="rounded-md border-border/70 shadow-lg"
                                 >
                                     Ir para a página inicial
                                 </TooltipContent>
@@ -130,8 +127,8 @@ export function SidebarDashboard({
                                     className={clsx(
                                         "shrink-0 cursor-pointer border bg-background/90 shadow-sm backdrop-blur-sm transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:shadow-md active:scale-95 focus-visible:ring-2 focus-visible:ring-offset-2",
                                         isCollapsed
-                                            ? "h-11 w-11 rounded-xl border-border/70 text-[#252579] hover:border-[#252579]/20 hover:bg-[#252579]/[0.045] hover:text-[#2d2d8f] focus-visible:ring-[#252579]/30"
-                                            : "h-9 w-9 rounded-lg border-[#252579]/15 text-[#252579] hover:border-[#252579]/25 hover:bg-[#252579]/5 hover:text-[#2d2d8f] focus-visible:ring-[#252579]/30"
+                                            ? "h-11 w-11 rounded-md border-border/70 text-[#252579] hover:border-[#252579]/20 hover:bg-[#252579]/[0.045] hover:text-[#2d2d8f] focus-visible:ring-[#252579]/30"
+                                            : "h-9 w-9 rounded-md border-[#252579]/15 text-[#252579] hover:border-[#252579]/25 hover:bg-[#252579]/5 hover:text-[#2d2d8f] focus-visible:ring-[#252579]/30"
                                     )}
                                     onClick={() =>
                                         setIsCollapsed(
@@ -154,7 +151,7 @@ export function SidebarDashboard({
 
                             <TooltipContent
                                 side="right"
-                                className="rounded-lg border-border/70 shadow-lg"
+                                className="rounded-md border-border/70 shadow-lg"
                             >
                                 {isCollapsed
                                     ? "Expandir painel"
@@ -164,7 +161,6 @@ export function SidebarDashboard({
                     </TooltipProvider>
                 </div>
 
-                {/* Navegação */}
                 <nav className="relative z-10 flex flex-1 flex-col gap-2 overflow-hidden px-3 py-6">
                     {!isCollapsed && (
                         <div className="mb-1 px-2">
@@ -213,7 +209,6 @@ export function SidebarDashboard({
                     />
                 </nav>
 
-                {/* Logout Desktop */}
                 <div className="relative z-10 border-t border-border/60 p-3">
                     <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -241,7 +236,7 @@ export function SidebarDashboard({
 
                             <TooltipContent
                                 side="right"
-                                className="rounded-lg border-border/70 shadow-lg"
+                                className="rounded-md border-border/70 shadow-lg"
                             >
                                 Sair
                             </TooltipContent>
@@ -250,9 +245,7 @@ export function SidebarDashboard({
                 </div>
             </aside>
 
-            {/* Área principal */}
             <div className="flex min-w-0 flex-1 flex-col">
-                {/* Header Mobile */}
                 <header className="sticky top-0 z-20 flex h-16 items-center border-b border-border/60 bg-background/90 px-3 shadow-sm backdrop-blur-xl md:hidden">
                     <Sheet
                         open={isSheetOpen}
@@ -265,7 +258,7 @@ export function SidebarDashboard({
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-11 w-11 cursor-pointer rounded-xl border border-border/70 bg-background/85 text-[#252579] shadow-sm backdrop-blur-sm transition-[background-color,border-color,color,box-shadow,transform] duration-200 hover:border-[#252579]/20 hover:bg-[#252579]/[0.045] hover:text-[#2d2d8f] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#252579]/30 focus-visible:ring-offset-2 active:scale-95"
+                                            className="h-11 w-11 cursor-pointer rounded-md border border-border/70 bg-background/85 text-[#252579] shadow-sm backdrop-blur-sm transition-[background-color,border-color,color,box-shadow,transform] duration-200 hover:border-[#252579]/20 hover:bg-[#252579]/[0.045] hover:text-[#2d2d8f] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#252579]/30 focus-visible:ring-offset-2 active:scale-95"
                                             onClick={() => {
                                                 setIsCollapsed(false)
                                                 setIsSheetOpen(true)
@@ -278,7 +271,7 @@ export function SidebarDashboard({
 
                                     <TooltipContent
                                         side="bottom"
-                                        className="rounded-lg border-border/70 shadow-lg"
+                                        className="rounded-md border-border/70 shadow-lg"
                                     >
                                         Painel Administrativo
                                     </TooltipContent>
@@ -290,7 +283,6 @@ export function SidebarDashboard({
                             side="right"
                             className="flex w-[88%] max-w-sm flex-col overflow-hidden border-l border-border/60 bg-background text-foreground shadow-2xl shadow-black/15 [&>button]:hidden"
                         >
-                            {/* Container único unificado para o Radix Slot */}
                             <div className="relative flex h-full w-full flex-col overflow-hidden">
                                 <div
                                     aria-hidden="true"
@@ -352,7 +344,7 @@ export function SidebarDashboard({
 
                                                 <TooltipContent
                                                     side="bottom"
-                                                    className="rounded-lg border-border/70 shadow-lg"
+                                                    className="rounded-md border-border/70 shadow-lg"
                                                 >
                                                     Ir para a página inicial
                                                 </TooltipContent>
@@ -366,7 +358,7 @@ export function SidebarDashboard({
                                                         variant="ghost"
                                                         size="icon"
                                                         aria-label="Fechar menu"
-                                                        className="h-9 w-9 cursor-pointer rounded-lg border border-border/70 bg-background text-muted-foreground shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-200 hover:border-[#252579]/20 hover:bg-[#252579]/[0.045] hover:text-[#252579] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#252579]/30 active:scale-95"
+                                                        className="h-9 w-9 cursor-pointer rounded-md border border-border/70 bg-background text-muted-foreground shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-200 hover:border-[#252579]/20 hover:bg-[#252579]/[0.045] hover:text-[#252579] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#252579]/30 active:scale-95"
                                                         onClick={() =>
                                                             setIsSheetOpen(false)
                                                         }
@@ -375,14 +367,13 @@ export function SidebarDashboard({
                                                     </Button>
                                                 </TooltipTrigger>
 
-                                                <TooltipContent className="rounded-lg border-border/70 shadow-lg">
+                                                <TooltipContent className="rounded-md border-border/70 shadow-lg">
                                                     Fechar
                                                 </TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>
                                     </div>
 
-                                    {/* Navegação Mobile */}
                                     <nav className="flex flex-col gap-2">
                                         <div className="mb-1 px-2">
                                             <div className="flex items-center gap-2">
@@ -449,7 +440,6 @@ export function SidebarDashboard({
                                         />
                                     </nav>
 
-                                    {/* Logout Mobile */}
                                     <div className="mt-auto border-t border-border/60 pt-4">
                                         <TooltipProvider delayDuration={100}>
                                             <Tooltip>
@@ -457,7 +447,7 @@ export function SidebarDashboard({
                                                     <Button
                                                         variant="ghost"
                                                         onClick={handleLogout}
-                                                        className="group/logout h-10 w-full cursor-pointer justify-start gap-3 rounded-xl px-3 text-muted-foreground transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:bg-red-500/[0.065] hover:text-red-600 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-red-500/30 active:scale-[0.98]"
+                                                        className="group/logout h-10 w-full cursor-pointer justify-start gap-3 rounded-md px-3 text-muted-foreground transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:bg-red-500/[0.065] hover:text-red-600 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-red-500/30 active:scale-[0.98]"
                                                     >
                                                         <LogOut className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover/logout:-translate-x-0.5" />
 
@@ -469,7 +459,7 @@ export function SidebarDashboard({
 
                                                 <TooltipContent
                                                     side="left"
-                                                    className="rounded-lg border-border/70 shadow-lg"
+                                                    className="rounded-md border-border/70 shadow-lg"
                                                 >
                                                     Sair
                                                 </TooltipContent>
@@ -566,7 +556,7 @@ function SidebarLink({
 
                     <TooltipContent
                         side="right"
-                        className="rounded-lg border-border/70 shadow-lg"
+                        className="rounded-md border-border/70 shadow-lg"
                     >
                         {label}
                     </TooltipContent>

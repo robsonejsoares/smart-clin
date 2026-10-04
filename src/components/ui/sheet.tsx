@@ -96,7 +96,7 @@ const SheetContent = React.forwardRef<
 
         <div className="relative z-10 h-full p-6">{children}</div>
 
-        <SheetPrimitive.Close className="group absolute right-4 top-4 z-20 flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-[background-color,border-color,color,transform] duration-200 ease-out hover:-translate-y-px hover:border-[#252579]/15 hover:bg-[#252579]/[0.055] hover:text-[#252579] active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none">
+        <SheetPrimitive.Close className="group absolute right-4 top-4 z-20 flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-transparent text-muted-foreground transition-[background-color,border-color,color,transform] duration-200 ease-out hover:-translate-y-px hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-600 active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500/25 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:cursor-not-allowed">
           <X className="h-4 w-4 transition-transform duration-200 ease-out group-hover:rotate-90" />
           <span className="sr-only">Fechar</span>
         </SheetPrimitive.Close>

@@ -4,9 +4,10 @@ import { z } from "zod"
 import prisma from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
+import type { ActionResult } from "@/lib/action-result"
 
 const formSchema = z.object({
-    serviceIde: z.string().min(1, "O ID do serviço é obrigatório"),
+    serviceId: z.string().min(1, "O ID do serviço é obrigatório"),
     name: z.string().min(1, { message: "O nome do serviço é obrigatório" }),
     price: z.number().min(1, { message: "O preço do serviço é obrigatório" }),
     duration: z.number()
@@ -14,12 +15,13 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>
 
-export async function updateService(formData: FormSchema) {
+export async function updateService(formData: FormSchema): Promise<ActionResult> {
     const session = await auth()
 
     if (!session?.user?.id) {
         return {
-            error: "Falha ao atualizar serviço..",
+            success: false,
+            message: "Falha ao atualizar serviço.",
         }
     }
 
@@ -27,32 +29,35 @@ export async function updateService(formData: FormSchema) {
 
     if (!schema.success) {
         return {
-            error: schema.error.issues[0].message,
+            success: false,
+            message: schema.error.issues[0].message,
         }
     }
 
     try {
         await prisma.service.update({
             where: {
-                id: formData.serviceIde,
+                id: schema.data.serviceId,
                 userId: session?.user?.id,
             },
             data: {
-                name: formData.name,
-                price: formData.price,
-                duration: formData.duration < 30 ? 30 : formData.duration,
+                name: schema.data.name,
+                price: schema.data.price,
+                duration: schema.data.duration < 30 ? 30 : schema.data.duration,
             },
         })
 
         revalidatePath("/dashboard/services")
 
         return {
-            data: "Serviço atualizado com sucesso!",
+            success: true,
+            message: "Serviço atualizado com sucesso!",
         }
     } catch (error) {
         console.error(error)
         return {
-            error: "Falha ao atualizar serviço.",
+            success: false,
+            message: "Falha ao atualizar serviço.",
         }
     }
 

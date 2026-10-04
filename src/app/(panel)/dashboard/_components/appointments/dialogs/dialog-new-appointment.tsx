@@ -1,8 +1,9 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { Loader2, AlertCircle } from "lucide-react"
 import { Prisma } from "@/generated/prisma/client"
+import { Loader2, AlertCircle, CalendarPlus } from "lucide-react"
+import { DatePicker } from "@/components/ui/date-picker"
 
 import {
     Dialog,
@@ -11,7 +12,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 
-import { ScheduleModal } from "./schedule-modal"
+import { DialogSchedule } from "./dialog-schedule"
 
 type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
     include: {
@@ -49,11 +50,15 @@ export function DialogNewAppointment({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            {/* Removido o overflow-y-auto e reduzido o padding vertical para eliminar a barra de rolagem */}
-            <DialogContent className="sm:max-w-[1120px] w-full p-5 overflow-visible [&>button]:text-[#6866ad] [&>button]:bg-[#f0effa] [&>button]:opacity-100 [&>button]:hover:bg-[#e2e0f7] [&>button]:hover:text-[#4b4591] [&>button]:transition-colors">
-                <DialogHeader className="mb-2">
-                    <DialogTitle className="text-base font-bold text-[#252579]">
-                        Novo Agendamento
+                <DialogContent className="w-[calc(100%-2rem)] sm:w-[95vw] sm:max-w-[1320px] p-4 sm:p-6 overflow-visible [&>button]:text-slate-400 [&>button]:bg-transparent [&>button]:hover:bg-rose-50 [&>button]:hover:text-rose-600 [&>button]:transition-colors">
+                <DialogHeader className="group/header mb-2">
+                    <DialogTitle className="flex items-center gap-3 text-base font-bold">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 ease-out group-hover/header:scale-105 group-hover/header:border-[#252579]/20 group-hover/header:bg-[#252579]/[0.09] group-hover/header:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
+                            <CalendarPlus className="h-4 w-4 transition-transform duration-300 ease-out group-hover/header:scale-110 group-hover/header:-rotate-3" />
+                        </div>
+                        <span className="bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-clip-text text-transparent">
+                            Novo Agendamento
+                        </span>
                     </DialogTitle>
                 </DialogHeader>
 
@@ -63,7 +68,7 @@ export function DialogNewAppointment({
                         <span>Carregando dados...</span>
                     </div>
                 ) : clinic ? (
-                    <ScheduleModal
+                    <DialogSchedule
                         clinic={clinic}
                         onSuccess={() => {
                             onSuccess?.()

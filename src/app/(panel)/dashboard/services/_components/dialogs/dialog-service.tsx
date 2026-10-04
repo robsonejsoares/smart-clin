@@ -21,13 +21,14 @@ import {
 
 import { toast } from "sonner"
 import { useState } from "react"
+import { useWatch } from "react-hook-form"
 import { Clock3, Info, Loader2, Plus, Save } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { updateService } from "../_actions/update-service"
-import { convertRealToCents } from "@/utils/convertCurrency"
-import { createNewService } from "../_actions/create-service"
+import { updateService } from "../../_actions/update-service"
+import { convertRealToCents } from "@/lib/convertCurrency"
+import { createNewService } from "../../_actions/create-service"
 
 interface DialogServiceProps {
     closeModal: () => void
@@ -44,6 +45,10 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
     const form = useDialogServiceForm({ initialValues: initialValues })
     const [loading, setLoading] = useState(false)
     const router = useRouter()
+    const [name, price, hours, minutes] = useWatch({
+        control: form.control,
+        name: ["name", "price", "hours", "minutes"],
+    })
 
     async function onSubmit(values: DialogServiceFormData) {
         setLoading(true)
@@ -73,8 +78,8 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
 
         setLoading(false)
 
-        if (response.error) {
-            toast.error(response.error)
+        if (!response.success) {
+            toast.error(response.message)
             return
         }
 
@@ -95,7 +100,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
         duration: number
     }) {
         const response = await updateService({
-            serviceIde: serviceId,
+            serviceId: serviceId,
             name: name,
             price: priceInCents,
             duration: duration,
@@ -105,12 +110,12 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
 
         setLoading(false)
 
-        if (response.error) {
-            toast.error(response.error)
+        if (!response.success) {
+            toast.error(response.message)
             return
         }
 
-        toast.success(response.data)
+        toast.success(response.message)
         handleCloseModal()
         router.refresh()
     }
@@ -136,32 +141,29 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
 
     const isSubmitDisabled =
         loading ||
-        !form.watch("name") ||
-        !form.watch("price") ||
-        !form.watch("hours") ||
-        !form.watch("minutes")
+        !name ||
+        !price ||
+        !hours ||
+        !minutes
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="group/modal flex h-full flex-col justify-between w-full bg-background text-foreground">
-                
-                {/* 1. Cabeçalho (Fixo) */}
+
                 <DialogHeader className="shrink-0 border-b border-border/60 bg-gradient-to-br from-background via-background to-[#252579]/[0.025] px-6 py-5">
                     <DialogTitle className="flex items-center gap-3 text-lg font-bold">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover/modal:scale-105 group-hover/modal:border-[#252579]/20 group-hover/modal:bg-[#252579]/[0.09] group-hover/modal:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
-                            <Clock3 className="h-4 w-4 transition-transform duration-300 group-hover/modal:-rotate-12 group-hover/modal:scale-110" />
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 ease-out group-hover/modal:scale-105 group-hover/modal:border-[#252579]/20 group-hover/modal:bg-[#252579]/[0.09] group-hover/modal:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
+                            <Clock3 className="h-4 w-4 transition-transform duration-300 ease-out group-hover/modal:scale-110 group-hover/modal:-rotate-3" />
                         </div>
-                        <span className="text-lg font-bold tracking-tight text-foreground">
+                        <span className="bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-clip-text text-lg font-bold tracking-tight text-transparent">
                             {serviceId ? "Editar Serviço" : "Novo Serviço"}
                         </span>
                     </DialogTitle>
                 </DialogHeader>
 
-                {/* 2. Conteúdo Principal (Rolável e isolado) */}
                 <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4">
-                    {/* Caixa de Aviso sem quebrar linha e truncada */}
-                    <div className="flex w-full min-w-0 items-center gap-2.5 rounded-md border border-[#252579]/15 bg-[#252579]/[0.035] px-3.5 py-2.5 shadow-sm transition-colors duration-200 group-hover/modal:border-[#252579]/25">
-                        <Info className="h-4 w-4 shrink-0 text-[#252579] transition-transform duration-500 ease-out group-hover/modal:rotate-[18deg] group-hover/modal:scale-110" />
+                    <div className="flex w-full min-w-0 items-center gap-2 rounded-lg border border-[#252579]/15 bg-[#252579]/[0.035] px-3 py-1 shadow-sm transition-colors duration-200 group-hover/modal:border-[#252579]/25">
+                        <Info className="h-3 w-3 shrink-0 text-[#252579] transition-transform duration-500 ease-out group-hover/modal:rotate-[18deg] group-hover/modal:scale-110" />
                         <p className="text-xs text-muted-foreground truncate min-w-0">
                             Os serviços cadastrados estarão disponíveis no seu agendamento.
                         </p>
@@ -173,7 +175,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                    <FormLabel className="text-xs font-semibold tracking-wider text-muted-foreground">
                                         Nome do serviço
                                     </FormLabel>
                                     <FormControl>
@@ -193,7 +195,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                             name="price"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                    <FormLabel className="text-xs font-semibold tracking-wider text-muted-foreground">
                                         Valor do serviço
                                     </FormLabel>
                                     <FormControl>
@@ -215,10 +217,11 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                         />
                     </div>
 
-                    {/* Caixa Duração */}
-                    <div className="rounded-md border border-border/70 bg-muted/[0.12] p-4 space-y-3">
-                        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            <Clock3 className="h-3.5 w-3.5 text-[#252579]" />
+                    <div className="rounded-xl border border-border/70 bg-muted/[0.12] p-4 space-y-3">
+                        <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground">
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 ease-out group-hover/modal:scale-105 group-hover/modal:border-[#252579]/20 group-hover/modal:bg-[#252579]/[0.09] group-hover/modal:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
+                                <Clock3 className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover/modal:scale-110 group-hover/modal:-rotate-3" />
+                            </div>
                             <span>Tempo de Duração</span>
                         </div>
 
@@ -268,14 +271,13 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                     </div>
                 </div>
 
-                {/* 3. Rodapé (Fixo) */}
                 <div className="shrink-0 border-t border-border/60 bg-muted/[0.16] px-6 py-4 flex items-center justify-end gap-3">
                     <Button
                         type="button"
                         variant="outline"
                         onClick={handleCloseModal}
                         disabled={loading}
-                        className="h-10 rounded-md border border-border/70 bg-background px-5 text-xs font-semibold text-muted-foreground hover:bg-muted"
+                        className="h-10 rounded-md border border-border/70 bg-background px-5 text-xs font-semibold text-muted-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-[#252579]/25"
                     >
                         Cancelar
                     </Button>
@@ -283,7 +285,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                     <Button
                         type="submit"
                         disabled={isSubmitDisabled}
-                        className="h-10 rounded-md bg-[#252579] px-5 text-xs font-semibold text-white transition-[background-color,box-shadow,transform] duration-200 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 disabled:opacity-50 active:scale-[0.99]"
+                        className="h-10 rounded-md bg-[#252579] px-5 text-xs font-semibold text-white transition-[background-color,box-shadow,transform] duration-200 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/30 disabled:opacity-50 active:scale-[0.99]"
                     >
                         {loading ? (
                             <span className="flex items-center gap-2">

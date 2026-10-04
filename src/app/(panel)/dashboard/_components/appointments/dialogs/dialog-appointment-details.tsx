@@ -1,69 +1,82 @@
+"use client"
+
 import {
   DialogContent,
   DialogHeader,
-  DialogDescription,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { AppointmentWithService } from "./appointments-list";
-import { format } from "date-fns";
-import { formatCurrency } from "@/utils/formatCurrency";
+} from "@/components/ui/dialog"
+import { AppointmentWithService } from "../appointments-list"
+import { format } from "date-fns"
+import { formatCurrency } from "@/lib/formatCurrency"
 import {
   CalendarDays,
+  ClipboardList,
   Clock3,
+  Info,
   Mail,
   MessageCircle,
   UserRound,
   Stethoscope,
   ArrowUpRight,
-} from "lucide-react";
+} from "lucide-react"
 
-interface DialogAppointmentProps {
-  appointment: AppointmentWithService | null;
+interface DialogAppointmentDetailsProps {
+  appointment: AppointmentWithService | null
+  isOpen?: boolean
+  onClose?: () => void
 }
 
-export function DialogAppointment({
+export function DialogAppointmentDetails({
   appointment,
-}: DialogAppointmentProps) {
+}: DialogAppointmentDetailsProps) {
   if (!appointment) {
-    return null;
+    return null
   }
 
-  const whatsappNumber = appointment.phone.replace(/\D/g, "");
-  const appointmentDate = format(new Date(appointment.appointmentDate), "dd/MM/yyyy");
+  const whatsappNumber = appointment.phone.replace(/\D/g, "")
 
-  const whatsappMessage = `Olá, ${appointment.name}! Tudo bem?\n\nEstamos entrando em contato para confirmar seu agendamento na SmartClin para o dia ${appointmentDate} às ${appointment.time}.`;
+  const dateObj = new Date(appointment.appointmentDate)
+  const utcDate = new Date(
+    dateObj.getUTCFullYear(),
+    dateObj.getUTCMonth(),
+    dateObj.getUTCDate()
+  )
+  const appointmentDate = format(utcDate, "dd/MM/yyyy")
+
+  const whatsappMessage = `Olá, ${appointment.name}! Tudo bem?\n\nEstamos entrando em contato para confirmar seu agendamento na SmartClin para o dia ${appointmentDate} às ${appointment.time}.`
 
   const whatsappUrl = `https://wa.me/55${whatsappNumber}?text=${encodeURIComponent(
     whatsappMessage
-  )}`;
+  )}`
 
   return (
-    <DialogContent className="sm:max-w-lg h-[520px] max-h-[90vh] flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-background/95 p-0 shadow-2xl backdrop-blur-xl">
-      {/* 1. Cabeçalho (Fixo) */}
+    <DialogContent className="group/details w-[calc(100vw-2rem)] sm:w-full sm:max-w-lg h-[520px] max-h-[90vh] flex flex-col overflow-hidden rounded-xl border border-border/70 bg-background/95 p-0 shadow-2xl backdrop-blur-xl">
       <DialogHeader className="shrink-0 border-b border-border/60 bg-gradient-to-br from-background via-background to-[#252579]/[0.025] px-6 py-5">
-        <div className="relative flex flex-col gap-0.5">
-          <DialogTitle className="text-lg font-bold tracking-tight text-foreground">
+        <div className="group/header relative flex flex-col gap-0.5">
+          <DialogTitle className="flex items-center gap-3 bg-gradient-to-r from-[#252579] via-[#2d2d8f] to-[#252579] bg-clip-text text-lg font-bold tracking-tight text-transparent">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover/header:scale-105 group-hover/header:border-[#252579]/20 group-hover/header:bg-[#252579]/[0.09] group-hover/header:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
+              <ClipboardList className="h-4 w-4 transition-transform duration-300 group-hover/header:scale-110 group-hover/header:-rotate-3" />
+            </span>
             Detalhes do agendamento
           </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
-            Confira as informações deste atendimento.
-          </DialogDescription>
         </div>
       </DialogHeader>
 
-      {/* 2. Conteúdo Principal (Rolável e com Altura Preservada) */}
       <div className="flex-1 min-h-0 overflow-y-auto space-y-3.5 p-6">
-        
-        {/* Grid Horário e Data */}
+        <div className="flex w-full min-w-0 items-center gap-2 rounded-lg border border-[#252579]/15 bg-[#252579]/[0.035] px-3 py-1 shadow-sm transition-colors duration-200 group-hover/modal:border-[#252579]/25">
+          <Info className="h-3 w-3 shrink-0 text-[#252579] transition-transform duration-500 ease-out group-hover/details:rotate-[18deg] group-hover/details:scale-110" />
+          <p className="text-xs text-muted-foreground truncate min-w-0">
+            Confira as informações deste atendimento.
+          </p>
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
-          
-          {/* Card 1: Horário */}
           <div className="group relative overflow-hidden rounded-xl border border-border/60 bg-muted/[0.08] p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#252579]/25 hover:bg-[#252579]/[0.025] hover:shadow-md">
             <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-[#252579]/10 blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#252579]/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
             <div className="relative flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#252579]/15 bg-[#252579]/[0.06] text-[#252579] transition-all duration-300 group-hover:scale-105 group-hover:border-[#252579]/25 group-hover:bg-[#252579]/[0.10] group-hover:shadow-xs">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#252579]/15 bg-[#252579]/[0.06] text-[#252579] transition-all duration-300 group-hover:scale-105 group-hover:border-[#252579]/25 group-hover:bg-[#252579]/[0.10] group-hover:shadow-xs">
                 <Clock3 className="h-4 w-4 transition-transform duration-300 group-hover:rotate-[-8deg] group-hover:scale-110" />
               </div>
               <div className="min-w-0">
@@ -77,13 +90,12 @@ export function DialogAppointment({
             </div>
           </div>
 
-          {/* Card 2: Data */}
           <div className="group relative overflow-hidden rounded-xl border border-border/60 bg-muted/[0.08] p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-500/25 hover:bg-violet-500/[0.025] hover:shadow-md">
             <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-violet-500/10 blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
             <div className="relative flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-violet-500/15 bg-violet-500/[0.06] text-violet-600 transition-all duration-300 group-hover:scale-105 group-hover:border-violet-500/25 group-hover:bg-violet-500/[0.10] group-hover:shadow-xs">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-violet-500/15 bg-violet-500/[0.06] text-violet-600 transition-all duration-300 group-hover:scale-105 group-hover:border-violet-500/25 group-hover:bg-violet-500/[0.10] group-hover:shadow-xs">
                 <CalendarDays className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
               </div>
               <div className="min-w-0">
@@ -96,17 +108,15 @@ export function DialogAppointment({
               </div>
             </div>
           </div>
-
         </div>
 
-        {/* Card 3: Paciente */}
         <section className="group relative overflow-hidden rounded-xl border border-border/60 bg-muted/[0.08] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#252579]/20 hover:bg-[#252579]/[0.015] hover:shadow-md">
           <div className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[#252579]/10 blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
           <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[#252579]/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           <div className="relative">
             <div className="mb-3 flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#252579]/15 bg-[#252579]/[0.06] text-[#252579] transition-all duration-300 group-hover:scale-105 group-hover:border-[#252579]/25 group-hover:bg-[#252579]/[0.10] group-hover:shadow-xs">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#252579]/15 bg-[#252579]/[0.06] text-[#252579] transition-all duration-300 group-hover:scale-105 group-hover:border-[#252579]/25 group-hover:bg-[#252579]/[0.10] group-hover:shadow-xs">
                 <UserRound className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
               </div>
               <div className="min-w-0">
@@ -142,16 +152,14 @@ export function DialogAppointment({
           </div>
         </section>
 
-        {/* Card 4: Serviço */}
-        <section className="group relative overflow-hidden rounded-xl border border-border/60 bg-muted/[0.08] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-500/25 hover:bg-emerald-500/[0.015] hover:shadow-md">
-          <div className="pointer-events-none absolute -bottom-16 -right-16 h-32 w-32 rounded-full bg-emerald-500/10 blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-          <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <section className="group relative overflow-hidden rounded-xl border border-border/60 bg-muted/[0.08] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#252579]/20 hover:bg-[#252579]/[0.015] hover:shadow-md">
+          <div className="pointer-events-none absolute -bottom-16 -right-16 h-32 w-32 rounded-full bg-[#252579]/10 blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+          <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[#252579]/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           <div className="relative">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                {/* Ícone Padronizado (Fundo translúcido leve) */}
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-500/15 bg-emerald-500/[0.08] text-emerald-600 transition-all duration-300 group-hover:scale-105 group-hover:border-emerald-500/25 group-hover:bg-emerald-500/[0.12] group-hover:shadow-xs">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#252579]/15 bg-[#252579]/[0.06] text-[#252579] transition-all duration-300 group-hover:scale-105 group-hover:border-[#252579]/25 group-hover:bg-[#252579]/[0.10] group-hover:shadow-xs">
                   <Stethoscope className="h-4 w-4 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" />
                 </div>
                 <div className="min-w-0">
@@ -181,8 +189,7 @@ export function DialogAppointment({
             </div>
           </div>
         </section>
-
       </div>
     </DialogContent>
-  );
+  )
 }

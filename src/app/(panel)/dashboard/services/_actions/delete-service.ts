@@ -4,6 +4,7 @@ import { z } from "zod"
 import prisma from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
+import type { ActionResult } from "@/lib/action-result"
 
 const formSchema = z.object({
     serviceId: z.string().min(1, { message: "O ID do serviço é obrigatório" }),
@@ -11,12 +12,13 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>
 
-export async function deleteService(formData: FormSchema) {
+export async function deleteService(formData: FormSchema): Promise<ActionResult> {
     const session = await auth()
 
     if (!session?.user?.id) {
         return {
-            error: "Falha ao deletar serviço..",
+            success: false,
+            message: "Falha ao deletar serviço.",
         }
     }
 
@@ -24,33 +26,39 @@ export async function deleteService(formData: FormSchema) {
 
     if (!schema.success) {
         return {
-            error: schema.error.issues[0].message,
+            success: false,
+            message: schema.error.issues[0].message,
         }
     }
 
     try {
-
-        await prisma.service.update({
+        const result = await prisma.service.updateMany({
             where: {
-                id: formData.serviceId,
-                userId: session?.user?.id,
+                id: schema.data.serviceId,
+                userId: session.user.id,
+                status: true,
             },
-            data: {
-                status: false,
-            },
+            data: { status: false },
         })
-        
+
+        if (result.count === 0) {
+            return {
+                success: false,
+                message: "Serviço não encontrado.",
+            }
+        }
+
         revalidatePath("/dashboard/services")
 
         return {
-            data: "Serviço excluído com sucesso.",
+            success: true,
+            message: "Serviço excluído com sucesso.",
         }
-
-    } catch {
-
+    } catch (error) {
+        console.error("Erro ao excluir serviço:", error)
         return {
-            error: "Falha ao excluir serviço.",
+            success: false,
+            message: "Falha ao excluir serviço.",
         }
-
     }
 }

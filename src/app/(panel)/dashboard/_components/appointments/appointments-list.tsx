@@ -8,11 +8,11 @@ import { useSearchParams } from "next/navigation"
 import { Prisma } from "@/generated/prisma/client"
 import { ButtonPickerAppointment } from "./button-date"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { DialogNewAppointment } from "./dialog-new-appointment"
-import { ModalAppointmentDetails } from "./modals/modal-appointment-details"
+import { DialogNewAppointment } from "@/app/(panel)/dashboard/_components/appointments/dialogs/dialog-new-appointment"
+import { DialogAppointmentDetails } from "./dialogs/dialog-appointment-details"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { cancelAppointment } from "../../_actions/cancel-appointment"
-import { ModalCancelAppointment } from "../modals/modal-cancel-appointment"
+import { DialogCancelAppointment } from "./dialogs/dialog-cancel-appointment"
 
 import {
     X,
@@ -20,6 +20,7 @@ import {
     CalendarClock,
     CheckCircle2,
     CalendarPlus,
+    ArrowUpRight,
     MessageCircle,
 } from "lucide-react"
 
@@ -110,14 +111,14 @@ export function AppointmentsList({
         })
         setIsCanceling(false)
 
-        if (response.error) {
-            toast.error(response.error)
+        if (!response.success) {
+            toast.error(response.message)
             return
         }
 
         queryClient.invalidateQueries({ queryKey: ["get-appointments"] })
         await refetch()
-        toast.success(response.data)
+        toast.success(response.message)
         setAppointmentToCancel(null)
     }
 
@@ -139,9 +140,9 @@ export function AppointmentsList({
                 <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 border-b border-border/60 bg-gradient-to-r from-background via-background to-[#252579]/[0.025] px-5 py-4 md:px-6">
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2.5">
-                            <div className="group/calendar relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#252579]/15 bg-[#252579]/10 text-[#252579]">
-                                <CalendarClock className="h-4 w-4 transition-transform duration-300 group-hover/calendar:scale-110 group-hover/calendar:-rotate-3" />
-                            </div>
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#252579]/10 bg-[#252579]/[0.06] text-[#252579] transition-[background-color,border-color,transform,box-shadow] duration-300 group-hover:scale-105 group-hover:border-[#252579]/20 group-hover:bg-[#252579]/[0.09] group-hover:shadow-[0_4px_12px_rgba(37,37,121,0.08)]">
+                                <CalendarClock className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3" />
+                            </span>
                             <div className="min-w-0 flex-1">
                                 <CardTitle className="text-lg font-bold tracking-tight md:text-xl text-[#252579]">
                                     Agenda de hoje
@@ -156,11 +157,11 @@ export function AppointmentsList({
 
                 <CardContent className="p-0">
                     <ScrollArea className="h-[calc(100vh-20rem)] px-3 lg:h-[calc(100vh-15rem)] lg:px-5">
-                        <div className="rounded-2xl bg-muted/[0.12] p-2.5 sm:p-3">
+                        <div className="rounded-md bg-muted/[0.12] p-2.5 sm:p-3">
                             <div className="space-y-2.5">
                                 {isLoading ? (
                                     <div className="flex min-h-40 items-center justify-center">
-                                        <div className="flex items-center gap-2.5 rounded-xl border border-border/60 bg-background/80 px-4 py-3 text-sm font-medium text-muted-foreground shadow-sm">
+                                        <div className="flex items-center gap-2.5 rounded-md border border-border/60 bg-background/80 px-4 py-3 text-sm font-medium text-muted-foreground shadow-sm">
                                             <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
                                             Carregando agenda...
                                         </div>
@@ -210,7 +211,7 @@ export function AppointmentsList({
             </Card>
 
             <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-                <ModalAppointmentDetails
+                <DialogAppointmentDetails
                     appointment={detailAppointment}
                     isOpen={isDetailOpen}
                     onClose={() => setIsDetailOpen(false)}
@@ -225,7 +226,7 @@ export function AppointmentsList({
                 onSuccess={handleAppointmentCreated}
             />
 
-            <ModalCancelAppointment
+            <DialogCancelAppointment
                 appointment={appointmentToCancel}
                 onClose={() => setAppointmentToCancel(null)}
                 onConfirm={handleConfirmCancel}
@@ -257,34 +258,36 @@ function OccupiedSlotItem({
                 </span>
             </div>
 
-            <div className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <div className="grid min-w-0 flex-1 cursor-pointer grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <button
                             type="button"
                             onClick={onWhatsApp}
-                            className="flex shrink-0 cursor-pointer items-center gap-1 rounded-lg px-1.5 py-1 text-xs font-medium text-muted-foreground hover:bg-[#25D366]/[0.08]"
+                            className="group/whatsapp flex shrink-0 cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-[background-color,color,box-shadow] duration-200 hover:bg-emerald-500/[0.1] hover:text-emerald-700 hover:shadow-sm dark:hover:text-emerald-300"
                         >
-                            <MessageCircle className="h-3.5 w-3.5 shrink-0 text-[#252579] hover:text-[#25D366]" />
+                            <MessageCircle className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover/whatsapp:scale-110" />
                             <span className="tabular-nums">{occupant.phone}</span>
+                            <ArrowUpRight className="h-3 w-3 opacity-0 transition-all duration-200 group-hover/whatsapp:translate-x-0.5 group-hover/whatsapp:-translate-y-0.5 group-hover/whatsapp:opacity-100" />
                         </button>
                     </TooltipTrigger>
                     <TooltipContent side="top">Entrar em contato via WhatsApp</TooltipContent>
                 </Tooltip>
 
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <button
-                            type="button"
-                            onClick={onViewDetails}
-                            className="inline-flex min-w-0 max-w-full cursor-pointer text-left text-sm font-medium text-foreground truncate hover:text-[#252579]"
-                        >
-                            <span className="truncate">{occupant.name}</span>
-                        </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">Visualizar agendamento</TooltipContent>
-                </Tooltip>
-            </div>
+                <button
+                    type="button"
+                    onClick={onViewDetails}
+                    className="group/name inline-flex min-w-0 max-w-full cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-left text-sm font-medium text-muted-foreground transition-[background-color,color,box-shadow] duration-200 hover:bg-[#252579]/[0.06] hover:text-[#252579] hover:shadow-sm"
+                >
+                    <span className="truncate">{occupant.name}</span>
+                    <ArrowUpRight className="h-3 w-3 shrink-0 opacity-0 transition-all duration-200 group-hover/name:translate-x-0.5 group-hover/name:-translate-y-0.5 group-hover/name:opacity-100" />
+                </button>
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent side="top">Visualizar agendamento</TooltipContent>
+            </Tooltip>
 
             <div className="ml-auto shrink-0">
                 <Tooltip>
@@ -293,7 +296,7 @@ function OccupiedSlotItem({
                             variant="ghost"
                             size="icon"
                             onClick={onCancel}
-                            className="h-8 w-8 rounded-md text-red-500/75 hover:bg-red-500/[0.07] hover:text-red-600"
+                            className="h-8 w-8 rounded-md text-red-500/75 hover:bg-red-500/[0.07] hover:text-red-600 focus-visible:ring-2 focus-visible:ring-red-500/25"
                         >
                             <X className="h-4 w-4" />
                         </Button>
@@ -305,7 +308,6 @@ function OccupiedSlotItem({
     )
 }
 
-// Subcomponente para horários disponíveis
 function AvailableSlotItem({
     slot,
     onNewAppointment,
@@ -322,7 +324,7 @@ function AvailableSlotItem({
             </div>
 
             <div className="flex min-w-0 flex-1 items-center gap-2.5 text-sm text-muted-foreground">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/[0.07]">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-emerald-500/[0.07]">
                     <Clock3 className="h-3.5 w-3.5 text-emerald-600/75" />
                 </span>
                 <span className="font-medium">Disponível</span>
@@ -335,7 +337,7 @@ function AvailableSlotItem({
                         variant="ghost"
                         size="icon"
                         onClick={onNewAppointment}
-                        className="h-8 w-8 cursor-pointer rounded-md text-[#252579]/70 hover:bg-[#252579]/[0.07] hover:text-[#252579]"
+                        className="h-8 w-8 cursor-pointer rounded-md text-[#252579]/70 hover:bg-[#252579]/[0.07] hover:text-[#252579] focus-visible:ring-2 focus-visible:ring-[#252579]/25"
                     >
                         <CalendarPlus className="h-4 w-4" />
                     </Button>

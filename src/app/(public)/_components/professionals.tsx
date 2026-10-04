@@ -67,7 +67,7 @@ export function Professionals({ professionals }: ProfessionalsProps) {
                 {professionals.map((clinic, index) => (
                     <Card
                         key={clinic.id}
-                        className="group flex h-full overflow-hidden rounded-2xl border-border/60 bg-background shadow-sm transition-[transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-[#252579]/20 hover:shadow-lg hover:shadow-[#252579]/[0.05]"
+                        className="group flex h-full overflow-hidden rounded-xl border-border/60 bg-background shadow-sm transition-[transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-[#252579]/20 hover:shadow-lg hover:shadow-[#252579]/[0.05]"
                     >
                         <CardContent className="flex h-full w-full flex-col p-0">
                             <div className="relative h-48 shrink-0 overflow-hidden bg-muted">
@@ -127,7 +127,7 @@ export function Professionals({ professionals }: ProfessionalsProps) {
                                 <LoadingLink
                                     href={`/clinica/${clinic.id}`}
                                     target="_blank"
-                                    className="mt-auto flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
+                                    className="mt-auto flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[#252579] px-4 text-sm font-semibold text-white shadow-sm shadow-[#252579]/15 transition-[background-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/40 focus-visible:ring-offset-2"
                                 >
                                     Agendar horário
 

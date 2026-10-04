@@ -9,7 +9,7 @@ import { Reminder } from "@/generated/prisma/client"
 import { ReminderContent } from "./reminder-content"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { deleteReminder } from "../../_actions/delete-reminder"
-import { ModalDeleteReminder } from "../modals/modal-delete-reminder"
+import { DialogDeleteReminder } from "../dialogs/dialog-delete-reminder"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
@@ -40,12 +40,12 @@ export function ReminderList({ reminder }: ReminderListProps) {
 
         setIsDeleting(false)
 
-        if (response.error) {
-            toast.error(response.error)
+        if (!response.success) {
+            toast.error(response.message)
             return
         }
 
-        toast.success(response.data)
+        toast.success(response.message)
         setReminderToDelete(null)
         router.refresh()
     }
@@ -55,7 +55,7 @@ export function ReminderList({ reminder }: ReminderListProps) {
             <Card className="group overflow-hidden border-border/60 bg-background shadow-sm shadow-black/[0.035]">
                 <CardHeader className="relative flex flex-row items-center justify-between gap-4 space-y-0 border-b border-border/60 bg-gradient-to-r from-background via-background to-amber-500/[0.025] px-5 py-4 md:px-6">
                     <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-amber-400/20 bg-amber-400/[0.10] text-amber-500 transition-[background-color,border-color,transform,box-shadow] duration-300 ease-out group-hover:scale-105 group-hover:border-amber-400/30 group-hover:bg-amber-400/[0.14] group-hover:shadow-[0_4px_14px_rgba(245,158,11,0.12)]">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-amber-400/20 bg-amber-400/[0.10] text-amber-500 transition-[background-color,border-color,transform,box-shadow] duration-300 ease-out group-hover:scale-105 group-hover:border-amber-400/30 group-hover:bg-amber-400/[0.14] group-hover:shadow-[0_4px_14px_rgba(245,158,11,0.12)]">
                             <Bell className="h-4 w-4 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:-rotate-3" />
                         </div>
 
@@ -75,27 +75,17 @@ export function ReminderList({ reminder }: ReminderListProps) {
 
                     <div className="shrink-0">
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <div>
-                                        <DialogTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                size="icon"
-                                                aria-label="Adicionar lembrete"
-                                                className="h-9 w-9 cursor-pointer rounded-lg border-amber-400/25 bg-amber-400/[0.06] text-amber-500 shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-200 hover:scale-105 hover:border-amber-400/40 hover:bg-amber-400/[0.12] hover:text-amber-600 hover:shadow-md hover:shadow-amber-400/[0.10] focus-visible:ring-2 focus-visible:ring-amber-400/30"
-                                            >
-                                                <Plus className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
-                                            </Button>
-                                        </DialogTrigger>
-                                    </div>
-                                </TooltipTrigger>
-
-                                <TooltipContent side="left">
+                            <DialogTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    aria-label="Adicionar lembrete"
+                                    className="h-9 cursor-pointer rounded-md border-amber-400/25 bg-amber-400/[0.06] px-3 text-amber-500 shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-200 hover:-translate-y-px hover:border-amber-400/40 hover:bg-amber-400/[0.12] hover:text-amber-600 hover:shadow-md hover:shadow-amber-400/[0.10] focus-visible:ring-2 focus-visible:ring-amber-400/30"
+                                >
+                                    <Plus className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
                                     Adicionar lembrete
-                                </TooltipContent>
-                            </Tooltip>
-                            <DialogContent className="max-w-3xl w-full p-0 overflow-hidden border-none rounded-3xl bg-white shadow-2xl">
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl w-full p-0 overflow-hidden border-none rounded-xl bg-white shadow-2xl">
                                 <ReminderContent closeDialog={() => setIsDialogOpen(false)} />
                             </DialogContent>
                         </Dialog>
@@ -104,7 +94,7 @@ export function ReminderList({ reminder }: ReminderListProps) {
 
                 <CardContent className="p-0">
                     <ScrollArea className="h-[calc(100vh-20rem)] px-3 lg:h-[calc(100vh-15rem)] lg:px-5">
-                        <div className="rounded-2xl bg-muted/[0.12] p-2.5 sm:p-3">
+                        <div className="rounded-xl bg-muted/[0.12] p-2.5 sm:p-3">
                             {reminder.length === 0 ? (
                                 <div className="flex min-h-[calc(100vh-26rem)] items-center justify-center px-6">
                                     <div className="max-w-xs text-center">
@@ -142,7 +132,7 @@ export function ReminderList({ reminder }: ReminderListProps) {
                                                         variant="ghost"
                                                         size="icon"
                                                         aria-label="Excluir lembrete"
-                                                        className="h-8 w-8 shrink-0 cursor-pointer rounded-lg text-muted-foreground transition-[background-color,color,box-shadow,transform] duration-200 hover:scale-105 hover:bg-red-500/10 hover:text-red-600 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-red-500/30 dark:hover:text-red-400"
+                                                        className="h-8 w-8 shrink-0 cursor-pointer rounded-md text-muted-foreground transition-[background-color,color,box-shadow,transform] duration-200 hover:scale-105 hover:bg-red-500/10 hover:text-red-600 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-red-500/30 dark:hover:text-red-400"
                                                         onClick={() => setReminderToDelete(item.id)}
                                                     >
                                                         <Trash className="h-4 w-4 transition-transform duration-200 group-hover:rotate-[-4deg]" />
@@ -162,7 +152,7 @@ export function ReminderList({ reminder }: ReminderListProps) {
                 </CardContent>
             </Card>
 
-            <ModalDeleteReminder
+            <DialogDeleteReminder
                 reminder={selectedReminder}
                 onClose={() => setReminderToDelete(null)}
                 onConfirm={handleDeleteReminder}
