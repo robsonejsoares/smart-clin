@@ -7,9 +7,13 @@ on:
       - "feat/**"
   pull_request:
     types: [opened, synchronize, reopened, edited, closed]
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
 
 permissions:
-  contents: read
+  contents: write
   issues: write
   pull-requests: write
 
@@ -68,6 +72,82 @@ jobs:
             core.info(
               `PR automático criado: #${pull.number} (${source} -> ${target})`
             );
+
+  enable-feature-auto-merge:
+    if: >
+      (
+        github.event_name == 'pull_request_review' &&
+        github.event.review.state == 'approved'
+      ) ||
+      (
+        github.event_name == 'check_suite' &&
+        github.event.check_suite.conclusion == 'success'
+      )
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Criar token do GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.SMART_CLIN_APP_ID }}
+          private-key: ${{ secrets.SMART_CLIN_APP_PRIVATE_KEY }}
+
+      - name: Habilitar merge automático da feature
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          REVIEW_PR_NUMBER: ${{ github.event.pull_request.number }}
+          CHECK_SUITE_PR_NUMBERS: ${{ join(github.event.check_suite.pull_requests.*.number, ' ') }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "pull_request_review" ]]; then
+            PR_NUMBERS="$REVIEW_PR_NUMBER"
+          else
+            PR_NUMBERS="$CHECK_SUITE_PR_NUMBERS"
+          fi
+
+          for PR_NUMBER in $PR_NUMBERS; do
+            read -r SOURCE_BRANCH TARGET_BRANCH PR_STATE < <(
+              gh pr view "$PR_NUMBER" \
+                --repo "$OWNER/$REPO" \
+                --json headRefName,baseRefName,state \
+                --jq '[.headRefName,.baseRefName,.state] | @tsv'
+            )
+
+            if [[ "$PR_STATE" != "OPEN" ||
+                  "$TARGET_BRANCH" != "develop" ||
+                  ! "$SOURCE_BRANCH" =~ ^(feature|feat|fix|hotfix)/.+$ ]]; then
+              continue
+            fi
+
+            approved="$(
+              gh pr view "$PR_NUMBER" \
+                --repo "$OWNER/$REPO" \
+                --json reviews \
+                --jq '[.reviews[] |
+                  select((.author.login == "robsonejsoares" or
+                          .author.login == "oProgramadorAutonomo") and
+                         .state == "APPROVED")] | length'
+            )"
+
+            if [[ "$approved" -lt 1 ]]; then
+              echo "PR #$PR_NUMBER ainda não tem aprovação autorizada."
+              continue
+            fi
+
+            echo "Habilitando merge automático para $SOURCE_BRANCH -> $TARGET_BRANCH (PR #$PR_NUMBER)."
+            gh pr merge "$PR_NUMBER" \
+              --repo "$OWNER/$REPO" \
+              --auto \
+              --squash \
+              --subject "feat: integração de $SOURCE_BRANCH na develop" \
+              --body "Merge automático após aprovação e conclusão dos checks obrigatórios."
+          done
 
   automate-pr:
     if: github.event_name == 'pull_request'
