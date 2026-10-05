@@ -1,6 +1,5 @@
 import prisma from "./prisma"
 import NextAuth from "next-auth"
-import GitHub from "next-auth/providers/github"
 import Google from "next-auth/providers/google"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 
@@ -8,8 +7,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   trustHost: true,
   providers: [
-    GitHub,
     Google({
+      allowDangerousEmailAccountLinking: true,
       authorization: {
         params: {
           prompt: "consent",

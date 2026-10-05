@@ -71,3 +71,8 @@ O **SmartClin** é uma plataforma SaaS multi-tenant voltada para a gestão opera
 git clone https://github.com/robsonejsoares/smart-clin.git
 cd smart-clin
 npm ci
+# Teste CODEOWNERS
+
+# Teste de criação automática de PR
+
+<!-- Teste da automação de promoção -->

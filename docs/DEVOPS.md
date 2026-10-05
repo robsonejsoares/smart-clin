@@ -19,6 +19,10 @@ Os prefixos de branch são relacionados aos tipos de Conventional Commits, mas s
 
 O repositório mantém quatro templates, um para cada etapa do fluxo: `feature/*` ou outro prefixo de trabalho -> `develop`, `develop` -> `test`, `test` -> `staging` e `staging` -> `main`. O GitHub não seleciona templates automaticamente por branch; o workflow de PR aplica o template correspondente quando a descrição está vazia e preserva qualquer conteúdo já preenchido.
 
+Após um PR ser mesclado em `develop`, o workflow `.github/workflows/pr-automation.yml` exclui automaticamente a branch de trabalho somente quando ela usa os prefixos `feature/`, `feat/`, `fix/` ou `hotfix/`. A exclusão usa o token do GitHub App e a API de refs; as branches protegidas `develop`, `test`, `staging` e `main` nunca são excluídas.
+
+Após uma aprovação de `robsonejsoares` ou `oProgramadorAutonomo`, o mesmo workflow habilita o `squash merge` automático dos PRs de branches de trabalho para `develop`. O GitHub aguarda os checks obrigatórios antes de concluir o merge.
+
 ---
 
 ## 2. Políticas de Proteção de Branches (GitHub Rulesets)
@@ -54,13 +58,40 @@ Todos os commits no repositório devem seguir estritamente o padrão:
 
 `<tipo>(<escopo opcional>): <descrição no imperativo>`
 
-* **`feat`**: Nova funcionalidade.
-* **`fix`**: Correção de bug.
-* **`docs`**: Alterações em documentação.
-* **`style`**: Formatação de código sem alteração de lógica (Prettier, lint).
-* **`refactor`**: Refatoração de código sem alterar comportamento.
-* **`test`**: Adição ou ajuste de testes.
-* **`chore`**: Atualizações de builds, pacotes ou configurações locais.
+Tipos adotados pelo projeto:
+
+| Tipo | Uso |
+| --- | --- |
+| `feat` | Nova funcionalidade visível para o usuário ou consumidor da API. |
+| `fix` | Correção de um comportamento incorreto. |
+| `docs` | Alteração exclusiva de documentação. |
+| `style` | Formatação ou estilo sem mudança de lógica. |
+| `refactor` | Mudança estrutural sem correção ou funcionalidade nova. |
+| `perf` | Melhoria de desempenho. |
+| `test` | Criação ou alteração de testes. |
+| `build` | Build, empacotamento ou dependências necessárias para compilar. |
+| `ci` | Workflows, automações e configuração de CI/CD. |
+| `chore` | Manutenção que não se enquadra nos tipos anteriores. |
+| `revert` | Reversão de um commit anterior. |
+
+Exemplos válidos:
+
+```text
+feat(appointments): adiciona confirmação por WhatsApp
+fix(schedule): bloqueia horários já ocupados
+ci(workflows): habilita merge automático após aprovação
+docs(devops): documenta o fluxo de promoção
+```
+
+O escopo é opcional. Para indicar uma alteração incompatível, use `!` depois do
+tipo ou do escopo, por exemplo `feat(api)!: altera o formato da resposta`.
+Também é possível documentar `BREAKING CHANGE:` no rodapé do commit.
+
+`push`, `pull_request`, `pull_request_review`, `check_suite`, `opened`,
+`synchronize`, `closed` e `completed` **não são tipos de commit**. São nomes de
+eventos e ações do GitHub Actions: indicam quando um workflow deve ser
+executado. Por exemplo, `pull_request_review: submitted` significa que o
+workflow reage ao envio de uma revisão; não define o tipo do commit.
 
 ---
 

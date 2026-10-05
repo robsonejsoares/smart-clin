@@ -1,0 +1,365 @@
+name: Promote Environment Branch
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+  check_suite:
+    types: [completed]
+
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Número do PR de promoção já aprovado"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+concurrency:
+  group: promote-environment-${{ github.event.pull_request.number || github.event.check_suite.pull_requests[0].number || inputs.pr_number }}
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Promote approved environment
+    if: >
+      (
+        github.event_name == 'pull_request_review' &&
+        github.event.review.state == 'approved' &&
+        github.event.review.user.login == 'robsonejsoares' &&
+        (
+          (
+            github.event.pull_request.base.ref == 'test' &&
+            github.event.pull_request.head.ref == 'develop'
+          ) ||
+          (
+            github.event.pull_request.base.ref == 'staging' &&
+            github.event.pull_request.head.ref == 'test'
+          ) ||
+          (
+            github.event.pull_request.base.ref == 'main' &&
+            github.event.pull_request.head.ref == 'staging'
+          )
+        )
+      ) ||
+      (
+        github.event_name == 'check_suite' &&
+        github.event.check_suite.conclusion == 'success' &&
+        github.event.check_suite.pull_requests[0].number != null
+      ) ||
+      github.event_name == 'workflow_dispatch'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Identificar PR
+        id: pr
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REVIEW_PR_NUMBER: ${{ github.event.pull_request.number }}
+          CHECK_SUITE_PR_NUMBER: ${{ github.event.check_suite.pull_requests[0].number }}
+          DISPATCH_PR_NUMBER: ${{ inputs.pr_number }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            PR_NUMBER="$DISPATCH_PR_NUMBER"
+          elif [[ "$EVENT_NAME" == "check_suite" ]]; then
+            PR_NUMBER="$CHECK_SUITE_PR_NUMBER"
+          else
+            PR_NUMBER="$REVIEW_PR_NUMBER"
+          fi
+
+          echo "PR_NUMBER=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+          echo "PR selecionado: #$PR_NUMBER"
+
+      - name: Criar token do GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.SMART_CLIN_APP_ID }}
+          private-key: ${{ secrets.SMART_CLIN_APP_PRIVATE_KEY }}
+
+      - name: Validar PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          read -r SOURCE_BRANCH TARGET_BRANCH SOURCE_SHA PR_STATE MERGEABLE < <(
+            gh pr view "$PR_NUMBER" \
+              --repo "$OWNER/$REPO" \
+              --json headRefName,baseRefName,headRefOid,state,mergeable \
+              --jq '[.headRefName,.baseRefName,.headRefOid,.state,.mergeable] | @tsv'
+          )
+
+          echo "Origem : $SOURCE_BRANCH"
+          echo "Destino: $TARGET_BRANCH"
+          echo "SHA    : $SOURCE_SHA"
+          echo "Estado : $PR_STATE"
+          echo "Merge  : $MERGEABLE"
+
+          if [[ "$PR_STATE" != "OPEN" && "$PR_STATE" != "MERGED" ]]; then
+            echo "PR está em estado inválido: $PR_STATE"
+            exit 1
+          fi
+
+          if [[ "$PR_STATE" == "MERGED" ]]; then
+            echo "PR já foi mesclado. A promoção será tratada como concluída."
+          fi
+
+          case "$TARGET_BRANCH" in
+            test)
+              [[ "$SOURCE_BRANCH" == "develop" ]] || {
+                echo "Fluxo inválido: $SOURCE_BRANCH -> $TARGET_BRANCH"
+                exit 1
+              }
+              ;;
+            staging)
+              [[ "$SOURCE_BRANCH" == "test" ]] || {
+                echo "Fluxo inválido: $SOURCE_BRANCH -> $TARGET_BRANCH"
+                exit 1
+              }
+              ;;
+            main)
+              [[ "$SOURCE_BRANCH" == "staging" ]] || {
+                echo "Fluxo inválido: $SOURCE_BRANCH -> $TARGET_BRANCH"
+                exit 1
+              }
+              ;;
+            *)
+              echo "Destino inválido: $TARGET_BRANCH"
+              exit 1
+              ;;
+          esac
+
+      - name: Validar aprovação de robsonejsoares
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          approval_count="$(
+            gh pr view "$PR_NUMBER" \
+              --repo "$OWNER/$REPO" \
+              --json reviews \
+              --jq '[.reviews[] | select(.author.login == "robsonejsoares" and .state == "APPROVED")] | length'
+          )"
+
+          echo "Aprovações válidas de robsonejsoares: $approval_count"
+
+          if [[ "$approval_count" -lt 1 ]]; then
+            echo "PR não possui aprovação válida de robsonejsoares."
+            exit 1
+          fi
+
+          echo "Aprovação de robsonejsoares confirmada."
+
+      - name: Verificar checks do PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          echo "Verificando checks do PR #$PR_NUMBER..."
+
+          checks="$(
+            gh pr checks "$PR_NUMBER" \
+              --repo "$OWNER/$REPO" \
+              --json name,state \
+              --jq '[.[] | select(.name | contains("build-and-test"))]'
+          )"
+
+          total="$(
+            printf '%s' "$checks" | jq 'length'
+          )"
+
+          success="$(
+            printf '%s' "$checks" |
+              jq '[.[] | select(.state == "SUCCESS")] | length'
+          )"
+
+          echo "Checks build-and-test encontrados: $total"
+          echo "Checks build-and-test aprovados: $success"
+
+          if [[ "$total" -eq 0 ]]; then
+            echo "Nenhum check build-and-test encontrado."
+            exit 1
+          fi
+
+          if [[ "$success" -ne "$total" ]]; then
+            echo "Nem todos os checks build-and-test estão aprovados."
+            exit 1
+          fi
+
+          echo "Todos os checks build-and-test estão aprovados."
+
+      - name: Promover por fast-forward
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          read -r SOURCE_BRANCH TARGET_BRANCH SOURCE_SHA PR_STATE < <(
+            gh pr view "$PR_NUMBER" \
+              --repo "$OWNER/$REPO" \
+              --json headRefName,baseRefName,headRefOid,state \
+              --jq '[.headRefName,.baseRefName,.headRefOid,.state] | @tsv'
+          )
+
+          echo "Promovendo:"
+          echo "  $SOURCE_BRANCH"
+          echo "        ↓"
+          echo "  $TARGET_BRANCH"
+          echo "SHA: $SOURCE_SHA"
+          echo "Estado do PR: $PR_STATE"
+
+          if [[ "$PR_STATE" == "MERGED" ]]; then
+            echo "PR já foi mesclado. A promoção já foi realizada pelo merge."
+          else
+            gh api \
+              --method PATCH \
+              "/repos/$OWNER/$REPO/git/refs/heads/$TARGET_BRANCH" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2026-03-10" \
+              -f sha="$SOURCE_SHA" \
+              -F force=false
+
+            echo "Promoção por fast-forward concluída."
+          fi
+
+      - name: Confirmar SHA
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          read -r SOURCE_BRANCH TARGET_BRANCH PR_STATE < <(
+            gh pr view "$PR_NUMBER" \
+              --repo "$OWNER/$REPO" \
+              --json headRefName,baseRefName,state \
+              --jq '[.headRefName,.baseRefName,.state] | @tsv'
+          )
+
+          if [[ "$PR_STATE" == "MERGED" ]]; then
+            echo "PR já mesclado. Não é necessário confirmar fast-forward."
+            exit 0
+          fi
+
+          source_sha="$(
+            gh api \
+              "/repos/$OWNER/$REPO/git/ref/heads/$SOURCE_BRANCH" \
+              --jq '.object.sha'
+          )"
+
+          target_sha="$(
+            gh api \
+              "/repos/$OWNER/$REPO/git/ref/heads/$TARGET_BRANCH" \
+              --jq '.object.sha'
+          )"
+
+          echo "Origem : $source_sha"
+          echo "Destino: $target_sha"
+
+          if [[ "$source_sha" != "$target_sha" ]]; then
+            echo "ERRO: SHAs diferentes."
+            exit 1
+          fi
+
+          echo "SHA confirmado: $target_sha"
+
+      - name: Fechar PR promovido
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          read -r TARGET_BRANCH PR_STATE < <(
+            gh pr view "$PR_NUMBER" \
+              --repo "$OWNER/$REPO" \
+              --json baseRefName,state \
+              --jq '[.baseRefName,.state] | @tsv'
+          )
+
+          echo "Destino: $TARGET_BRANCH"
+          echo "Estado do PR: $PR_STATE"
+
+          if [[ "$PR_STATE" == "OPEN" ]]; then
+            if gh pr close "$PR_NUMBER" \
+              --repo "$OWNER/$REPO"; then
+              echo "PR #$PR_NUMBER fechado."
+            else
+              echo "PR #$PR_NUMBER já foi mesclado. Continuando."
+            fi
+          elif [[ "$PR_STATE" == "MERGED" ]]; then
+            echo "PR #$PR_NUMBER já foi mesclado. Continuando."
+          else
+            echo "Estado inesperado do PR: $PR_STATE"
+            exit 1
+          fi
+
+      - name: Criar próximo Pull Request
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          SOURCE_BRANCH="$(
+            gh pr view "$PR_NUMBER" \
+              --repo "$OWNER/$REPO" \
+              --json baseRefName \
+              --jq '.baseRefName'
+          )"
+
+          case "$SOURCE_BRANCH" in
+            test)
+              NEXT_TARGET="staging"
+              ;;
+            staging)
+              NEXT_TARGET="main"
+              ;;
+            main)
+              echo "Chegou em main. Não existe próximo PR."
+              exit 0
+              ;;
+            *)
+              echo "Origem inválida: $SOURCE_BRANCH"
+              exit 1
+              ;;
+          esac
+
+          existing_pr="$(
+            gh pr list \
+              --repo "$OWNER/$REPO" \
+              --head "$SOURCE_BRANCH" \
+              --base "$NEXT_TARGET" \
+              --state open \
+              --json number \
+              --jq 'length'
+          )"
+
+          if [[ "$existing_pr" -gt 0 ]]; then
+            echo "PR $SOURCE_BRANCH -> $NEXT_TARGET já existe."
+            exit 0
+          fi
+
+          gh pr create \
+            --repo "$OWNER/$REPO" \
+            --base "$NEXT_TARGET" \
+            --head "$SOURCE_BRANCH" \
+            --title "Promote $SOURCE_BRANCH -> $NEXT_TARGET" \
+            --body "Promoção automática do ambiente $SOURCE_BRANCH para $NEXT_TARGET. Aguardando aprovação de robsonejsoares."
+
+          echo "Próximo PR criado: $SOURCE_BRANCH -> $NEXT_TARGET."
