@@ -20,6 +20,7 @@ import {
     CalendarClock,
     CheckCircle2,
     CalendarPlus,
+    CalendarX2,
     ArrowUpRight,
     MessageCircle,
 } from "lucide-react"
@@ -54,6 +55,15 @@ export function AppointmentsList({
 }: AppointmentsListProps) {
     const searchParams = useSearchParams()
     const date = searchParams.get("date")
+    const activeDate = date ?? format(new Date(), "yyyy-MM-dd")
+    const now = new Date()
+    const today = format(now, "yyyy-MM-dd")
+    const currentTime = format(now, "HH:mm")
+    const isPastDate = activeDate < today
+    const isToday = activeDate === today
+    const selectedDay = new Date(`${activeDate}T00:00:00`)
+    const isSunday = selectedDay.getDay() === 0
+    const isSaturday = selectedDay.getDay() === 6
     const queryClient = useQueryClient()
 
     const [isDetailOpen, setIsDetailOpen] = useState(false)
@@ -85,6 +95,7 @@ export function AppointmentsList({
     })
 
     const occupantMap: Record<string, AppointmentWithService> = {}
+    const appointmentStarts: Record<string, AppointmentWithService> = {}
 
     if (data && data.length > 0) {
         for (const appointment of data) {
@@ -92,6 +103,8 @@ export function AppointmentsList({
             const startIndex = times.indexOf(appointment.time)
 
             if (startIndex !== -1) {
+                appointmentStarts[appointment.time] = appointment
+
                 for (let i = 0; i < requiredSlots; i++) {
                     const slotIndex = startIndex + i
                     if (slotIndex < times.length) {
@@ -170,24 +183,44 @@ export function AppointmentsList({
                                     <>
                                         {times.map((slot) => {
                                             const occupant = occupantMap[slot]
+                                            const appointmentStart = appointmentStarts[slot]
 
-                                            if (occupant) {
+                                            if (appointmentStart) {
                                                 return (
                                                     <OccupiedSlotItem
                                                         key={slot}
                                                         slot={slot}
-                                                        occupant={occupant}
-                                                        onWhatsApp={() => handleWhatsApp(occupant)}
+                                                        occupant={appointmentStart}
+                                                        onWhatsApp={() => handleWhatsApp(appointmentStart)}
                                                         onViewDetails={() => {
-                                                            setDetailAppointment(occupant)
+                                                            setDetailAppointment(appointmentStart)
                                                             setIsDetailOpen(true)
                                                         }}
-                                                        onCancel={() => setAppointmentToCancel(occupant)}
+                                                        onCancel={() => setAppointmentToCancel(appointmentStart)}
                                                     />
                                                 )
                                             }
 
-                                            return (
+                                            if (occupant) {
+                                                return null
+                                            }
+
+                                            const isPastSlot = isPastDate || (isToday && slot <= currentTime)
+                                            const isUnavailableWeekendSlot =
+                                                isSunday || (isSaturday && slot > "12:00")
+
+                                            return isPastSlot || isUnavailableWeekendSlot ? (
+                                                <PastSlotItem
+                                                    key={slot}
+                                                    slot={slot}
+                                                    message={isPastSlot ? "Indisponível." : "Horário indisponível."}
+                                                    tooltip={
+                                                        isPastSlot
+                                                            ? "Agendamento indisponível para data retroativa"
+                                                            : "Horário indisponível para esta data"
+                                                    }
+                                                />
+                                            ) : (
                                                 <AvailableSlotItem
                                                     key={slot}
                                                     slot={slot}
@@ -345,5 +378,51 @@ function AvailableSlotItem({
                 <TooltipContent side="left">Novo agendamento</TooltipContent>
             </Tooltip>
         </div>
+    )
+}
+
+function PastSlotItem({
+    slot,
+    message,
+    tooltip,
+}: {
+    slot: string
+    message: string
+    tooltip: string
+}) {
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <div className="group/past flex min-h-14 cursor-not-allowed items-center gap-3 rounded-md border border-border/50 bg-background px-3.5 py-3.5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-rose-500/20 hover:bg-rose-500/[0.02] hover:shadow-sm">
+                    <div className="flex w-16 shrink-0 items-center">
+                        <span className="rounded-md border border-border/60 bg-muted/[0.35] px-2.5 py-1 text-sm font-semibold tabular-nums text-muted-foreground transition-[background-color,border-color,color] duration-300 group-hover/past:border-rose-500/20 group-hover/past:bg-rose-500/[0.04] group-hover/past:text-rose-500/80">
+                            {slot}
+                        </span>
+                    </div>
+
+                    <div className="flex min-w-0 flex-1 items-center gap-2.5 text-sm text-muted-foreground">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-[color,transform] duration-300 group-hover/past:scale-110 group-hover/past:-rotate-6 group-hover/past:text-rose-500/70">
+                            <CalendarX2 className="h-3.5 w-3.5" />
+                        </span>
+                        <span className="font-medium transition-colors duration-300 group-hover/past:text-rose-500/80">{message}</span>
+                    </div>
+
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground/60">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            disabled
+                            className="pointer-events-none h-8 w-8 rounded-md text-muted-foreground/60"
+                        >
+                            <CalendarPlus className="h-4 w-4" />
+                        </Button>
+                    </span>
+                </div>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+                {tooltip}
+            </TooltipContent>
+        </Tooltip>
     )
 }

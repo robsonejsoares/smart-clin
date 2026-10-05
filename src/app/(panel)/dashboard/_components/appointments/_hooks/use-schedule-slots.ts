@@ -23,13 +23,20 @@ export function useScheduleSlots({ clinicId, date, serviceId }: UseScheduleSlots
         async function loadSlots() {
             setIsLoading(true)
             try {
+                const params = new URLSearchParams({
+                    userId: clinicId,
+                    date: date ?? "",
+                })
                 const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_URL || ""}/api/schedule/get-appointments?userId=${clinicId}&date=${date}`
+                    `/api/schedule/get-appointments?${params.toString()}`,
+                    { cache: "no-store" }
                 )
                 const json = await response.json()
                 
-                const bookedTimes = Array.isArray(json) 
-                    ? json.map((appointment: { time?: string }) => appointment?.time).filter((t): t is string => Boolean(t))
+                const bookedTimes = Array.isArray(json)
+                    ? json
+                        .filter((time): time is string => typeof time === "string")
+                        .map((time) => time.trim())
                     : []
 
                 const defaultTimes = [

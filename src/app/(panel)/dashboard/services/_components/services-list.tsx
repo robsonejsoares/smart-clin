@@ -30,6 +30,7 @@ import {
 
 import { toast } from "sonner"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { DialogService } from "./dialogs/dialog-service"
 import { DialogDeleteService } from "./dialogs/dialog-delete-service"
@@ -46,6 +47,10 @@ export function ServicesList({ services }: ServicesListProps) {
     const [editingService, setEditingService] = useState<Service | null>(null)
     const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null)
     const [loadingDelete, setLoadingDelete] = useState(false)
+    const router = useRouter()
+    const sortedServices = [...services].sort((firstService, secondService) =>
+        firstService.duration - secondService.duration
+    )
 
     async function handleDeleteService() {
         if (!serviceToDelete) {
@@ -68,6 +73,7 @@ export function ServicesList({ services }: ServicesListProps) {
 
             toast.success(response.message)
             setServiceToDelete(null)
+            router.refresh()
         } finally {
             setLoadingDelete(false)
         }
@@ -212,7 +218,7 @@ export function ServicesList({ services }: ServicesListProps) {
 
                     <Card className="overflow-hidden border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
                         <CardContent className="p-3.5 md:p-4">
-                            {services.length === 0 ? (
+                            {sortedServices.length === 0 ? (
                                 <div className="flex min-h-[220px] items-center justify-center rounded-md border border-dashed border-border/70 bg-muted/[0.12] px-6">
                                     <div className="text-center">
                                         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-md bg-[#252579]/[0.08] text-[#252579]">
@@ -230,7 +236,7 @@ export function ServicesList({ services }: ServicesListProps) {
                                 </div>
                             ) : (
                                 <section className="space-y-2.5">
-                                    {services.map(service => (
+                                    {sortedServices.map(service => (
                                         <article
                                             key={service.id}
                                             className="group flex items-center justify-between gap-4 rounded-md border border-border/60 bg-background px-4 py-3.5 transition-[border-color,background-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:border-[#252579]/15 hover:bg-[#252579]/[0.018] hover:shadow-sm"

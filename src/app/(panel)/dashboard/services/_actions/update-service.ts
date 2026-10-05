@@ -34,6 +34,13 @@ export async function updateService(formData: FormSchema): Promise<ActionResult>
         }
     }
 
+    if (schema.data.duration < 30) {
+        return {
+            success: false,
+            message: "A duração mínima do serviço é de 30 minutos.",
+        }
+    }
+
     try {
         await prisma.service.update({
             where: {
@@ -43,11 +50,12 @@ export async function updateService(formData: FormSchema): Promise<ActionResult>
             data: {
                 name: schema.data.name,
                 price: schema.data.price,
-                duration: schema.data.duration < 30 ? 30 : schema.data.duration,
+                duration: schema.data.duration,
             },
         })
 
         revalidatePath("/dashboard/services")
+        revalidatePath("/dashboard")
 
         return {
             success: true,

@@ -32,23 +32,30 @@ export async function deleteService(formData: FormSchema): Promise<ActionResult>
     }
 
     try {
-        const result = await prisma.service.updateMany({
+        const appointmentCount = await prisma.appointment.count({
+            where: {
+                serviceId: schema.data.serviceId,
+                userId: session.user.id,
+            },
+        })
+
+        if (appointmentCount > 0) {
+            return {
+                success: false,
+                message: "Este serviço não pode ser excluído porque possui agendamentos cadastrados.",
+            }
+        }
+
+        await prisma.service.update({
             where: {
                 id: schema.data.serviceId,
                 userId: session.user.id,
-                status: true,
             },
             data: { status: false },
         })
 
-        if (result.count === 0) {
-            return {
-                success: false,
-                message: "Serviço não encontrado.",
-            }
-        }
-
         revalidatePath("/dashboard/services")
+        revalidatePath("/dashboard")
 
         return {
             success: true,

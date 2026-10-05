@@ -89,6 +89,10 @@ export async function createNewAppointment(
                 throw new Error("SERVICE_NOT_FOUND")
             }
 
+            if (service.duration < 30) {
+                throw new Error("INVALID_SERVICE_DURATION")
+            }
+
             const clinicTimes = clinic.times.filter((time) => time <= "21:30")
             const requiredSlots = Math.ceil(service.duration / 30)
             const startIndex = clinicTimes.indexOf(data.time)
@@ -159,6 +163,13 @@ export async function createNewAppointment(
             return {
                 success: false,
                 message: "O horário selecionado não está disponível.",
+            }
+        }
+
+        if (error instanceof Error && error.message === "INVALID_SERVICE_DURATION") {
+            return {
+                success: false,
+                message: "O serviço precisa ter duração mínima de 30 minutos.",
             }
         }
 

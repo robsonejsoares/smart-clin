@@ -1,7 +1,7 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect, useRef } from "react"
-import { format, addMonths, subMonths } from "date-fns"
+import { format, addMonths, subMonths, startOfDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { DayPicker } from "react-day-picker"
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
@@ -19,6 +19,7 @@ export interface DatePickerProps {
     align?: "left" | "right"
     className?: string
     placeholder?: string // <-- Adicionado suporte a placeholder
+    disablePastDates?: boolean
 }
 
 export function DatePicker({
@@ -28,6 +29,7 @@ export function DatePicker({
     align = "left",
     className,
     placeholder = "Selecione a data...",
+    disablePastDates = false,
 }: DatePickerProps) {
     const containerRef = useRef<HTMLDivElement>(null)
 
@@ -58,6 +60,7 @@ export function DatePicker({
 
     function handleChangeDate(date: Date | undefined) {
         if (!date) return
+        if (disablePastDates && date < startOfDay(new Date())) return
         onChange(date)
         setDisplayMonth(date)
         setIsOpen(false)
@@ -147,6 +150,7 @@ export function DatePicker({
                             onMonthChange={setDisplayMonth}
                             selected={value}
                             onSelect={handleChangeDate}
+                            disabled={disablePastDates ? { before: startOfDay(new Date()) } : undefined}
                             locale={ptBR}
                             weekStartsOn={0}
                             showOutsideDays
