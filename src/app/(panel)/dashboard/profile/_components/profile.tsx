@@ -414,29 +414,15 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                     name="timeZone"
                                     render={({ field }) => (
                                         <FormItem>
-<<<<<<< HEAD
-                                            <FormLabel className="font-semibold">
-                                                Selecione o fuso horário
-                                            </FormLabel>
-=======
                                             <FormLabel className="text-xs font-medium text-foreground">
                                                 Selecione o fuso horário
                                             </FormLabel>
 
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916
                                             <FormControl>
                                                 <Select
                                                     onValueChange={field.onChange}
                                                     defaultValue={field.value}
                                                 >
-<<<<<<< HEAD
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Selecione o fuso horário... " />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {timeZones.map((zone) => (
-                                                            <SelectItem key={zone} value={zone} className="cursor-pointer">
-=======
                                                     <SelectTrigger className="group/timezone h-11 cursor-pointer">
                                                         <SelectValue placeholder="Selecione o fuso horário..." />
                                                     </SelectTrigger>
@@ -448,7 +434,6 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                                                 value={zone}
                                                                 className="cursor-pointer"
                                                             >
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916
                                                                 {zone}
                                                             </SelectItem>
                                                         ))}
@@ -459,60 +444,6 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                         </FormItem>
                                     )}
                                 />
-<<<<<<< HEAD
-                                <div className="space-y-2">
-                                    <Label className="font-semibold">
-                                        Configurar Horário de Funcionamento
-                                    </Label>
-                                    <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
-                                        <DialogTrigger asChild>
-                                            <Button variant="outline" className="w-full justify-between cursor-pointer">
-                                                Clique aqui para selecionar o horário
-                                                <ArrowRight className="w-5 h-5" />
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent>
-                                            <DialogHeader>
-                                                <DialogTitle>Horários da Clínica</DialogTitle>
-                                                <DialogDescription>
-                                                    Selecione os horários de funcionamento da clínica:
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <section className="py-4">
-
-                                                {/* <p className="text-sm text-muted-foreground mb-2">
-                                                    Clique nos horários abaixo para marcar ou desmarcar:
-                                                </p> */}
-
-                                                <div className="grid grid-cols-5 gap-2">
-                                                    {hours.map((hour) => (
-                                                        <Button
-                                                            key={hour}
-                                                            variant="outline"
-                                                            className={cn("h-10 cursor-pointer", selectedHours.includes(hour) && "border-2 border-emerald-500 text-primary")}
-                                                            onClick={() => toggleHour(hour)}
-                                                        >
-                                                            {hour}
-                                                        </Button>
-                                                    ))}
-                                                </div>
-                                            </section>
-                                            <Button
-                                                className="w-full cursor-pointer bg-emerald-500 hover:bg-emerald-400"
-                                                onClick={() => setDialogIsOpen(false)}
-                                            >
-                                                Fechar Modal
-                                            </Button>
-                                        </DialogContent>
-                                    </Dialog>
-                                </div>
-                                <Button
-                                    type="submit"
-                                    className="w-full cursor-pointer bg-emerald-500 hover:bg-emerald-400"
-                                >
-                                    Salvar Alterações
-                                </Button>
-=======
 
                                 <div className="space-y-2 w-full">
                                     <label className="text-sm font-medium text-foreground">
@@ -541,7 +472,6 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                         />
                                     </Dialog>
                                 </div>
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916
                             </div>
 
                             <Button

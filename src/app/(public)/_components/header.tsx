@@ -38,12 +38,6 @@ export function Header() {
     }
 
     return (
-<<<<<<< HEAD
-        <header className="fixed top-0 right-0 left-0 z-999 py-4 px-6 bg-emerald-50">
-            <div className="container mx-auto flex items-center justify-between">
-                <Link href="/" className="text-3xl font-bold text-zinc-900">
-                    Smart<span className="text-emerald-500">Clin</span>
-=======
         <header className="group relative fixed left-0 right-0 top-0 z-[999] overflow-hidden border-b border-border/60 bg-background/90 px-4 py-3 shadow-sm shadow-black/[0.04] backdrop-blur-xl sm:px-6">
             <div
                 aria-hidden="true"
@@ -110,7 +104,6 @@ export function Header() {
                             className="pointer-events-none absolute -inset-x-3 -inset-y-2 -z-10 rounded-full bg-gradient-to-r from-emerald-500/[0.025] via-[#252579]/[0.05] to-violet-500/[0.025] opacity-0 blur-xl transition-[opacity,transform] duration-[1600ms] ease-out group-hover/logo:scale-110 group-hover/logo:opacity-100"
                         />
                     </span>
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916
                 </Link>
 
                 <nav className="relative hidden items-center gap-2 md:flex">
@@ -175,11 +168,7 @@ export function Header() {
 
                     <SheetContent
                         side="right"
-<<<<<<< HEAD
-                        className="w-60 sm:w-75 z-9999 [&>button]:cursor-pointer [&>button]:hover:bg-gray-200 [&>button]:rounded-lg [&>button]:p-2 [&>button]:transition-colors"
-=======
                         className="z-[9999] flex w-[88%] max-w-sm flex-col border-l border-border/60 bg-background p-0 shadow-2xl shadow-black/15 sm:w-96"
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916
                     >
                         <SheetHeader className="border-b border-border/60 px-6 pb-5 pt-6 text-left">
                             <SheetTitle className="text-xl font-semibold tracking-tight text-[#252579]">

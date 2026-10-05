@@ -1,17 +1,9 @@
-<<<<<<< HEAD
-import "./globals.css";
-import type { Metadata } from "next";
-import { Toaster } from 'sonner'
-import { Geist, Geist_Mono } from "next/font/google";
-import { SessionAuthProvider } from "@/components/session-auth";
-=======
 ﻿import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { SessionAuthProvider } from "@/components/session-auth"
 import { QueryClientContext } from "@/providers/queryclient"
 import { Toaster } from "sonner"
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,18 +30,6 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} min-h-full antialiased`}
     >
-<<<<<<< HEAD
-      <body className="min-h-full flex flex-col">
-        <SessionAuthProvider>
-          <Toaster
-            duration={2500}
-          />
-          <Toaster
-            duration={2500}
-          />
-          {children}
-        </SessionAuthProvider>
-=======
       <body className="min-h-screen bg-background font-sans text-foreground antialiased"><SessionAuthProvider><QueryClientContext>{children}</QueryClientContext>
         <Toaster
           position="bottom-right"
@@ -71,7 +51,6 @@ export default function RootLayout({
           }}
         />
       </SessionAuthProvider>
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916
       </body>
     </html>
   )

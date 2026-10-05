@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 ﻿import Link from "next/link"
 
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916
 export function Footer() {
     return (<footer className="group relative overflow-hidden border-t border-border/60 bg-background"> <div
         aria-hidden="true"

@@ -15,18 +15,6 @@ export default async function Dashboard() {
     }
 
     return (
-<<<<<<< HEAD
-        <div>
-            <h1>
-                Página Dashboard
-            </h1>
-            <div className="w-full h-150 bg-gray-200 mb-10"></div>
-            <div className="w-full h-150 bg-gray-500 mb-10"></div>
-            <div className="w-full h-150 bg-gray-300 mb-10"></div>
-        </div>
-    );
-}
-=======
         <TooltipProvider>
             <main className="mx-auto w-full max-w-[1600px]">
                 <section className="group relative mb-6 overflow-hidden rounded-md border border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
@@ -147,4 +135,3 @@ export default async function Dashboard() {
         </TooltipProvider>
     )
 }
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916

@@ -3,25 +3,10 @@ import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 
 export function Hero() {
-<<<<<<< HEAD
-    return (
-        <section className="bg-white">
-            <div className="container mx-auto px-4 pt-20 pb-4 sm:pb-0 sm:px-6 lg:px-8">
-                <main className="flex items-center justify-center">
-                    <article className="flex-2 max-w-3xl space-y-8 flex flex-col justify-center">
-                        <h1 className="text-4xl lg:text-5xl font-bold max-w-2xl tracking-tight">
-                            Encontre os melhores profissionais em um único lugar!
-                        </h1>
-                        <p className="text-base md:text-lg text-gray-600">
-                            Nós somos uma plataforma para profissionais da saúde com foco em
-                            agilizar o seu atendimento de forma simplificada e organizada.
-                        </p>
-=======
     return (<section className="relative isolate overflow-hidden bg-background"> <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-40 -top-40 h-[480px] w-[480px] rounded-full bg-emerald-500/[0.06] blur-3xl smartclin-pulse"
     />
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916
 
 
         <div

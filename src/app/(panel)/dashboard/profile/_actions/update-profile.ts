@@ -45,23 +45,14 @@ export async function updateProfile(formData: FormSchema): Promise<ActionResult>
         revalidatePath("/dashboard/profile")
 
         return {
-<<<<<<< HEAD
-            data: "Alteração realizada com sucesso.",
-=======
             success: true,
             message: "Alteração realizada com sucesso.",
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916
         }
     } catch (error) {
         console.error("Erro ao atualizar perfil:", error)
         return {
-<<<<<<< HEAD
-            error: "Ocorreu um erro ao realizar a alteração.",
-        };
-=======
             success: false,
             message: "Ocorreu um erro ao realizar a alteração.",
         }
->>>>>>> d21dfe2fc873b266a0a127c59f81f36621db9916
     }
 }
