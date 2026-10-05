@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect, useRef } from "react"
 import { format, addMonths, subMonths, startOfDay } from "date-fns"

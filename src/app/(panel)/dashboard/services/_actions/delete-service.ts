@@ -37,6 +37,7 @@ export async function deleteService(formData: FormSchema): Promise<ActionResult>
                 serviceId: schema.data.serviceId,
                 userId: session.user.id,
             },
+            data: { status: false },
         })
 
         if (appointmentCount > 0) {
