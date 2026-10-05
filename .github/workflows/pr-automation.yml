@@ -1,16 +1,174 @@
 name: PR Workflow Automation
 
 on:
+  push:
+    branches:
+      - "feature/**"
+      - "feat/**"
   pull_request:
     types: [opened, synchronize, reopened, edited, closed]
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
 
 permissions:
-  contents: read
+  contents: write
   issues: write
   pull-requests: write
 
 jobs:
+  create-feature-pr:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Criar token do GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.SMART_CLIN_APP_ID }}
+          private-key: ${{ secrets.SMART_CLIN_APP_PRIVATE_KEY }}
+
+      - name: Criar PR da feature para develop
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const source = context.ref.replace('refs/heads/', '');
+            const target = 'develop';
+
+            const { data: existingPulls } =
+              await github.rest.pulls.list({
+                owner,
+                repo,
+                head: `${owner}:${source}`,
+                base: target,
+                state: 'open'
+              });
+
+            if (existingPulls.length > 0) {
+              core.info(
+                `PR ${source} -> ${target} já existe: #${existingPulls[0].number}`
+              );
+              return;
+            }
+
+            const { data: pull } =
+              await github.rest.pulls.create({
+                owner,
+                repo,
+                head: source,
+                base: target,
+                title: `feat: integração de ${source} na develop`,
+                body:
+                  '## Integração automática de feature\n\n' +
+                  `Este PR foi criado automaticamente para promover \`${source}\` para \`${target}\`.\n\n` +
+                  'A promoção depende da aprovação de `robsonejsoares`.'
+              });
+
+            core.info(
+              `PR automático criado: #${pull.number} (${source} -> ${target})`
+            );
+
+  merge-approved-feature:
+    if: >
+      (
+        github.event_name == 'pull_request_review' &&
+        github.event.review.state == 'approved'
+      ) ||
+      (
+        github.event_name == 'check_suite' &&
+        github.event.check_suite.conclusion == 'success'
+      )
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Criar token do GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.SMART_CLIN_APP_ID }}
+          private-key: ${{ secrets.SMART_CLIN_APP_PRIVATE_KEY }}
+
+      - name: Mesclar feature aprovada quando os checks terminarem
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          REVIEW_PR_NUMBER: ${{ github.event.pull_request.number }}
+          CHECK_SUITE_PR_NUMBERS: ${{ join(github.event.check_suite.pull_requests.*.number, ' ') }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "pull_request_review" ]]; then
+            PR_NUMBERS="$REVIEW_PR_NUMBER"
+          else
+            PR_NUMBERS="$CHECK_SUITE_PR_NUMBERS"
+          fi
+
+          for PR_NUMBER in $PR_NUMBERS; do
+            read -r SOURCE_BRANCH TARGET_BRANCH PR_STATE < <(
+              gh pr view "$PR_NUMBER" \
+                --repo "$OWNER/$REPO" \
+                --json headRefName,baseRefName,state \
+                --jq '[.headRefName,.baseRefName,.state] | @tsv'
+            )
+
+            if [[ "$PR_STATE" != "OPEN" ||
+                  "$TARGET_BRANCH" != "develop" ||
+                  ! "$SOURCE_BRANCH" =~ ^(feature|feat|fix|hotfix)/.+$ ]]; then
+              continue
+            fi
+
+            approved="$(
+              gh pr view "$PR_NUMBER" \
+                --repo "$OWNER/$REPO" \
+                --json reviews \
+                --jq '[.reviews[] |
+                  select((.author.login == "robsonejsoares" or
+                          .author.login == "oProgramadorAutonomo") and
+                         .state == "APPROVED")] | length'
+            )"
+
+            if [[ "$approved" -lt 1 ]]; then
+              echo "PR #$PR_NUMBER ainda não tem aprovação autorizada."
+              continue
+            fi
+
+            checks="$(
+              gh pr checks "$PR_NUMBER" \
+                --repo "$OWNER/$REPO" \
+                --json name,state \
+                --jq '[.[] | select(.name == "build-and-test" or
+                  .name == "Validate branch promotion flow")]'
+            )"
+
+            total="$(printf '%s' "$checks" | jq 'length')"
+            success="$(
+              printf '%s' "$checks" |
+                jq '[.[] | select(.state == "SUCCESS")] | length'
+            )"
+
+            if [[ "$total" -lt 2 || "$success" -ne "$total" ]]; then
+              echo "PR #$PR_NUMBER aguarda os dois checks obrigatórios."
+              continue
+            fi
+
+            echo "Mesclando feature aprovada: $SOURCE_BRANCH -> $TARGET_BRANCH (PR #$PR_NUMBER)."
+            gh pr merge "$PR_NUMBER" \
+              --repo "$OWNER/$REPO" \
+              --squash \
+              --subject "feat: integração de $SOURCE_BRANCH na develop" \
+              --body "Merge automático após aprovação e conclusão dos checks obrigatórios."
+          done
+
   automate-pr:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
@@ -193,3 +351,70 @@ jobs:
             core.info(
               `PR automático criado: #${pull.number} (${source} -> ${target})`
             );
+
+  delete-merged-work-branch:
+    if: >
+      github.event_name == 'pull_request' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'develop' &&
+      (
+        startsWith(github.event.pull_request.head.ref, 'feature/') ||
+        startsWith(github.event.pull_request.head.ref, 'feat/') ||
+        startsWith(github.event.pull_request.head.ref, 'fix/') ||
+        startsWith(github.event.pull_request.head.ref, 'hotfix/')
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Criar token do GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.SMART_CLIN_APP_ID }}
+          private-key: ${{ secrets.SMART_CLIN_APP_PRIVATE_KEY }}
+
+      - name: Excluir branch de trabalho mesclada
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const source = context.payload.pull_request.head.ref;
+            const protectedBranches = new Set([
+              'develop',
+              'test',
+              'staging',
+              'main'
+            ]);
+            const workBranchPattern = /^(feature|feat|fix|hotfix)\/.+$/;
+
+            if (protectedBranches.has(source)) {
+              core.setFailed(
+                `Recusa de segurança: a branch protegida "${source}" nunca pode ser excluída.`
+              );
+              return;
+            }
+
+            if (!workBranchPattern.test(source)) {
+              core.setFailed(
+                `Recusa de segurança: "${source}" não é uma branch de trabalho permitida.`
+              );
+              return;
+            }
+
+            try {
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref: `heads/${source}`
+              });
+              core.info(`Branch de trabalho excluída: ${source}`);
+            } catch (error) {
+              core.setFailed(
+                `Falha ao excluir a branch de trabalho "${source}": ${error.message}`
+              );
+            }
