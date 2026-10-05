@@ -73,7 +73,7 @@ jobs:
               `PR automático criado: #${pull.number} (${source} -> ${target})`
             );
 
-  enable-feature-auto-merge:
+  merge-approved-feature:
     if: >
       (
         github.event_name == 'pull_request_review' &&
@@ -93,7 +93,7 @@ jobs:
           app-id: ${{ secrets.SMART_CLIN_APP_ID }}
           private-key: ${{ secrets.SMART_CLIN_APP_PRIVATE_KEY }}
 
-      - name: Habilitar merge automático da feature
+      - name: Mesclar feature aprovada quando os checks terminarem
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           EVENT_NAME: ${{ github.event_name }}
@@ -140,10 +140,28 @@ jobs:
               continue
             fi
 
-            echo "Habilitando merge automático para $SOURCE_BRANCH -> $TARGET_BRANCH (PR #$PR_NUMBER)."
+            checks="$(
+              gh pr checks "$PR_NUMBER" \
+                --repo "$OWNER/$REPO" \
+                --json name,state \
+                --jq '[.[] | select(.name == "build-and-test" or
+                  .name == "Validate branch promotion flow")]'
+            )"
+
+            total="$(printf '%s' "$checks" | jq 'length')"
+            success="$(
+              printf '%s' "$checks" |
+                jq '[.[] | select(.state == "SUCCESS")] | length'
+            )"
+
+            if [[ "$total" -lt 2 || "$success" -ne "$total" ]]; then
+              echo "PR #$PR_NUMBER aguarda os dois checks obrigatórios."
+              continue
+            fi
+
+            echo "Mesclando feature aprovada: $SOURCE_BRANCH -> $TARGET_BRANCH (PR #$PR_NUMBER)."
             gh pr merge "$PR_NUMBER" \
               --repo "$OWNER/$REPO" \
-              --auto \
               --squash \
               --subject "feat: integração de $SOURCE_BRANCH na develop" \
               --body "Merge automático após aprovação e conclusão dos checks obrigatórios."
