@@ -19,6 +19,8 @@ Os prefixos de branch são relacionados aos tipos de Conventional Commits, mas s
 
 O repositório mantém quatro templates, um para cada etapa do fluxo: `feature/*` ou outro prefixo de trabalho -> `develop`, `develop` -> `test`, `test` -> `staging` e `staging` -> `main`. O GitHub não seleciona templates automaticamente por branch; o workflow de PR aplica o template correspondente quando a descrição está vazia e preserva qualquer conteúdo já preenchido.
 
+Após um PR ser mesclado em `develop`, o workflow `.github/workflows/pr-automation.yml` exclui automaticamente a branch de trabalho somente quando ela usa os prefixos `feature/`, `feat/`, `fix/` ou `hotfix/`. A exclusão usa o token do GitHub App e a API de refs; as branches protegidas `develop`, `test`, `staging` e `main` nunca são excluídas.
+
 ---
 
 ## 2. Políticas de Proteção de Branches (GitHub Rulesets)
