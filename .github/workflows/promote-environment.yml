@@ -11,8 +11,13 @@ on:
     inputs:
       pr_number:
         description: "Número do PR de promoção já aprovado"
-        required: true
+        required: false
         type: string
+      align_environments:
+        description: "Alinhar test, staging e main ao SHA atual de develop (force push, uso único)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -56,7 +61,10 @@ jobs:
           github.event.check_suite.head_branch == 'staging'
         )
       ) ||
-      github.event_name == 'workflow_dispatch'
+      (
+        github.event_name == 'workflow_dispatch' &&
+        inputs.pr_number != ''
+      )
 
     runs-on: ubuntu-latest
 
@@ -230,16 +238,35 @@ jobs:
 
           if [[ "$PR_STATE" == "MERGED" ]]; then
             echo "PR já foi mesclado. A promoção já foi realizada."
-          else
-            gh pr merge "$PR_NUMBER" \
-              --repo "$OWNER/$REPO" \
-              --squash \
-              --match-head-commit "$SOURCE_SHA" \
-              --subject "chore(release): promoção $SOURCE_BRANCH -> $TARGET_BRANCH" \
-              --body "Promoção automática aprovada de $SOURCE_BRANCH para $TARGET_BRANCH."
-
-            echo "PR mesclado com sucesso."
+            exit 0
           fi
+
+          TARGET_SHA="$(
+            gh api "repos/$OWNER/$REPO/git/ref/heads/$TARGET_BRANCH" --jq '.object.sha'
+          )"
+
+          RELATION="$(
+            gh api "repos/$OWNER/$REPO/compare/$TARGET_SHA...$SOURCE_SHA" --jq '.status'
+          )"
+
+          echo "Relação $TARGET_BRANCH...$SOURCE_BRANCH: $RELATION"
+
+          case "$RELATION" in
+            identical)
+              echo "$TARGET_BRANCH já está no mesmo SHA de $SOURCE_BRANCH."
+              ;;
+            ahead)
+              # Fast-forward: o destino recebe exatamente o mesmo SHA da origem.
+              gh api -X PATCH "repos/$OWNER/$REPO/git/refs/heads/$TARGET_BRANCH" \
+                -f sha="$SOURCE_SHA" \
+                -F force=false
+              echo "Fast-forward concluído: $TARGET_BRANCH = $SOURCE_SHA."
+              ;;
+            *)
+              echo "Não é possível fazer fast-forward ($RELATION). O histórico divergiu."
+              exit 1
+              ;;
+          esac
 
       - name: Fechar PR promovido
         env:
@@ -326,3 +353,31 @@ jobs:
             --body "Promoção automática do ambiente $SOURCE_BRANCH para $NEXT_TARGET. Aguardando aprovação de robsonejsoares."
 
           echo "Próximo PR criado: $SOURCE_BRANCH -> $NEXT_TARGET."
+  align-environments:
+    name: Alinhar ambientes ao develop
+    if: github.event_name == 'workflow_dispatch' && inputs.align_environments == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Criar token do GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.SMART_CLIN_APP_ID }}
+          private-key: ${{ secrets.SMART_CLIN_APP_PRIVATE_KEY }}
+
+      - name: Alinhar test, staging e main ao develop
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          DEVELOP_SHA="$(gh api "repos/$OWNER/$REPO/git/ref/heads/develop" --jq '.object.sha')"
+          echo "develop: $DEVELOP_SHA"
+
+          for BRANCH in test staging main; do
+            gh api -X PATCH "repos/$OWNER/$REPO/git/refs/heads/$BRANCH" \
+              -f sha="$DEVELOP_SHA" \
+              -F force=true
+            echo "$BRANCH alinhada ao SHA $DEVELOP_SHA."
+          done
