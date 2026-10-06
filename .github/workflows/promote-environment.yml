@@ -19,6 +19,10 @@ permissions:
   pull-requests: write
   checks: read
 
+concurrency:
+  group: promote-environment-${{ github.event.pull_request.number || github.event.check_suite.pull_requests[0].number || inputs.pr_number }}
+  cancel-in-progress: false
+
 jobs:
   promote:
     name: Promote approved environment
@@ -107,7 +111,7 @@ jobs:
           fi
 
           if [[ "$PR_STATE" == "MERGED" ]]; then
-            echo "PR já foi mesclada. Continuando com a promoção por fast-forward."
+            echo "PR já foi mesclado. A promoção será tratada como concluída."
           fi
 
           case "$TARGET_BRANCH" in
@@ -205,11 +209,11 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
         run: |
-          read -r SOURCE_BRANCH TARGET_BRANCH SOURCE_SHA < <(
+          read -r SOURCE_BRANCH TARGET_BRANCH SOURCE_SHA PR_STATE < <(
             gh pr view "$PR_NUMBER" \
               --repo "$OWNER/$REPO" \
-              --json headRefName,baseRefName,headRefOid \
-              --jq '[.headRefName,.baseRefName,.headRefOid] | @tsv'
+              --json headRefName,baseRefName,headRefOid,state \
+              --jq '[.headRefName,.baseRefName,.headRefOid,.state] | @tsv'
           )
 
           echo "Promovendo:"
@@ -217,16 +221,21 @@ jobs:
           echo "        ↓"
           echo "  $TARGET_BRANCH"
           echo "SHA: $SOURCE_SHA"
+          echo "Estado do PR: $PR_STATE"
 
-          gh api \
-            --method PATCH \
-            "/repos/$OWNER/$REPO/git/refs/heads/$TARGET_BRANCH" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2026-03-10" \
-            -f sha="$SOURCE_SHA" \
-            -F force=false
+          if [[ "$PR_STATE" == "MERGED" ]]; then
+            echo "PR já foi mesclado. A promoção já foi realizada pelo merge."
+          else
+            gh api \
+              --method PATCH \
+              "/repos/$OWNER/$REPO/git/refs/heads/$TARGET_BRANCH" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2026-03-10" \
+              -f sha="$SOURCE_SHA" \
+              -F force=false
 
-          echo "Promoção concluída."
+            echo "Promoção por fast-forward concluída."
+          fi
 
       - name: Confirmar SHA
         env:
@@ -235,12 +244,17 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
         run: |
-          read -r SOURCE_BRANCH TARGET_BRANCH < <(
+          read -r SOURCE_BRANCH TARGET_BRANCH PR_STATE < <(
             gh pr view "$PR_NUMBER" \
               --repo "$OWNER/$REPO" \
-              --json headRefName,baseRefName \
-              --jq '[.headRefName,.baseRefName] | @tsv'
+              --json headRefName,baseRefName,state \
+              --jq '[.headRefName,.baseRefName,.state] | @tsv'
           )
+
+          if [[ "$PR_STATE" == "MERGED" ]]; then
+            echo "PR já mesclado. Não é necessário confirmar fast-forward."
+            exit 0
+          fi
 
           source_sha="$(
             gh api \
