@@ -49,7 +49,12 @@ jobs:
       (
         github.event_name == 'check_suite' &&
         github.event.check_suite.conclusion == 'success' &&
-        github.event.check_suite.pull_requests[0].number != null
+        github.event.check_suite.pull_requests[0].number != null &&
+        (
+          github.event.check_suite.head_branch == 'develop' ||
+          github.event.check_suite.head_branch == 'test' ||
+          github.event.check_suite.head_branch == 'staging'
+        )
       ) ||
       github.event_name == 'workflow_dispatch'
 
@@ -202,7 +207,7 @@ jobs:
 
           echo "Todos os checks build-and-test estão aprovados."
 
-      - name: Promover por fast-forward
+      - name: Mesclar PR aprovado
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
@@ -216,7 +221,7 @@ jobs:
               --jq '[.headRefName,.baseRefName,.headRefOid,.state] | @tsv'
           )
 
-          echo "Promovendo:"
+          echo "Promovendo por Pull Request:"
           echo "  $SOURCE_BRANCH"
           echo "        ↓"
           echo "  $TARGET_BRANCH"
@@ -224,59 +229,17 @@ jobs:
           echo "Estado do PR: $PR_STATE"
 
           if [[ "$PR_STATE" == "MERGED" ]]; then
-            echo "PR já foi mesclado. A promoção já foi realizada pelo merge."
+            echo "PR já foi mesclado. A promoção já foi realizada."
           else
-            gh api \
-              --method PATCH \
-              "/repos/$OWNER/$REPO/git/refs/heads/$TARGET_BRANCH" \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2026-03-10" \
-              -f sha="$SOURCE_SHA" \
-              -F force=false
-
-            echo "Promoção por fast-forward concluída."
-          fi
-
-      - name: Confirmar SHA
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          PR_NUMBER: ${{ steps.pr.outputs.PR_NUMBER }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
-        run: |
-          read -r SOURCE_BRANCH TARGET_BRANCH PR_STATE < <(
-            gh pr view "$PR_NUMBER" \
+            gh pr merge "$PR_NUMBER" \
               --repo "$OWNER/$REPO" \
-              --json headRefName,baseRefName,state \
-              --jq '[.headRefName,.baseRefName,.state] | @tsv'
-          )
+              --squash \
+              --match-head-commit "$SOURCE_SHA" \
+              --subject "chore(release): promoção $SOURCE_BRANCH -> $TARGET_BRANCH" \
+              --body "Promoção automática aprovada de $SOURCE_BRANCH para $TARGET_BRANCH."
 
-          if [[ "$PR_STATE" == "MERGED" ]]; then
-            echo "PR já mesclado. Não é necessário confirmar fast-forward."
-            exit 0
+            echo "PR mesclado com sucesso."
           fi
-
-          source_sha="$(
-            gh api \
-              "/repos/$OWNER/$REPO/git/ref/heads/$SOURCE_BRANCH" \
-              --jq '.object.sha'
-          )"
-
-          target_sha="$(
-            gh api \
-              "/repos/$OWNER/$REPO/git/ref/heads/$TARGET_BRANCH" \
-              --jq '.object.sha'
-          )"
-
-          echo "Origem : $source_sha"
-          echo "Destino: $target_sha"
-
-          if [[ "$source_sha" != "$target_sha" ]]; then
-            echo "ERRO: SHAs diferentes."
-            exit 1
-          fi
-
-          echo "SHA confirmado: $target_sha"
 
       - name: Fechar PR promovido
         env:
