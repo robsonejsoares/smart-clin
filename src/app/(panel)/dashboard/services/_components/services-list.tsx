@@ -1,4 +1,5 @@
-﻿"use client"
+"use client"
+import { wait } from "@/lib/min-delay"
 
 import {
     X,
@@ -28,8 +29,9 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { toast } from "sonner"
-import { useState } from "react"
+import { toast } from "@/lib/notify"
+import { useEffect, useState, useTransition } from "react"
+import AgendaLoader from "@/components/agenda-loader"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { DialogService } from "./dialogs/dialog-service"
@@ -49,34 +51,49 @@ export function ServicesList({ services }: ServicesListProps) {
     const [loadingDelete, setLoadingDelete] = useState(false)
     const router = useRouter()
     const sortedServices = [...services].sort((firstService, secondService) =>
-        firstService.duration - secondService.duration
+        firstService.name.localeCompare(secondService.name, "pt-BR", { sensitivity: "base" })
     )
 
-    async function handleDeleteService() {
+    const [busyMessage, setBusyMessage] = useState<string | null>(null)
+    const [lastMessage, setLastMessage] = useState("Atualizando serviços...")
+    const [busyTone, setBusyTone] = useState<"primary" | "danger">("primary")
+    const [pendingNotice, setPendingNotice] = useState<{ success: boolean; message: string } | null>(null)
+    const [isRefreshing, startRefresh] = useTransition()
+
+    useEffect(() => {
+        if (pendingNotice && !busyMessage && !isRefreshing) {
+            const timer = setTimeout(() => {
+                if (pendingNotice.success) toast.success(pendingNotice.message)
+                else toast.error(pendingNotice.message)
+                setPendingNotice(null)
+            }, 600)
+            return () => clearTimeout(timer)
+        }
+    }, [pendingNotice, busyMessage, isRefreshing])
+
+    async function runAction(
+        message: string,
+        tone: "primary" | "danger",
+        action: () => Promise<{ success: boolean; message?: string }>
+    ) {
+        setBusyTone(tone)
+        setLastMessage(message)
+        setBusyMessage(message)
+        const [response] = await Promise.all([action(), wait()])
+
+        if (response.success) startRefresh(() => router.refresh())
+        setBusyMessage(null)
+        if (response.message) setPendingNotice({ success: response.success, message: response.message })
+    }
+
+    function handleDeleteService() {
         if (!serviceToDelete) {
             return
         }
 
-        setLoadingDelete(true)
-
-        try {
-            const response = await deleteService({
-                serviceId: serviceToDelete.id,
-            })
-
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            if (!response.success) {
-                toast(response.message)
-                return
-            }
-
-            toast.success(response.message)
-            setServiceToDelete(null)
-            router.refresh()
-        } finally {
-            setLoadingDelete(false)
-        }
+        const serviceId = serviceToDelete.id
+        setServiceToDelete(null)
+        runAction("Excluindo serviço...", "danger", () => deleteService({ serviceId }))
     }
 
     function handleEditService(service: Service) {
@@ -196,6 +213,7 @@ export function ServicesList({ services }: ServicesListProps) {
                                 className="sm:max-w-lg h-[550px] flex flex-col overflow-hidden rounded-xl border-border/70 p-0 shadow-2xl"
                             >
                                 <DialogService
+                                    onRun={runAction}
                                     closeModal={() => {
                                         setIsDialogOpen(false)
                                         setEditingService(null)
@@ -218,7 +236,9 @@ export function ServicesList({ services }: ServicesListProps) {
 
                     <Card className="overflow-hidden border-border/60 bg-background/95 shadow-lg shadow-black/[0.04]">
                         <CardContent className="p-3.5 md:p-4">
-                            {sortedServices.length === 0 ? (
+                            {busyMessage || isRefreshing ? (
+                                <AgendaLoader message={busyMessage ?? lastMessage} tone={busyTone} rows={4} />
+                            ) : sortedServices.length === 0 ? (
                                 <div className="flex min-h-[220px] items-center justify-center rounded-md border border-dashed border-border/70 bg-muted/[0.12] px-6">
                                     <div className="text-center">
                                         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-md bg-[#252579]/[0.08] text-[#252579]">

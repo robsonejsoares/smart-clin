@@ -1,14 +1,20 @@
-﻿import Link from "next/link"
+import Link from "next/link"
 import { Calendar } from "lucide-react"
 import getSession from "@/lib/getSession"
+import { withMinDelay } from "@/lib/min-delay"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Reminders } from "./_components/reminder/reminders"
 import { Appointments } from "./_components/appointments/appointments"
 
-export default async function Dashboard() {
-    const session = await getSession()
+export default async function Dashboard({
+    searchParams,
+}: {
+    searchParams: Promise<{ date?: string }>
+}) {
+    const { date } = await searchParams
+    const session = await withMinDelay(getSession())
 
     if (!session) {
         redirect("/")
@@ -79,7 +85,7 @@ export default async function Dashboard() {
                 </section>
 
                 <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                    <Appointments userId={session.user.id} />
+                    <Appointments userId={session.user.id} date={date} />
 
                     <Reminders userId={session.user.id} />
                 </section>

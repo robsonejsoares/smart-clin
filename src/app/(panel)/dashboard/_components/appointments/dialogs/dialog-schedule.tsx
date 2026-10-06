@@ -1,16 +1,19 @@
 "use client"
 
-import { useState } from "react"
-import { toast } from "sonner"
+import { useEffect, useState } from "react"
+import { formatCurrency } from "@/lib/formatCurrency"
+import { toast } from "@/lib/notify"
 import { format } from "date-fns"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Prisma } from "@/generated/prisma/client"
-import { Loader2, UserRound, Mail, Phone, Stethoscope, Calendar, Clock, MapPin, Users, Info } from "lucide-react"
+import { UserRound, Mail, Phone, Stethoscope, Calendar, Clock, MapPin, Users, Info } from "lucide-react"
 
+import AgendaLoader from "@/components/agenda-loader"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { withMinDelay } from "@/lib/min-delay"
 import { DatePicker } from "@/components/ui/date-picker"
 import { useScheduleSlots } from "../_hooks/use-schedule-slots"
 import { createNewAppointment } from "../../../_actions/appointments"
@@ -53,7 +56,9 @@ type AppointmentFormData = z.infer<typeof appointmentSchema>
 
 interface DialogScheduleProps {
     clinic: UserWithServiceAndSubscription
-    onSuccess?: () => void
+    onSubmitStart?: () => void
+    onSubmitError?: () => void
+    onSuccess?: (message?: string, emailSent?: boolean) => void
 }
 
 const formatPhone = (value: string) => {
@@ -65,8 +70,21 @@ const formatPhone = (value: string) => {
     return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`
 }
 
-export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
+// Hoje por padrão; domingo não tem atendimento, então vai para segunda
+function getDefaultBookingDate() {
+    const today = new Date()
+    if (today.getDay() === 0) today.setDate(today.getDate() + 1)
+    return today
+}
+
+export function DialogSchedule({ clinic, onSubmitStart, onSubmitError, onSuccess }: DialogScheduleProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [now, setNow] = useState(() => new Date())
+
+    useEffect(() => {
+        const interval = window.setInterval(() => setNow(new Date()), 15_000)
+        return () => window.clearInterval(interval)
+    }, [])
 
     const form = useForm<AppointmentFormData>({
         resolver: zodResolver(appointmentSchema),
@@ -76,7 +94,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
             phone: "",
             gender: undefined,
             serviceId: "",
-            date: undefined,
+            date: getDefaultBookingDate(),
             time: "",
         },
         mode: "onChange",
@@ -97,6 +115,21 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
     const phone = useWatch({ control: form.control, name: "phone" })
     const gender = useWatch({ control: form.control, name: "gender" })
     const selectedTime = useWatch({ control: form.control, name: "time" })
+    const clinicDateTimeParts = new Intl.DateTimeFormat("en-US", {
+        timeZone: clinic.timeZone || undefined,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+    }).formatToParts(now)
+    const dateTimePart = (type: string) =>
+        clinicDateTimeParts.find((part) => part.type === type)?.value ?? ""
+    const clinicToday = `${dateTimePart("year")}-${dateTimePart("month")}-${dateTimePart("day")}`
+    const clinicCurrentTime = `${dateTimePart("hour")}:${dateTimePart("minute")}`
+    const isSelectedDateToday = Boolean(selectedDate && format(selectedDate, "yyyy-MM-dd") === clinicToday)
+    const isSelectedTimePast = Boolean(isSelectedDateToday && selectedTime && selectedTime <= clinicCurrentTime)
     const isFormComplete = Boolean(
         name?.trim() &&
         email?.trim() &&
@@ -104,7 +137,8 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
         gender &&
         selectedServiceId &&
         selectedDate &&
-        selectedTime
+        selectedTime &&
+        !isSelectedTimePast
     )
 
     const formattedDate = selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""
@@ -116,38 +150,46 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
     }) as { slots: Array<{ time: string; available: boolean }>; isLoading: boolean }
 
     const googleMapsUrl = clinic.address
-        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(clinic.address)}`
+        ? `https://maps.google.com/?q=${encodeURIComponent(clinic.address)}`
         : "#"
 
     async function onSubmit(data: AppointmentFormData) {
         const whatsappWindow = window.open("about:blank", "_blank")
+        // Tenta manter o foco nesta aba; alguns navegadores podem ignorar
+        whatsappWindow?.blur()
+        window.focus()
 
         try {
             setIsSubmitting(true)
+            onSubmitStart?.()
 
-            const result = await createNewAppointment({
+            const result = await withMinDelay(createNewAppointment({
                 ...data,
-            })
+            }))
 
             if (!result.success) {
                 whatsappWindow?.close()
                 toast.error(result.message)
+                onSubmitError?.()
                 return
             }
 
             const service = clinic.services.find((item) => item.id === data.serviceId)
             const appointmentDate = format(data.date, "dd/MM/yyyy")
-            const message = [
+            const lines = [
                 `*Olá, ${data.name}!*`,
                 "",
                 "Seu agendamento foi confirmado.",
                 "",
-                `*Serviço:* _${service?.name ?? "Atendimento"}_`,
-                `*Data:* _${appointmentDate}_`,
-                `*Horário:* _${data.time}_`,
-                `*Clínica:* _${clinic.name ?? "SmartClin"}_`,
-                clinic.address ? `*Endereço:* _${clinic.address}_\n${googleMapsUrl}` : "",
-            ].filter(Boolean).join("\n")
+                `*Serviço:* ${service?.name ?? "Atendimento"}`,
+                `*Data:* ${appointmentDate}`,
+                `*Horário:* ${data.time}`,
+                `*Clínica:* ${clinic.name ?? "SmartClin"}`,
+            ]
+            if (clinic.address) {
+                lines.push(`*Endereço:* ${clinic.address}`, `📍 ${googleMapsUrl}`)
+            }
+            const message = lines.join("\n")
 
             const whatsappPhone = data.phone.replace(/\D/g, "")
             if (whatsappPhone) {
@@ -184,15 +226,11 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                 console.error("Erro ao solicitar e-mail de confirmação:", error)
             }
 
-            if (!emailSent) {
-                toast.warning("Agendamento confirmado, mas o e-mail ainda não foi enviado.")
-            }
-
-            toast.success(result.message)
-            onSuccess?.()
+            onSuccess?.(result.message, emailSent)
         } catch {
             whatsappWindow?.close()
             toast.error("Ocorreu um erro inesperado ao realizar agendamento.")
+            onSubmitError?.()
         } finally {
             setIsSubmitting(false)
         }
@@ -370,7 +408,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                                 }}
                                                 openUpward
                                                 align="left"
-                                                disablePastDates
+                                                bookableDatesOnly
                                                 placeholder="Selecione a data..."
                                             />
                                         </FormControl>
@@ -396,9 +434,9 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {clinic.services?.map((service) => (
+                                            {[...(clinic.services ?? [])].sort((a, b) => a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" })).map((service) => (
                                                 <SelectItem key={service.id} value={service.id} className="cursor-pointer text-xs sm:text-sm">
-                                                    {service.name} - R$ {Number(service.price).toFixed(2)} ({service.duration} min)
+                                                    {service.name} - {formatCurrency(service.price / 100)} ({service.duration} min)
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -425,10 +463,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                         Selecione um serviço e uma data para ver os horários disponíveis.
                                     </div>
                                 ) : isLoadingSlots ? (
-                                    <div className="flex items-center justify-center py-8 sm:py-12 text-muted-foreground text-xs sm:text-sm">
-                                        <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                                        Carregando horários...
-                                    </div>
+                                    <AgendaLoader message="Carregando horários..." variant="grid" />
                                 ) : slots.length === 0 ? (
                                     <div className="text-center py-8 sm:py-12 text-muted-foreground text-xs sm:text-sm border border-dashed rounded-md p-4">
                                         Nenhum horário disponível para esta data.
@@ -438,17 +473,20 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                         <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4">
                                         {slots.map((slot) => {
                                             const isSelected = selectedTime === slot.time
+                                            const isPastBookingTime =
+                                                isSelectedDateToday && slot.time <= clinicCurrentTime
+                                            const isUnavailable = !slot.available || isPastBookingTime
                                             return (
                                                 <Tooltip key={slot.time}>
                                                     <TooltipTrigger asChild>
-                                                        <span className={`block ${!slot.available ? "cursor-not-allowed" : ""}`}>
+                                                        <span className={`block ${isUnavailable ? "cursor-not-allowed" : ""}`}>
                                                             <button
                                                                 type="button"
-                                                                disabled={!slot.available}
-                                                                title={!slot.available ? "Horário indisponível" : undefined}
-                                                                aria-label={slot.available ? `Selecionar ${slot.time}` : `${slot.time}: horário indisponível`}
+                                                                disabled={isUnavailable}
+                                                                title={isUnavailable ? (isPastBookingTime ? "Horário já passou" : "Horário indisponível") : undefined}
+                                                                aria-label={isUnavailable ? `${slot.time}: ${isPastBookingTime ? "horário já passou" : "horário indisponível"}` : `Selecionar ${slot.time}`}
                                                                 onClick={() => form.setValue("time", slot.time, { shouldValidate: true })}
-                                                                className={`w-full py-2 text-xs font-medium rounded-md border transition-all ${!slot.available
+                                                                className={`w-full py-2 text-xs font-medium rounded-md border transition-all ${isUnavailable
                                                                     ? "pointer-events-none bg-muted text-muted-foreground border-border/60 cursor-not-allowed line-through opacity-60"
                                                                     : isSelected
                                                                         ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/40 shadow-sm cursor-pointer font-semibold"
@@ -459,9 +497,9 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                                                             </button>
                                                         </span>
                                                     </TooltipTrigger>
-                                                    {!slot.available && (
+                                                    {isUnavailable && (
                                                         <TooltipContent side="top">
-                                                            Horário indisponível
+                                                            {isPastBookingTime ? "Horário já passou" : "Horário indisponível"}
                                                         </TooltipContent>
                                                     )}
                                                 </Tooltip>
@@ -487,14 +525,7 @@ export function DialogSchedule({ clinic, onSuccess }: DialogScheduleProps) {
                             disabled={!isFormComplete || isSubmitting}
                             className="w-full bg-[#252579] hover:bg-[#1f1f63] text-white h-9 sm:h-10 text-xs sm:text-sm font-semibold rounded-md mt-4 focus-visible:ring-2 focus-visible:ring-[#252579]/30 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isSubmitting ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Confirmando Agendamento...
-                                </>
-                            ) : (
-                                "Confirmar Agendamento"
-                            )}
+                            Confirmar Agendamento
                         </Button>
                     </div>
 

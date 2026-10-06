@@ -50,6 +50,9 @@ export async function POST(request: Request) {
     const time = escapeHtml(body.time!)
     const clinic = escapeHtml(body.clinic!)
     const address = body.address ? escapeHtml(body.address) : ""
+    const mapsUrl = body.address
+        ? `https://maps.google.com/?q=${encodeURIComponent(body.address)}`
+        : ""
 
     try {
         await resend.emails.send({
@@ -66,7 +69,7 @@ export async function POST(request: Request) {
                         <strong>Data:</strong> ${date}<br>
                         <strong>Horário:</strong> ${time}<br>
                         <strong>Clínica:</strong> ${clinic}
-                        ${address ? `<br><strong>Endereço:</strong> ${address}` : ""}
+                        ${address ? `<br><strong>Endereço:</strong> <a href="${mapsUrl}" style="color:#252579">${address}</a>` : ""}
                     </p>
                 </div>
             `,

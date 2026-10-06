@@ -1,7 +1,8 @@
 "use client"
 
 import Link, { type LinkProps } from "next/link"
-import { Loader2 } from "lucide-react"
+import { createPortal } from "react-dom"
+import SmartClinLoader from "@/components/smart-clin-loader"
 import { useState, type MouseEvent, type ReactNode, type AnchorHTMLAttributes } from "react"
 
 import { cn } from "@/lib/utils"
@@ -9,13 +10,12 @@ import { cn } from "@/lib/utils"
 interface LoadingLinkProps extends LinkProps, Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof LinkProps> {
     children: ReactNode
     className?: string
-    loadingText?: string
+
 }
 
 export function LoadingLink({
     children,
     className,
-    loadingText = "Carregando...",
     onClick,
     ...props
 }: LoadingLinkProps) {
@@ -38,8 +38,8 @@ export function LoadingLink({
         setLoading(true)
     }
 
-    return (
-        <Link
+    return (<>
+<Link
             {...props}
             onClick={handleClick}
             aria-busy={loading}
@@ -51,14 +51,9 @@ export function LoadingLink({
                 className
             )}
         >
-            {loading ? (
-                <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>{loadingText}</span>
-                </>
-            ) : (
-                children
-            )}
+            {children}
         </Link>
-    )
+{loading && typeof document !== "undefined" &&
+ createPortal(<div className="fixed inset-0 z-[90] animate-in fade-in duration-300"><SmartClinLoader /></div>, document.body)}
+</>)
 }

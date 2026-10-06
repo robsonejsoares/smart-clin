@@ -1,12 +1,12 @@
-"use client"
+﻿"use client"
 
-import { toast } from "sonner"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Loader2, Plus, Bell, Info } from "lucide-react"
+
+
+
+import { Plus, Bell, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { createReminder } from "../../_actions/create-reminder"
+
 import { useReminderForm, ReminderFormData } from "./reminder-form"
 import { cn } from "@/lib/utils"
 
@@ -25,33 +25,20 @@ import {
 
 interface ReminderContentProps {
     closeDialog: () => void
+    onSubmitReminder: (description: string) => void
 }
 
-export function ReminderContent({ closeDialog }: ReminderContentProps) {
+export function ReminderContent({ closeDialog, onSubmitReminder }: ReminderContentProps) {
     const form = useReminderForm()
-    const router = useRouter()
-    const [loading, setLoading] = useState(false)
+
+
 
     const descriptionValue = form.watch("description") || ""
     const maxLength = 558
-    const isSubmitDisabled = loading || !descriptionValue.trim()
+    const isSubmitDisabled = !descriptionValue.trim()
 
-    async function onSubmit(formData: ReminderFormData) {
-        setLoading(true)
-
-        const [response] = await Promise.all([
-            createReminder({ description: formData.description }),
-            new Promise((resolve) => setTimeout(resolve, 600)),
-        ])
-
-        if (!response.success) {
-            toast.error(response.message)
-            setLoading(false)
-            return
-        }
-
-        toast.success(response.message)
-        router.refresh()
+    function onSubmit(formData: ReminderFormData) {
+        onSubmitReminder(formData.description)
         closeDialog()
     }
 
@@ -126,7 +113,6 @@ export function ReminderContent({ closeDialog }: ReminderContentProps) {
                         type="button"
                         variant="outline"
                         onClick={closeDialog}
-                        disabled={loading}
                         className="h-10 rounded-md border border-border/70 bg-background px-5 text-xs font-semibold text-muted-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-[#252579]/25"
                     >
                         Cancelar
@@ -137,17 +123,10 @@ export function ReminderContent({ closeDialog }: ReminderContentProps) {
                         disabled={isSubmitDisabled}
                         className="h-10 rounded-md bg-[#252579] px-5 text-xs font-semibold text-white transition-[background-color,box-shadow,transform] duration-200 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/30 disabled:opacity-50 active:scale-[0.99]"
                     >
-                        {loading ? (
-                            <span className="flex items-center gap-2">
-                                <Loader2 className="h-4 w-4 animate-spin text-white" />
-                                <span>Cadastrando...</span>
-                            </span>
-                        ) : (
-                            <span className="flex items-center gap-2">
+                        <span className="flex items-center gap-2">
                                 <Plus className="h-4 w-4 text-white" />
                                 <span>Cadastrar Lembrete</span>
                             </span>
-                        )}
                     </Button>
                 </div>
             </form>

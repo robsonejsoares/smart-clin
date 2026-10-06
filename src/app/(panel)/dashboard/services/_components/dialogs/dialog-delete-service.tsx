@@ -1,6 +1,6 @@
-﻿"use client"
+"use client"
 
-import { AlertTriangle, Trash2, Loader2 } from "lucide-react"
+import { AlertTriangle, Trash2 } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -128,14 +128,7 @@ export function DialogDeleteService({
                         disabled={loading}
                         className="h-10 cursor-pointer rounded-md bg-rose-600 px-4 text-xs font-semibold text-white hover:bg-rose-700 active:scale-[0.98] shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-rose-500/30"
                     >
-                        {loading ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" />
-                                <span>Excluindo serviço...</span>
-                            </>
-                        ) : (
-                            "Confirmar Exclusão"
-                        )}
+                        Confirmar Exclusão
                     </Button>
                 </div>
             </DialogContent>

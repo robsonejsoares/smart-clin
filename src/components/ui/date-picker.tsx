@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { format, addMonths, subMonths, startOfDay } from "date-fns"
+import { format, addMonths, subMonths, addYears, subYears, startOfDay, setMonth, setYear } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { DayPicker } from "react-day-picker"
+import { DayPicker, type DayButtonProps } from "react-day-picker"
+import { getHolidayName } from "@/lib/holidays"
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,6 +21,9 @@ export interface DatePickerProps {
     className?: string
     placeholder?: string // <-- Adicionado suporte a placeholder
     disablePastDates?: boolean
+    // Permite apenas hoje e dias futuros, de segunda a sábado
+    bookableDatesOnly?: boolean
+    showHolidays?: boolean
 }
 
 export function DatePicker({
@@ -30,6 +34,8 @@ export function DatePicker({
     className,
     placeholder = "Selecione a data...",
     disablePastDates = false,
+    bookableDatesOnly = false,
+    showHolidays = true,
 }: DatePickerProps) {
     const containerRef = useRef<HTMLDivElement>(null)
 
@@ -37,6 +43,7 @@ export function DatePicker({
     const [displayMonth, setDisplayMonth] = useState(value ?? new Date())
     const [prevValue, setPrevValue] = useState(value)
     const [isOpen, setIsOpen] = useState(false)
+    const [view, setView] = useState<"days" | "months" | "years">("days")
 
     // Sincroniza o mês de exibição quando a prop 'value' muda externamente
     if (value !== prevValue) {
@@ -58,9 +65,22 @@ export function DatePicker({
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [isOpen])
 
+    function isUnbookable(date: Date) {
+        return date < startOfDay(new Date()) || date.getDay() === 0
+    }
+
+    const yearBase = Math.floor(displayMonth.getFullYear() / 12) * 12
+
+    function navigate(dir: 1 | -1) {
+        if (view === "days") setDisplayMonth(m => (dir === 1 ? addMonths(m, 1) : subMonths(m, 1)))
+        else if (view === "months") setDisplayMonth(m => (dir === 1 ? addYears(m, 1) : subYears(m, 1)))
+        else setDisplayMonth(m => (dir === 1 ? addYears(m, 12) : subYears(m, 12)))
+    }
+
     function handleChangeDate(date: Date | undefined) {
         if (!date) return
         if (disablePastDates && date < startOfDay(new Date())) return
+        if (bookableDatesOnly && isUnbookable(date)) return
         onChange(date)
         setDisplayMonth(date)
         setIsOpen(false)
@@ -74,7 +94,7 @@ export function DatePicker({
             <Button
                 type="button"
                 variant="outline"
-                onClick={() => setIsOpen(current => !current)}
+                onClick={() => { setView("days"); setIsOpen(current => !current) }}
                 className="group h-10 w-full justify-between gap-3 rounded-md border-border/80 bg-background px-3.5 text-xs sm:text-sm font-medium shadow-sm hover:bg-muted/50"
             >
                 <span className="flex min-w-0 items-center gap-2.5">
@@ -105,7 +125,7 @@ export function DatePicker({
                                 <TooltipTrigger asChild>
                                     <button
                                         type="button"
-                                        onClick={() => setDisplayMonth(m => subMonths(m, 1))}
+                                        onClick={() => navigate(-1)}
                                         aria-label="Mês anterior"
                                         className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md border border-border/60 bg-background text-muted-foreground transition-[background-color,border-color,color,transform,box-shadow] duration-200 hover:border-[#252579]/20 hover:bg-[#252579]/[0.06] hover:text-[#252579] hover:shadow-sm active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/25 focus-visible:ring-offset-1"
                                     >
@@ -120,15 +140,25 @@ export function DatePicker({
                                 </TooltipContent>
                             </Tooltip>
 
-                            <span className="text-sm font-bold capitalize tracking-tight text-foreground">
-                                {format(displayMonth, "MMMM yyyy", { locale: ptBR })}
-                            </span>
+                            <div className="flex items-center gap-1 text-sm font-bold capitalize tracking-tight text-foreground">
+                                {view === "days" && (
+                                    <button type="button" onClick={() => setView("months")} className="cursor-pointer rounded-md px-1.5 py-0.5 transition-colors hover:bg-[#252579]/[0.07] hover:text-[#252579]">
+                                        {format(displayMonth, "MMMM", { locale: ptBR })}
+                                    </button>
+                                )}
+                                {view !== "years" && (
+                                    <button type="button" onClick={() => setView("years")} className="cursor-pointer rounded-md px-1.5 py-0.5 transition-colors hover:bg-[#252579]/[0.07] hover:text-[#252579]">
+                                        {format(displayMonth, "yyyy")}
+                                    </button>
+                                )}
+                                {view === "years" && <span className="px-1.5 py-0.5">{yearBase} - {yearBase + 11}</span>}
+                            </div>
 
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <button
                                         type="button"
-                                        onClick={() => setDisplayMonth(m => addMonths(m, 1))}
+                                        onClick={() => navigate(1)}
                                         aria-label="Próximo mês"
                                         className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md border border-border/60 bg-background text-muted-foreground transition-[background-color,border-color,color,transform,box-shadow] duration-200 hover:border-[#252579]/20 hover:bg-[#252579]/[0.06] hover:text-[#252579] hover:shadow-sm active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#252579]/25 focus-visible:ring-offset-1"
                                     >
@@ -144,13 +174,48 @@ export function DatePicker({
                             </Tooltip>
                         </div>
 
+                        {view === "months" && (
+                            <div className="grid grid-cols-3 gap-2 py-1">
+                                {Array.from({ length: 12 }, (_, i) => {
+                                    const active = displayMonth.getMonth() === i
+                                    return (
+                                        <button key={i} type="button" onClick={() => { setDisplayMonth(m => setMonth(m, i)); setView("days") }}
+                                            className={`h-11 cursor-pointer rounded-md text-sm font-medium capitalize transition-colors ${active ? "bg-[#ececfa] font-bold text-[#252579] ring-1 ring-[#252579]/25" : "hover:bg-[#252579]/[0.07] hover:text-[#252579]"}`}>
+                                            {format(new Date(2000, i, 1), "MMM", { locale: ptBR }).replace(".", "")}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        )}
+
+                        {view === "years" && (
+                            <div className="grid grid-cols-3 gap-2 py-1">
+                                {Array.from({ length: 12 }, (_, i) => {
+                                    const y = yearBase + i
+                                    const active = displayMonth.getFullYear() === y
+                                    return (
+                                        <button key={y} type="button" onClick={() => { setDisplayMonth(m => setYear(m, y)); setView("months") }}
+                                            className={`h-11 cursor-pointer rounded-md text-sm font-medium tabular-nums transition-colors ${active ? "bg-[#ececfa] font-bold text-[#252579] ring-1 ring-[#252579]/25" : "hover:bg-[#252579]/[0.07] hover:text-[#252579]"}`}>
+                                            {y}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        )}
+
+                        {view === "days" && (
                         <DayPicker
                             mode="single"
                             month={displayMonth}
                             onMonthChange={setDisplayMonth}
                             selected={value}
                             onSelect={handleChangeDate}
-                            disabled={disablePastDates ? { before: startOfDay(new Date()) } : undefined}
+                            disabled={
+                                bookableDatesOnly
+                                    ? isUnbookable
+                                    : disablePastDates ? { before: startOfDay(new Date()) } : undefined
+                            }
+                            components={showHolidays ? { DayButton: HolidayDayButton } : undefined}
                             locale={ptBR}
                             weekStartsOn={0}
                             showOutsideDays
@@ -171,22 +236,23 @@ export function DatePicker({
                                 week: "grid grid-cols-7",
                                 day: "relative flex h-10 items-center justify-center p-0 text-center",
                                 day_button: "relative flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-sm font-medium text-foreground transition-all hover:bg-[#252579]/[0.07] hover:text-[#252579]",
-                                selected: "!rounded-full !bg-[#6b8ee8] !text-white !shadow-[0_2px_7px_rgba(107,142,232,0.20)] hover:!bg-[#7899ed] hover:!text-white",
-                                today: "font-bold text-emerald-600 after:absolute after:bottom-1 after:h-1 after:w-1 after:rounded-full after:bg-emerald-500",
+                                selected: "[&>button]:!bg-[#ececfa] [&>button]:!text-[#252579] [&>button]:font-bold [&>button]:ring-1 [&>button]:ring-[#252579]/25 [&>button]:shadow-sm [&>button]:hover:!bg-[#e2e2f6] [&>button]:hover:!text-[#252579]",
+                                today: "font-bold text-emerald-600 after:absolute after:bottom-0.5 after:h-1 after:w-1 after:rounded-full after:bg-emerald-500 [&[aria-selected=true]]:after:bg-emerald-500",
                                 outside: "text-muted-foreground/25",
-                                disabled: "pointer-events-none text-muted-foreground/20",
+                                disabled: "[&>button]:cursor-not-allowed [&>button]:text-muted-foreground/55 [&>button]:line-through [&>button]:decoration-muted-foreground/40 [&>button]:hover:bg-transparent [&>button]:hover:text-muted-foreground/55",
                             }}
                         />
+                        )}
                     </div>
 
                     <div className="border-t border-border/60 bg-muted/[0.16] px-4 py-3">
                         <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.28)]" />
+                                <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
                                 <span className="text-xs font-normal text-muted-foreground">Hoje</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-[#6b8ee8] shadow-[0_0_6px_rgba(107,142,232,0.28)]" />
+                                <span className="h-2 w-2 shrink-0 rounded-full bg-[#6b8ee8]" />
                                 <span className="text-xs font-normal tabular-nums text-muted-foreground">
                                     {value ? format(value, "d 'de' MMMM", { locale: ptBR }) : "Nenhuma data"}
                                 </span>
@@ -196,5 +262,27 @@ export function DatePicker({
                 </div>
             )}
         </div>
+    )
+}
+
+function HolidayDayButton({ day, modifiers, ...props }: DayButtonProps) {
+    const holiday = getHolidayName(day.date)
+    const { className, ...rest } = props
+    const button = (
+        <button
+            {...rest}
+            className={`${className ?? ""} ${holiday && !modifiers.selected ? "!bg-amber-500/10 !text-amber-700 ring-1 ring-amber-500/30" : ""}`}
+        />
+    )
+
+    if (!holiday) return button
+
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>{button}</TooltipTrigger>
+            <TooltipContent side="top" className="text-xs font-medium">
+                {holiday}
+            </TooltipContent>
+        </Tooltip>
     )
 }

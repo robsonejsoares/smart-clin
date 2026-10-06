@@ -106,7 +106,7 @@ export function Hero() {
 
                             <span
                                 aria-hidden="true"
-                                className="smartclin-hero-line absolute -bottom-2 left-0 h-1.5 w-2/3 rounded-full bg-gradient-to-r from-[#252579] via-emerald-500 to-transparent opacity-80"
+                                className="smartclin-hero-line absolute -bottom-2 left-0 h-1.5 w-2/3 rounded-full bg-gradient-to-r from-[#252579] via-emerald-500 to-[#252579] opacity-80"
                             />
                         </span>
                     </h1>

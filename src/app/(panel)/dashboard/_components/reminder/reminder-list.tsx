@@ -1,10 +1,13 @@
-﻿"use client"
+"use client"
 
-import { toast } from "sonner"
-import { useState } from "react"
+import { toast } from "@/lib/notify"
+import { useState, useTransition , useEffect } from "react"
 import { Plus, Trash, Bell } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import AgendaLoader from "@/components/agenda-loader"
+import { wait } from "@/lib/min-delay"
+import { createReminder } from "../../_actions/create-reminder"
 import { Reminder } from "@/generated/prisma/client"
 import { ReminderContent } from "./reminder-content"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -27,27 +30,50 @@ export function ReminderList({ reminder }: ReminderListProps) {
     const router = useRouter()
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [reminderToDelete, setReminderToDelete] = useState<string | null>(null)
-    const [isDeleting, setIsDeleting] = useState(false)
+    const [busyMessage, setBusyMessage] = useState<string | null>(null)
+    const [lastMessage, setLastMessage] = useState("Atualizando lembretes...")
+    const [busyTone, setBusyTone] = useState<"warning" | "danger">("warning")
+    const [isRefreshing, startRefresh] = useTransition()
+    const [pendingSuccess, setPendingSuccess] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (pendingSuccess && !busyMessage && !isRefreshing) {
+            const timer = setTimeout(() => {
+                toast.success(pendingSuccess)
+                setPendingSuccess(null)
+            }, 600)
+            return () => clearTimeout(timer)
+        }
+    }, [pendingSuccess, busyMessage, isRefreshing])
 
     const selectedReminder = reminder.find((item) => item.id === reminderToDelete)
 
-    async function handleDeleteReminder() {
-        if (!reminderToDelete) return
-
-        setIsDeleting(true)
-
-        const response = await deleteReminder({ reminderId: reminderToDelete })
-
-        setIsDeleting(false)
+    async function runAction(message: string, tone: "warning" | "danger", action: () => Promise<{ success: boolean; message?: string }>) {
+        setBusyTone(tone)
+        setLastMessage(message)
+        setBusyMessage(message)
+        const [response] = await Promise.all([action(), wait()])
 
         if (!response.success) {
-            toast.error(response.message)
+            setBusyMessage(null)
+            toast.error(response.message ?? "Erro ao executar a ação")
             return
         }
 
-        toast.success(response.message)
+        startRefresh(() => router.refresh())
+        setBusyMessage(null)
+        if (response.message) setPendingSuccess(response.message)
+    }
+
+    function handleDeleteReminder() {
+        if (!reminderToDelete) return
+        const reminderId = reminderToDelete
         setReminderToDelete(null)
-        router.refresh()
+        runAction("Excluindo lembrete...", "danger", () => deleteReminder({ reminderId }))
+    }
+
+    function handleCreateReminder(description: string) {
+        runAction("Cadastrando lembrete...", "warning", () => createReminder({ description }))
     }
 
     return (
@@ -86,7 +112,7 @@ export function ReminderList({ reminder }: ReminderListProps) {
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-3xl w-full p-0 overflow-hidden border-none rounded-xl bg-white shadow-2xl">
-                                <ReminderContent closeDialog={() => setIsDialogOpen(false)} />
+                                <ReminderContent closeDialog={() => setIsDialogOpen(false)} onSubmitReminder={handleCreateReminder} />
                             </DialogContent>
                         </Dialog>
                     </div>
@@ -95,7 +121,9 @@ export function ReminderList({ reminder }: ReminderListProps) {
                 <CardContent className="p-0">
                     <ScrollArea className="h-[calc(100vh-20rem)] px-3 lg:h-[calc(100vh-15rem)] lg:px-5">
                         <div className="rounded-md bg-muted/[0.12] p-2.5 sm:p-3">
-                            {reminder.length === 0 ? (
+                            {busyMessage || isRefreshing ? (
+                                <AgendaLoader message={busyMessage ?? lastMessage} tone={busyTone} rows={4} />
+                            ) : reminder.length === 0 ? (
                                 <div className="flex min-h-[calc(100vh-26rem)] items-center justify-center px-6">
                                     <div className="max-w-xs text-center">
                                         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md border border-amber-400/20 bg-amber-400/[0.10] text-amber-500 shadow-sm">
@@ -156,7 +184,7 @@ export function ReminderList({ reminder }: ReminderListProps) {
                 reminder={selectedReminder}
                 onClose={() => setReminderToDelete(null)}
                 onConfirm={handleDeleteReminder}
-                isDeleting={isDeleting}
+                isDeleting={false}
             />
         </div>
     )
