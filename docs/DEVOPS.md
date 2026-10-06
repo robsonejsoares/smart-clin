@@ -180,3 +180,4 @@ Localizada em `.github/workflows/ci.yml`. Disparada em todo `push` ou `pull_requ
 - [ ] Leitor de Segurança SAST (CodeQL)
 - [ ] Configuração de Observabilidade (Sentry)
 - [ ] Pipeline de CD e Previews na Vercel
+<!-- teste da esteira feature -> develop -> test -> staging -> main -->
