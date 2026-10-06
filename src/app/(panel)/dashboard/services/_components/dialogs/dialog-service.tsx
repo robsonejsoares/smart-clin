@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import {
     useDialogServiceForm,
@@ -19,11 +19,9 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 
-import { toast } from "sonner"
 import { useState } from "react"
 import { useWatch } from "react-hook-form"
-import { Clock3, Info, Loader2, Plus, Save } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Clock3, Info, Plus, Save } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { updateService } from "../../_actions/update-service"
@@ -31,6 +29,7 @@ import { convertRealToCents } from "@/lib/convertCurrency"
 import { createNewService } from "../../_actions/create-service"
 
 interface DialogServiceProps {
+    onRun?: (message: string, tone: "primary" | "danger", action: () => Promise<{ success: boolean; message?: string }>) => void
     closeModal: () => void
     serviceId?: string
     initialValues?: {
@@ -41,10 +40,9 @@ interface DialogServiceProps {
     }
 }
 
-export function DialogService({ closeModal, initialValues, serviceId }: DialogServiceProps) {
+export function DialogService({ closeModal, initialValues, serviceId, onRun }: DialogServiceProps) {
     const form = useDialogServiceForm({ initialValues: initialValues })
     const [loading, setLoading] = useState(false)
-    const router = useRouter()
     const [name, price, hours, minutes] = useWatch({
         control: form.control,
         name: ["name", "price", "hours", "minutes"],
@@ -68,66 +66,24 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
             return
         }
 
+        setLoading(false)
+
         if (serviceId) {
-            await editServiceById({
+            onRun?.("Atualizando serviço...", "primary", () => updateService({
                 serviceId: serviceId,
                 name: values.name,
-                priceInCents: priceInCents,
+                price: priceInCents,
                 duration: duration,
-            })
-            return
+            }))
+        } else {
+            onRun?.("Cadastrando serviço...", "primary", () => createNewService({
+                name: values.name,
+                price: priceInCents,
+                duration: duration,
+            }))
         }
 
-        const response = await createNewService({
-            name: values.name,
-            price: priceInCents,
-            duration: duration,
-        })
-
-        await new Promise(resolve => setTimeout(resolve, 600))
-
-        setLoading(false)
-
-        if (!response.success) {
-            toast.error(response.message)
-            return
-        }
-
-        toast.success("Serviço cadastrado com sucesso!")
         handleCloseModal()
-        router.refresh()
-    }
-
-    async function editServiceById({
-        serviceId,
-        name,
-        priceInCents,
-        duration,
-    }: {
-        serviceId: string
-        name: string
-        priceInCents: number
-        duration: number
-    }) {
-        const response = await updateService({
-            serviceId: serviceId,
-            name: name,
-            price: priceInCents,
-            duration: duration,
-        })
-
-        await new Promise(resolve => setTimeout(resolve, 600))
-
-        setLoading(false)
-
-        if (!response.success) {
-            toast.error(response.message)
-            return
-        }
-
-        toast.success(response.message)
-        handleCloseModal()
-        router.refresh()
     }
 
     function handleCloseModal() {
@@ -246,6 +202,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                                         <FormControl>
                                             <Input
                                                 {...field}
+                                                onChange={(e) => field.onChange(e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, ""))}
                                                 placeholder="0"
                                                 min="0"
                                                 type="number"
@@ -268,6 +225,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                                         <FormControl>
                                             <Input
                                                 {...field}
+                                                onChange={(e) => field.onChange(e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, ""))}
                                                 placeholder="0"
                                                 min="0"
                                                 type="number"
@@ -298,13 +256,7 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                         disabled={isSubmitDisabled}
                         className="h-10 rounded-md bg-[#252579] px-5 text-xs font-semibold text-white transition-[background-color,box-shadow,transform] duration-200 hover:bg-[#2d2d8f] hover:shadow-md hover:shadow-[#252579]/20 focus-visible:ring-2 focus-visible:ring-[#252579]/30 disabled:opacity-50 active:scale-[0.99]"
                     >
-                        {loading ? (
-                            <span className="flex items-center gap-2">
-                                <Loader2 className="h-4 w-4 animate-spin text-white" />
-                                <span>{serviceId ? "Atualizando..." : "Adicionando..."}</span>
-                            </span>
-                        ) : (
-                            <span className="flex items-center gap-2">
+                        <span className="flex items-center gap-2">
                                 {serviceId ? (
                                     <>
                                         <Save className="h-4 w-4 text-white" />
@@ -317,7 +269,6 @@ export function DialogService({ closeModal, initialValues, serviceId }: DialogSe
                                     </>
                                 )}
                             </span>
-                        )}
                     </Button>
                 </div>
             </form>

@@ -70,36 +70,28 @@ export function Professionals({ professionals }: ProfessionalsProps) {
                         className="group flex h-full overflow-hidden rounded-md border-border/60 bg-background shadow-sm transition-[transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-[#252579]/20 hover:shadow-lg hover:shadow-[#252579]/[0.05]"
                     >
                         <CardContent className="flex h-full w-full flex-col p-0">
-                            <div className="relative h-48 shrink-0 overflow-hidden bg-muted">
-                                <Image
-                                    src={clinic.image ?? fotoImg}
-                                    alt={`Imagem da ${clinic.name}`}
-                                    fill
-                                    priority={index === 0}
-                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                                />
-
+                            <div className="relative h-24 shrink-0 overflow-hidden bg-gradient-to-br from-emerald-500/20 via-[#252579]/10 to-[#252579]/25">
                                 <div
                                     aria-hidden="true"
-                                    className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent"
+                                    className="absolute -right-6 -top-10 h-32 w-32 rounded-full bg-emerald-400/25 blur-2xl transition-transform duration-700 ease-out group-hover:scale-125"
                                 />
-
                                 <div
-                                    className={`absolute right-3 top-3 flex h-6 items-center overflow-hidden rounded-full border bg-white/80 shadow-sm backdrop-blur-sm transition-[width,box-shadow,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${clinic.status
-                                        ? "w-6 border-emerald-500/15"
-                                        : "w-6 border-red-500/15"
-                                        } group-hover:w-[82px]`}
+                                    aria-hidden="true"
+                                    className="absolute -bottom-12 -left-6 h-32 w-32 rounded-full bg-[#252579]/20 blur-2xl transition-transform duration-700 ease-out group-hover:scale-125"
+                                />
+                                <div
+                                    className={`absolute right-3 top-3 flex h-6 items-center overflow-hidden rounded-full border bg-transparent group-hover:bg-white/80 group-hover:shadow-sm group-hover:backdrop-blur-sm transition-[width,box-shadow,border-color,background-color] duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${clinic.status
+                                        ? "w-6 border-transparent group-hover:border-emerald-500/30"
+                                        : "w-6 border-transparent group-hover:border-red-500/30"
+                                        } group-hover:w-[88px]`}
                                 >
-                                    <span
-                                        className={`mx-[7px] h-1.5 w-1.5 shrink-0 rounded-full transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110 ${clinic.status
-                                            ? "bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.08)]"
-                                            : "bg-red-500 shadow-[0_0_0_3px_rgba(239,68,68,0.08)]"
-                                            }`}
-                                    />
+                                    <span className="relative mx-2 flex h-2 w-2 shrink-0 items-center justify-center">
+                                        <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${clinic.status ? "bg-emerald-400" : "bg-red-400"}`} />
+                                        <span className={`relative inline-flex h-2 w-2 rounded-full transition-transform duration-[1200ms] group-hover:scale-110 ${clinic.status ? "bg-gradient-to-br from-emerald-300 to-emerald-600 shadow-[0_0_8px_2px_rgba(16,185,129,0.55)]" : "bg-gradient-to-br from-red-300 to-red-600 shadow-[0_0_8px_2px_rgba(239,68,68,0.5)]"}`} />
+                                    </span>
 
                                     <span
-                                        className={`min-w-0 truncate pr-2 text-[9px] font-medium opacity-0 transition-[opacity,transform] delay-75 duration-250 ease-out group-hover:translate-x-0 group-hover:opacity-100 ${clinic.status
+                                        className={`min-w-0 truncate pr-2 text-[9px] font-medium opacity-0 transition-[opacity,transform] delay-300 duration-700 ease-out group-hover:translate-x-0 group-hover:opacity-100 ${clinic.status
                                             ? "text-emerald-600"
                                             : "text-red-600"
                                             }`}
@@ -109,13 +101,26 @@ export function Professionals({ professionals }: ProfessionalsProps) {
                                 </div>
                             </div>
 
-                            <div className="flex min-h-[210px] flex-1 flex-col p-5">
+                            <div className="relative -mt-12 flex justify-center">
+                                <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-background bg-muted shadow-lg shadow-[#252579]/15 transition-transform duration-500 ease-out group-hover:scale-105">
+                                    <Image
+                                        src={clinic.image ?? fotoImg}
+                                        alt={`Imagem da ${clinic.name}`}
+                                        fill
+                                        quality={90}
+                                        priority={index === 0}
+                                        sizes="96px"
+                                        className="object-cover"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex min-h-[190px] flex-1 flex-col px-5 pb-5 pt-3">
                                 <div>
-                                    <h3 className="truncate text-lg font-semibold tracking-tight text-foreground transition-colors duration-200 group-hover:text-[#252579]">
+                                    <h3 className="truncate text-center text-lg font-semibold tracking-tight text-foreground transition-colors duration-200 group-hover:text-[#252579]">
                                         {clinic.name}
                                     </h3>
 
-                                    <div className="mt-3 flex min-h-[48px] items-start gap-2.5">
+                                    <div className="mt-3 flex min-h-[48px] items-start justify-center gap-2.5">
                                         <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#252579]" />
 
                                         <p className="text-sm leading-6 text-muted-foreground">

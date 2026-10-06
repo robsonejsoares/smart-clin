@@ -1,8 +1,9 @@
-"use client"
+﻿"use client"
 
 import { useQuery } from "@tanstack/react-query"
 import { Prisma } from "@/generated/prisma/client"
 import { Loader2, AlertCircle, CalendarPlus } from "lucide-react"
+import { wait } from "@/lib/min-delay"
 import { DatePicker } from "@/components/ui/date-picker"
 
 import {
@@ -26,7 +27,9 @@ interface DialogNewAppointmentProps {
     onOpenChange: (open: boolean) => void
     userId: string
     clinic?: UserWithServiceAndSubscription
-    onSuccess?: () => void
+    onSubmitStart?: () => void
+    onSubmitError?: () => void
+    onSuccess?: (message?: string, emailSent?: boolean) => void
 }
 
 export function DialogNewAppointment({
@@ -34,16 +37,19 @@ export function DialogNewAppointment({
     onOpenChange,
     userId,
     clinic: clinicProp,
+    onSubmitStart,
+    onSubmitError,
     onSuccess,
 }: DialogNewAppointmentProps) {
     const { data: fetchedClinic, isLoading } = useQuery({
         queryKey: ["get-clinic-details", userId],
         queryFn: async () => {
-            const response = await fetch(`/api/clinic/${userId}`)
+            const [response] = await Promise.all([fetch(`/api/clinic/${userId}`), wait()])
             if (!response.ok) return null
             return (await response.json()) as UserWithServiceAndSubscription
         },
         enabled: !clinicProp && !!userId && isOpen,
+        gcTime: 0,
     })
 
     const clinic = clinicProp || fetchedClinic
@@ -70,9 +76,13 @@ export function DialogNewAppointment({
                 ) : clinic ? (
                     <DialogSchedule
                         clinic={clinic}
-                        onSuccess={() => {
-                            onSuccess?.()
+                        onSubmitStart={() => {
+                            onSubmitStart?.()
                             onOpenChange(false)
+                        }}
+                        onSubmitError={onSubmitError}
+                        onSuccess={(message, emailSent) => {
+                            onSuccess?.(message, emailSent)
                         }}
                     />
                 ) : (

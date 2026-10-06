@@ -1,6 +1,6 @@
-﻿"use client"
+"use client"
 
-import { Loader2, AlertTriangle } from "lucide-react"
+import { AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AppointmentWithService } from "../appointments-list"
 import {
@@ -117,14 +117,7 @@ export function DialogCancelAppointment({
                         disabled={isCanceling}
                         className="h-10 cursor-pointer rounded-md bg-rose-600 px-4 text-xs font-semibold text-white hover:bg-rose-700 active:scale-[0.98] shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-rose-500/30"
                     >
-                        {isCanceling ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" />
-                                <span>Cancelando agendamento...</span>
-                            </>
-                        ) : (
-                            "Confirmar Cancelamento"
-                        )}
+                        Confirmar Cancelamento
                     </Button>
                 </div>
             </DialogContent>

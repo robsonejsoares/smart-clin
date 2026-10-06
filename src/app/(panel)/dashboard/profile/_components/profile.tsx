@@ -1,4 +1,6 @@
 "use client"
+import AgendaLoader from "@/components/agenda-loader"
+import { wait } from "@/lib/min-delay"
 
 import {
     ProfileFormData,
@@ -39,12 +41,11 @@ import {
 
 import { cn } from "cn"
 import Image from "next/image"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import { useState } from "react"
 
 import {
     Info,
-    Loader2,
     Phone,
     Check,
     Clock3,
@@ -145,7 +146,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
             times: selectedHours || [],
         })
 
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await wait()
 
         if (!response.success) {
             toast.error(response.message)
@@ -225,6 +226,14 @@ export function ProfileContent({ user }: ProfileContentProps) {
                             aria-hidden="true"
                             className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_92%_5%,rgba(16,185,129,0.045),transparent_25%),radial-gradient(circle_at_5%_95%,rgba(37,37,121,0.035),transparent_30%)]"
                         />
+
+                        {form.formState.isSubmitting && (
+                            <div className="absolute inset-0 z-30 overflow-hidden bg-background px-5 py-8 sm:px-7 animate-in fade-in duration-200">
+                                <div className="w-full">
+                                    <AgendaLoader message="Salvando perfil..." rows={7} />
+                                </div>
+                            </div>
+                        )}
 
                         <CardHeader className="relative z-10 border-b border-border/60 bg-gradient-to-br from-background via-background to-emerald-500/[0.02] px-5 py-5 sm:px-7">
                             <div className="flex items-center gap-3">
@@ -485,17 +494,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                                 />
 
                                 <span className="relative z-10">
-                                    {form.formState.isSubmitting ? (
-                                        <>
-                                            <Loader2
-                                                aria-hidden="true"
-                                                className="mr-2 inline-block h-4 w-4 animate-spin"
-                                            />
-                                            Salvando alterações...
-                                        </>
-                                    ) : (
-                                        "Salvar Alterações"
-                                    )}
+                                    Salvar Alterações
                                 </span>
                             </Button>
                         </CardContent>

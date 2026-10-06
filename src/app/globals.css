@@ -325,8 +325,14 @@ background-size: 200% 100%;
 animation: smartclin-shimmer 2.4s ease-in-out infinite;
 }
 
+@keyframes smartclin-line-shine {
+ 0%, 100% { background-position: 0% 50%; opacity: 0.7; }
+ 50% { background-position: 100% 50%; opacity: 1; }
+}
+
 .smartclin-hero-line {
-animation: smartclin-line-reveal 900ms ease-out 500ms both;
+animation: smartclin-line-reveal 900ms ease-out 500ms both, smartclin-line-shine 3.2s ease-in-out 1.4s infinite;
+ background-size: 200% 100%;
 }
 
 .smartclin-hero-animation {

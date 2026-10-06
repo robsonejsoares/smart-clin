@@ -1,6 +1,7 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
+import { wait } from "@/lib/min-delay"
 
 interface UseScheduleSlotsProps {
     clinicId: string
@@ -22,6 +23,7 @@ export function useScheduleSlots({ clinicId, date, serviceId }: UseScheduleSlots
 
         async function loadSlots() {
             setIsLoading(true)
+            const minDelay = wait()
             try {
                 const params = new URLSearchParams({
                     userId: clinicId,
@@ -32,6 +34,7 @@ export function useScheduleSlots({ clinicId, date, serviceId }: UseScheduleSlots
                     { cache: "no-store" }
                 )
                 const json = await response.json()
+                await minDelay
                 
                 const bookedTimes = Array.isArray(json)
                     ? json

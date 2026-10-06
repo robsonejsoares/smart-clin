@@ -1,6 +1,8 @@
 "use client"
 
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
+import { withMinDelay } from "@/lib/min-delay"
+import AgendaLoader from "@/components/agenda-loader"
 import { useState } from "react"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
@@ -21,8 +23,8 @@ import {
     CheckCircle2,
     CalendarPlus,
     CalendarX2,
-    ArrowUpRight,
     MessageCircle,
+    ArrowUpRight,
 } from "lucide-react"
 
 import { Dialog } from "@/components/ui/dialog"
@@ -46,12 +48,16 @@ interface AppointmentsListProps {
     times: string[]
     userId: string
     clinic?: UserWithServiceAndSubscription
+    initialDate: string
+    initialAppointments: AppointmentWithService[]
 }
 
 export function AppointmentsList({
     times,
     userId,
     clinic,
+    initialDate,
+    initialAppointments,
 }: AppointmentsListProps) {
     const searchParams = useSearchParams()
     const date = searchParams.get("date")
@@ -74,10 +80,13 @@ export function AppointmentsList({
     const [appointmentToCancel, setAppointmentToCancel] =
         useState<AppointmentWithService | null>(null)
     const [isCanceling, setIsCanceling] = useState(false)
+    const [busyMessage, setBusyMessage] = useState<string | null>(null)
+    const [busyTone, setBusyTone] = useState<"primary" | "danger">("primary")
 
     const { data, isLoading, refetch } = useQuery({
+        initialData: activeDate === initialDate ? initialAppointments : undefined,
         queryKey: ["get-appointments", date],
-        queryFn: async () => {
+        queryFn: () => withMinDelay((async () => {
             let activeDate = date
             if (!activeDate) {
                 activeDate = format(new Date(), "yyyy-MM-dd")
@@ -89,7 +98,7 @@ export function AppointmentsList({
 
             if (!response.ok) return []
             return json
-        },
+        })()),
         staleTime: 20000,
         refetchInterval: 60000,
     })
@@ -129,10 +138,15 @@ export function AppointmentsList({
             return
         }
 
-        queryClient.invalidateQueries({ queryKey: ["get-appointments"] })
-        await refetch()
-        toast.success(response.message)
         setAppointmentToCancel(null)
+        setBusyTone("danger")
+        setBusyMessage("Cancelando agendamento...")
+        try {
+            await queryClient.invalidateQueries({ queryKey: ["get-appointments"] })
+        } finally {
+            setBusyMessage(null)
+        }
+        toast.success(response.message)
     }
 
     function handleWhatsApp(appointment: AppointmentWithService) {
@@ -143,8 +157,26 @@ export function AppointmentsList({
         window.open(url, "_blank", "noopener,noreferrer")
     }
 
-    function handleAppointmentCreated() {
-        queryClient.invalidateQueries({ queryKey: ["get-appointments"] })
+    function handleAppointmentStarted() {
+        setBusyTone("primary")
+        setBusyMessage("Registrando agendamento...")
+    }
+
+    function handleAppointmentFailed() {
+        setBusyMessage(null)
+    }
+
+    async function handleAppointmentCreated(message?: string, emailSent?: boolean) {
+        try {
+            await queryClient.invalidateQueries({ queryKey: ["get-appointments"] })
+        } finally {
+            setBusyMessage(null)
+        }
+        if (emailSent === false) {
+            toast.warning("Agendamento registrado, mas o e-mail não foi enviado.")
+        } else {
+            toast.success(message || "Agendamento registrado com sucesso!")
+        }
     }
 
     return (
@@ -172,13 +204,8 @@ export function AppointmentsList({
                     <ScrollArea className="h-[calc(100vh-20rem)] px-3 lg:h-[calc(100vh-15rem)] lg:px-5">
                         <div className="rounded-md bg-muted/[0.12] p-2.5 sm:p-3">
                             <div className="space-y-2.5">
-                                {isLoading ? (
-                                    <div className="flex min-h-40 items-center justify-center">
-                                        <div className="flex items-center gap-2.5 rounded-md border border-border/60 bg-background/80 px-4 py-3 text-sm font-medium text-muted-foreground shadow-sm">
-                                            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-                                            Carregando agenda...
-                                        </div>
-                                    </div>
+                                {isLoading || busyMessage ? (
+                                    <AgendaLoader message={busyMessage ?? "Carregando agenda..."} tone={busyMessage ? busyTone : "primary"} />
                                 ) : (
                                     <>
                                         {times.map((slot) => {
@@ -256,6 +283,8 @@ export function AppointmentsList({
                 onOpenChange={setIsNewAppointmentOpen}
                 userId={userId}
                 clinic={clinic}
+                onSubmitStart={handleAppointmentStarted}
+                onSubmitError={handleAppointmentFailed}
                 onSuccess={handleAppointmentCreated}
             />
 
@@ -303,7 +332,7 @@ function OccupiedSlotItem({
                         >
                             <MessageCircle className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover/whatsapp:scale-110" />
                             <span className="tabular-nums">{occupant.phone}</span>
-                            <ArrowUpRight className="h-3 w-3 opacity-0 transition-all duration-200 group-hover/whatsapp:translate-x-0.5 group-hover/whatsapp:-translate-y-0.5 group-hover/whatsapp:opacity-100" />
+                            <ArrowUpRight className="h-3 w-3 opacity-0 transition-opacity duration-200 group-hover/whatsapp:opacity-100" />
                         </button>
                     </TooltipTrigger>
                     <TooltipContent side="top">Entrar em contato via WhatsApp</TooltipContent>
@@ -315,7 +344,7 @@ function OccupiedSlotItem({
                     className="group/name inline-flex min-w-0 max-w-full cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-left text-sm font-medium text-muted-foreground transition-[background-color,color,box-shadow] duration-200 hover:bg-[#252579]/[0.06] hover:text-[#252579] hover:shadow-sm"
                 >
                     <span className="truncate">{occupant.name}</span>
-                    <ArrowUpRight className="h-3 w-3 shrink-0 opacity-0 transition-all duration-200 group-hover/name:translate-x-0.5 group-hover/name:-translate-y-0.5 group-hover/name:opacity-100" />
+                    <ArrowUpRight className="h-3 w-3 opacity-0 transition-opacity duration-200 group-hover/name:opacity-100" />
                 </button>
                     </div>
                 </TooltipTrigger>
@@ -349,7 +378,7 @@ function AvailableSlotItem({
     onNewAppointment: () => void
 }) {
     return (
-        <div className="group flex min-h-14 items-center gap-3 rounded-md border border-border/50 bg-background px-3.5 py-3.5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-500/20 hover:bg-emerald-500/[0.02]">
+        <div className="group/available flex min-h-14 items-center gap-3 rounded-md border border-border/50 bg-background px-3.5 py-3.5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-500/20 hover:bg-emerald-500/[0.02]">
             <div className="flex w-16 shrink-0 items-center">
                 <span className="rounded-md border border-emerald-500/15 bg-emerald-500/[0.06] px-2.5 py-1 text-sm font-semibold tabular-nums text-emerald-600">
                     {slot}
@@ -358,7 +387,7 @@ function AvailableSlotItem({
 
             <div className="flex min-w-0 flex-1 items-center gap-2.5 text-sm text-muted-foreground">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md">
-                    <Clock3 className="h-3.5 w-3.5 text-emerald-600/75" />
+                    <Clock3 className="h-3.5 w-3.5 text-emerald-600/75 transition-transform duration-300 group-hover/available:scale-110 group-hover/available:-rotate-6" />
                 </span>
                 <span className="font-medium">Disponível</span>
             </div>
